@@ -188,7 +188,10 @@ function initAnimations() {
         scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }
     });
 
-    gsap.to('.marquee-track', { xPercent: -50, ease: 'none', duration: 15, repeat: -1 });
+    // マーキーアニメーション（スマホでは速く、デスクトップでは通常速度）
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    const marqueeDuration = isMobile ? 7 : 15;
+    gsap.to('.marquee-track', { xPercent: -50, ease: 'none', duration: marqueeDuration, repeat: -1 });
 
     const splitTypes = document.querySelectorAll('.split-text');
     splitTypes.forEach(char => {

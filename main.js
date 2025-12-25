@@ -2,7 +2,7 @@
  * MASATO HAYASHI OFFICIAL - FINAL ULTIMATE BUILD
  * ============================================================ */
 
-const API_URL = 'YOUR_GAS_DEPLOYMENT_URL_HERE';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyRWjZHf-qy3d7OZeSP4hjrryfsybjXWxp41Z6oMOLH3TtTmrw5gSJXxbu0yYhbCZLcmQ/exec';
 
 // ★重要: スクロール位置の記憶を無効化
 if (history.scrollRestoration) {
@@ -250,11 +250,73 @@ function initDistortionCanvas() {
 
 async function fetchData() {
     try {
-        const res = await fetch(API_URL);
-        const data = await res.json();
-        const newsItems = data.filter(item => item.type === 'news' && item.publish);
-        renderNews(newsItems);
+        console.log('Fetching data from:', API_URL);
+        const res = await fetch(API_URL, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+            },
+        });
+        
+        // レスポンスのテキストを取得（エラーメッセージの確認のため）
+        const responseText = await res.text();
+        console.log('Raw API Response:', responseText);
+        
+        let data;
+        try {
+            data = JSON.parse(responseText);
+        } catch (parseError) {
+            // JSONパースエラーの場合、エラーメッセージが含まれている可能性
+            console.error('JSON parse error:', parseError);
+            console.error('Response text:', responseText);
+            throw new Error(`Invalid JSON response: ${responseText.substring(0, 100)}`);
+        }
+        
+        console.log('Parsed API Response:', data);
+        
+        // エラーレスポンスのチェック
+        if (data.error || data.message) {
+            console.error('API returned error:', data.error || data.message);
+            throw new Error(data.error || data.message || 'API returned an error');
+        }
+        
+        if (!Array.isArray(data)) {
+            console.warn('API response is not an array, attempting to convert...');
+            // オブジェクトの場合、配列に変換を試みる
+            if (typeof data === 'object' && data !== null) {
+                data = Object.values(data);
+            } else {
+                throw new Error('API response is not an array or object');
+            }
+        }
+        
+        const newsItems = data.filter(item => {
+            // publishプロパティが存在しない場合は表示する
+            if (item.type === 'news') {
+                return item.publish !== false; // publishがfalseでない限り表示
+            }
+            return false;
+        });
+        console.log('Filtered news items:', newsItems);
+        
+        if (newsItems.length === 0) {
+            console.warn('No news items found. Using fallback data.');
+            renderNews([
+                { title: "RAPSTAR 2025 - FINAL STAGE RESULT", date: "2025-03-25", link_url: "#" },
+                { title: "NEW SINGLE 'SILENCE' OUT NOW", date: "2025-02-14", link_url: "#" },
+                { title: "LIVE TOUR 2025 ANNOUNCEMENT", date: "2025-01-10", link_url: "#" }
+            ]);
+        } else {
+            renderNews(newsItems);
+        }
     } catch (e) {
+        console.error('Error fetching news data:', e);
+        console.error('Error details:', {
+            message: e.message,
+            stack: e.stack,
+            API_URL: API_URL
+        });
+        // エラー時はフォールバックデータを表示
         renderNews([
             { title: "RAPSTAR 2025 - FINAL STAGE RESULT", date: "2025-03-25", link_url: "#" },
             { title: "NEW SINGLE 'SILENCE' OUT NOW", date: "2025-02-14", link_url: "#" },
@@ -263,8 +325,47 @@ async function fetchData() {
     }
 }
 
+// GoogleドライブのURLを直接画像URLに変換する関数
+function convertGoogleDriveUrl(url) {
+    if (!url || typeof url !== 'string') return url;
+    
+    // 既に直接画像URLの形式の場合はそのまま返す
+    if (url.includes('drive.google.com/uc?') || url.includes('lh3.googleusercontent.com')) {
+        return url;
+    }
+    
+    // Googleドライブの共有リンクからファイルIDを抽出
+    // 形式: https://drive.google.com/file/d/FILE_ID/view または
+    //      https://drive.google.com/open?id=FILE_ID
+    let fileId = null;
+    
+    // /file/d/FILE_ID/ の形式
+    const fileMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (fileMatch) {
+        fileId = fileMatch[1];
+    } else {
+        // ?id=FILE_ID の形式
+        const idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+        if (idMatch) {
+            fileId = idMatch[1];
+        }
+    }
+    
+    // ファイルIDが見つかった場合、直接画像URLに変換
+    if (fileId) {
+        return `https://drive.google.com/uc?export=view&id=${fileId}`;
+    }
+    
+    // 変換できない場合は元のURLを返す
+    return url;
+}
+
 function renderNews(items) {
     const container = document.getElementById('news-grid');
+    if (!container) {
+        console.error('News grid container not found');
+        return;
+    }
     container.innerHTML = '';
     const defaultImage = 'images/info-bg.jpg';
     items.forEach(item => {
@@ -272,10 +373,24 @@ function renderNews(items) {
         a.className = 'news-item';
         a.href = item.link_url || '#';
         a.target = item.link_url ? '_blank' : '_self';
-        a.dataset.img = item.image_url || defaultImage;
+        
+        // GoogleドライブのURLを変換
+        const imageUrl = item.image_url ? convertGoogleDriveUrl(item.image_url) : defaultImage;
+        a.dataset.img = imageUrl;
+        
+        // 日付の処理（安全に）
+        let formattedDate = '';
+        if (item.date) {
+            try {
+                formattedDate = item.date.split('T')[0].replace(/-/g, '.');
+            } catch (e) {
+                formattedDate = item.date.toString();
+            }
+        }
+        
         a.innerHTML = `
-            <span class="news-date">${item.date.split('T')[0].replace(/-/g, '.')}</span>
-            <span class="news-title">${item.title}</span>
+            <span class="news-date">${formattedDate}</span>
+            <span class="news-title">${item.title || 'No title'}</span>
             <span class="news-arrow">↗</span>
         `;
         a.addEventListener('mouseenter', () => {

@@ -1,26 +1,30 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Masato Hayashi | Official</title>
     <meta name="description" content="Masato Hayashi Official Website.">
-    
-    <!-- Fonts: Cormorant Garamond (Main) + Shippori Mincho (JP) + Oswald (Numbers) -->
+
+    <!-- Fonts: Cormorant Garamond (Main) + Shippori Mincho (JP) + Oswald (Numbers) + Dancing Script (Script) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600;1,700&family=Oswald:wght@400;500&family=Shippori+Mincho:wght@400;500;700&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600;1,700&family=Oswald:wght@400;500&family=Shippori+Mincho:wght@400;500;700&family=Dancing+Script:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
     <!-- FontAwesome (SNSアイコン用) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
+
     <link rel="stylesheet" href="styles.css">
-    
+
     <!-- GSAP & Lenis -->
     <script src="https://unpkg.com/@studio-freight/lenis@1.0.33/dist/lenis.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script src="https://unpkg.com/split-type"></script>
 </head>
+
 <body class="is-loading">
 
     <!-- Global Noise -->
@@ -41,30 +45,57 @@
 
     <!-- Navigation -->
     <nav class="fixed-nav">
-        <div class="nav-logo glitch-hover" data-text="MH_OFFICIAL">MH_OFFICIAL</div>
-        <div class="nav-menu">
-            <a href="#artist" data-text="ARTIST">ARTIST</a>
-            <a href="#updates" data-text="UPDATES">UPDATES</a>
-            <a href="#contact" data-text="CONTACT">CONTACT</a>
-        </div>
-        <div class="nav-status">
-            <span class="status-dot"></span> <span class="status-text">TOKYO / LIVE</span>
+        <a href="#hero" class="nav-logo">
+            <span class="logo-main">Official Website</span>
+            <span class="logo-sub">by Masato Hayashi</span>
+        </a>
+        <!-- Hamburger Menu -->
+        <div class="hamburger-wrapper">
+            <button class="hamburger-menu" id="hamburger-menu" aria-label="メニューを開く">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
         </div>
     </nav>
+    <!-- Menu Overlay -->
+    <div class="menu-overlay" id="menu-overlay"></div>
+    <!-- Navigation Menu -->
+    <div class="nav-menu" id="nav-menu">
+        <button class="nav-menu-close" id="nav-menu-close" aria-label="メニューを閉じる">
+            <span class="close-icon">×</span>
+        </button>
+        <div class="nav-menu-links">
+            <a href="#artist" data-text="ARTIST">ARTIST</a>
+            <a href="#updates" data-text="INFO">INFO</a>
+            <a href="#contact" data-text="CONTACT">CONTACT</a>
+        </div>
+        <div class="nav-menu-social">
+            <a href="https://www.instagram.com/masatohayashi_/" target="_blank" class="social-link">
+                <i class="fa-brands fa-instagram"></i> INSTAGRAM
+            </a>
+            <a href="https://x.com/masatohayashi_" target="_blank" class="social-link">
+                <i class="fa-brands fa-x-twitter"></i> X (TWITTER)
+            </a>
+            <a href="https://www.youtube.com/@masatohayashi_" target="_blank" class="social-link">
+                <i class="fa-brands fa-youtube"></i> YOUTUBE
+            </a>
+        </div>
+    </div>
 
     <!-- Scroll Container -->
     <div id="smooth-wrapper">
         <div id="smooth-content">
 
             <!-- Hero Section -->
-            <section class="hero">
+            <section id="hero" class="hero">
                 <div class="hero-bg-container">
                     <video class="hero-video" autoplay loop muted playsinline webkit-playsinline>
                         <source src="images/hero-movie.mp4" type="video/mp4">
                     </video>
                 </div>
                 <div class="hero-overlay"></div>
-                
+
                 <div class="hero-content">
                     <h1 class="hero-title">
                         <span class="char-wrap">MASATO</span><br>
@@ -91,7 +122,7 @@
             <section id="artist" class="section artist">
                 <div class="container relative">
                     <div class="section-label">01 / ARTIST</div>
-                    
+
                     <div class="artist-layout">
                         <div class="artist-img-wrapper">
                             <div class="img-reveal-mask">
@@ -103,17 +134,19 @@
                             <h2 class="artist-name split-text">
                                 Masato<br>Hayashi
                             </h2>
-                            
+
                             <div class="artist-bio-container">
                                 <p class="artist-bio-lead split-text-lines">
                                     東京都八王子出身のヒップホップアーティスト／ラッパー。
                                 </p>
                                 <p class="artist-bio-text split-text-lines">
-                                    2017 年に「Pablo Blasta」として活動をスタートし、楽曲 Tokyo Young OG や DJ CHARI & DJ TATSUKI 作品への客演でシーンの注目を集める。<br>
+                                    2017 年に「Pablo Blasta」として活動をスタートし、楽曲 Tokyo Young OG や DJ CHARI & DJ TATSUKI
+                                    作品への客演でシーンの注目を集める。<br>
                                     活動休止期間を経て、2021 年に自身の名義を「Masato Hayashi」として再始動し、以降も精力的に楽曲をリリース。
                                 </p>
                                 <p class="artist-bio-text split-text-lines">
-                                    2025 年にはアルバム『MELANISM』をリリースし、独自の世界観と表現力を深化させている。また、音楽番組「ラップスタア2025」への出演など、ライブ〜映像〜ストリーミングの両面で存在感を発揮している。
+                                    2025
+                                    年にはアルバム『MELANISM』をリリースし、独自の世界観と表現力を深化させている。また、音楽番組「ラップスタア2025」への出演など、ライブ〜映像〜ストリーミングの両面で存在感を発揮している。
                                 </p>
                                 <p class="artist-bio-text split-text-lines">
                                     Masato の音楽は、ストリートのリアルと感情の機微を織り交ぜたリリックと、メロディアスかつ力強いフロウでリスナーを引き込む。<br>
@@ -125,11 +158,11 @@
                 </div>
             </section>
 
-            <!-- Updates Section -->
+            <!-- Info Section -->
             <section id="updates" class="section updates">
                 <div class="container">
                     <div class="section-header">
-                        <div class="section-label">02 / UPDATES</div>
+                        <div class="section-label">02 / INFO</div>
                         <h2 class="section-heading">LATEST INFO</h2>
                     </div>
                     <div class="news-list" id="news-grid"></div>
@@ -159,7 +192,13 @@
                     <div class="contact-layout">
                         <div class="contact-info">
                             <div class="section-label">03 / CONTACT</div>
-                            <h2 class="contact-heading">GET IN<br>TOUCH</h2>
+                            <div class="contact-heading-wrapper">
+                                <h2 class="contact-heading">
+                                    <span class="contact-heading-line">GET IN</span>
+                                    <span class="contact-heading-line accent">TOUCH</span>
+                                </h2>
+                                <div class="contact-heading-underline"></div>
+                            </div>
                             <p class="contact-desc">制作依頼・出演・その他お問い合わせ</p>
                         </div>
                         <form id="contact-form" class="modern-form">
@@ -214,7 +253,7 @@
     <svg style="display: none;">
         <defs>
             <filter id="distortionFilter">
-                <feTurbulence type="fractalNoise" baseFrequency="0.01 0.003" numOctaves="5" seed="2" result="noise"/>
+                <feTurbulence type="fractalNoise" baseFrequency="0.01 0.003" numOctaves="5" seed="2" result="noise" />
                 <feDisplacementMap in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="B" />
             </filter>
         </defs>
@@ -222,4 +261,5 @@
 
     <script src="main.js"></script>
 </body>
+
 </html>

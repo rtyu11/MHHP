@@ -2,22 +2,25 @@
  * MASATO HAYASHI OFFICIAL - FINAL ULTIMATE BUILD
  * ============================================================ */
 
-const API_URL = 'YOUR_GAS_DEPLOYMENT_URL_HERE'; 
+const API_URL = 'YOUR_GAS_DEPLOYMENT_URL_HERE';
 
 // ★重要: スクロール位置の記憶を無効化
 if (history.scrollRestoration) {
     history.scrollRestoration = 'manual';
 }
 
+// Lenis instance (グローバルスコープ)
+let lenis;
+
 document.addEventListener("DOMContentLoaded", () => {
-    
+
     // 強制的に一番上へ
     window.scrollTo(0, 0);
     document.body.scrollTop = 0;
     document.body.style.overflow = 'hidden';
 
     // Smooth Scroll
-    const lenis = new Lenis({
+    lenis = new Lenis({
         duration: 1.5,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         smooth: true,
@@ -37,6 +40,8 @@ document.addEventListener("DOMContentLoaded", () => {
     initCursor();
     initAnimations();
     initDistortionCanvas();
+    initHamburgerMenu();
+    initLogoScroll();
     fetchData();
     setupForm();
 });
@@ -44,27 +49,27 @@ document.addEventListener("DOMContentLoaded", () => {
 function initLoader() {
     const tl = gsap.timeline();
     const counter = { val: 0 };
-    
+
     tl.to(counter, {
         val: 100, duration: 2.5, ease: "expo.inOut",
-        onUpdate: () => { 
-            document.querySelector('.loader-counter').textContent = Math.floor(counter.val).toString().padStart(3, '0'); 
+        onUpdate: () => {
+            document.querySelector('.loader-counter').textContent = Math.floor(counter.val).toString().padStart(3, '0');
         }
     });
 
-    tl.to('.loader', { 
+    tl.to('.loader', {
         yPercent: -100, duration: 1.2, ease: "power4.inOut",
         onStart: () => {
-             document.body.classList.remove('is-loading');
-             initHeroReveal(); 
-             document.body.style.overflow = '';
+            document.body.classList.remove('is-loading');
+            initHeroReveal();
+            document.body.style.overflow = '';
         }
     });
 }
 
 function initHeroReveal() {
-    gsap.fromTo('.hero-video', 
-        { scale: 1.2, filter: 'brightness(0)' }, 
+    gsap.fromTo('.hero-video',
+        { scale: 1.2, filter: 'brightness(0)' },
         { scale: 1, filter: 'brightness(0.7) contrast(1.1)', duration: 2.0, ease: "power2.out" }
     );
     gsap.from('.hero-title .char-wrap', {
@@ -73,11 +78,91 @@ function initHeroReveal() {
     gsap.to('.hero-subtitle', { opacity: 1, y: 0, duration: 1, delay: 1.0 });
 }
 
+function initLogoScroll() {
+    const logo = document.querySelector('.nav-logo');
+    if (!logo) return;
+    
+    logo.addEventListener('click', (e) => {
+        e.preventDefault();
+        const heroSection = document.getElementById('hero');
+        if (heroSection && lenis) {
+            lenis.scrollTo(heroSection, {
+                duration: 1.5,
+                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                offset: 0
+            });
+        } else if (heroSection) {
+            // Lenisが初期化されていない場合のフォールバック
+            heroSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+}
+
+function initHamburgerMenu() {
+    const hamburger = document.getElementById('hamburger-menu');
+    const navMenu = document.getElementById('nav-menu');
+    const overlay = document.getElementById('menu-overlay');
+    const closeButton = document.getElementById('nav-menu-close');
+    
+    if (!hamburger || !navMenu || !overlay) return;
+    
+    function closeMenu() {
+        hamburger.classList.remove('active');
+        navMenu.classList.remove('active');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    
+    function openMenu() {
+        hamburger.classList.add('active');
+        navMenu.classList.add('active');
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    hamburger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (navMenu.classList.contains('active')) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    });
+    
+    // 閉じるボタンをクリックしたらメニューを閉じる
+    if (closeButton) {
+        closeButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeMenu();
+        });
+    }
+    
+    // メニュー内のナビゲーションリンクをクリックしたらメニューを閉じる（SNSリンクは除外）
+    const menuLinks = navMenu.querySelectorAll('.nav-menu-links a');
+    menuLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            closeMenu();
+        });
+    });
+    
+    // オーバーレイをクリックしたら閉じる
+    overlay.addEventListener('click', () => {
+        closeMenu();
+    });
+    
+    // ESCキーで閉じる
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && navMenu.classList.contains('active')) {
+            closeMenu();
+        }
+    });
+}
+
 function initCursor() {
     if (window.matchMedia('(max-width: 900px)').matches) return;
     const dot = document.querySelector('.cursor-dot');
     const circle = document.querySelector('.cursor-circle');
-    
+
     window.addEventListener('mousemove', (e) => {
         gsap.to(dot, { x: e.clientX, y: e.clientY, duration: 0.1 });
         gsap.to(circle, { x: e.clientX, y: e.clientY, duration: 0.5, ease: "power2.out" });
@@ -102,7 +187,7 @@ function initAnimations() {
         yPercent: 30, ease: 'none',
         scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }
     });
-    
+
     gsap.to('.marquee-track', { xPercent: -50, ease: 'none', duration: 15, repeat: -1 });
 
     const splitTypes = document.querySelectorAll('.split-text');
@@ -119,7 +204,7 @@ function initAnimations() {
         duration: 1.5, ease: 'power4.out',
         scrollTrigger: { trigger: '.artist-img-wrapper', start: 'top 75%' }
     });
-    
+
     const bioLines = document.querySelectorAll('.artist-bio-text, .artist-bio-lead');
     bioLines.forEach(block => {
         const text = new SplitType(block, { types: 'lines' });
@@ -132,7 +217,7 @@ function initAnimations() {
 
 function initDistortionCanvas() {
     const canvas = document.getElementById('distortionCanvas');
-    if(!canvas) return;
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     let width, height;
     function resize() {
@@ -147,13 +232,13 @@ function initDistortionCanvas() {
         const buffer32 = new Uint32Array(idata.data.buffer);
         for (let i = 0; i < buffer32.length; i++) {
             if (Math.random() < 0.005) buffer32[i] = 0xffffffff;
-            else if(Math.random() < 0.02) buffer32[i] = 0xff111111;
+            else if (Math.random() < 0.02) buffer32[i] = 0xff111111;
         }
         ctx.putImageData(idata, 0, 0);
         requestAnimationFrame(draw);
     }
     draw();
-    
+
     gsap.from('.statement-text', {
         y: 50, opacity: 0, duration: 1.5, ease: 'power3.out',
         scrollTrigger: { trigger: '.visual-break', start: 'center 70%' }
@@ -184,7 +269,7 @@ function renderNews(items) {
         a.className = 'news-item';
         a.href = item.link_url || '#';
         a.target = item.link_url ? '_blank' : '_self';
-        a.dataset.img = item.image_url || defaultImage; 
+        a.dataset.img = item.image_url || defaultImage;
         a.innerHTML = `
             <span class="news-date">${item.date.split('T')[0].replace(/-/g, '.')}</span>
             <span class="news-title">${item.title}</span>
@@ -209,7 +294,7 @@ function renderNews(items) {
 
 function setupForm() {
     const form = document.getElementById('contact-form');
-    if(!form) return;
+    if (!form) return;
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = document.getElementById('submit-btn');

@@ -610,15 +610,16 @@ body {
 .artist-img-wrapper {
     position: relative;
     width: 100%;
-    aspect-ratio: 3/4;
-    overflow: hidden;
     position: sticky;
     top: 10rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
 }
 
 .img-reveal-mask {
     width: 100%;
-    height: 100%;
+    aspect-ratio: 3/4;
     overflow: hidden;
     clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
 }

@@ -202,10 +202,12 @@ function initAnimations() {
         });
     });
 
-    gsap.to('.img-reveal-mask', {
-        clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
-        duration: 1.5, ease: 'power4.out',
-        scrollTrigger: { trigger: '.artist-img-wrapper', start: 'top 75%' }
+    gsap.utils.toArray('.img-reveal-mask').forEach(mask => {
+        gsap.to(mask, {
+            clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
+            duration: 1.5, ease: 'power4.out',
+            scrollTrigger: { trigger: mask, start: 'top 85%' }
+        });
     });
 
     const bioLines = document.querySelectorAll('.artist-bio-text, .artist-bio-lead');

@@ -112,11 +112,13 @@ body {
     transition: all 0.3s ease;
 }
 
-/* READY?の時だけ中央に配置 */
+/* READY?の時だけ上下中央に配置 */
 .loader-text.centered {
-    position: relative;
+    position: absolute;
+    top: 50%;
     bottom: auto;
-    margin-top: 3rem;
+    transform: translateY(-50%);
+    margin-top: 5rem;
 }
 
 /* ノイズオーバーレイ（既存のものを維持・調整） */

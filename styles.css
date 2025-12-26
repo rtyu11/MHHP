@@ -12,6 +12,11 @@
     --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
+.keep-together {
+    display: inline-block;
+    white-space: nowrap;
+}
+
 *,
 *::before,
 *::after {
@@ -22,7 +27,15 @@
     /* 長押しメニューを無効化 */
 }
 
-/* モバイル向けのテキスト折り返し最適化（指定クラスへの強力な上書き） */
+/* アーティスト紹介文などのテキスト折り返し最適化（グローバル設定） */
+.artist-bio-text,
+.artist-bio-lead,
+.split-text {
+    line-break: strict;
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
 @media (max-width: 900px) {
 
     .artist-bio-text,
@@ -30,9 +43,8 @@
     .split-text,
     .word,
     .line {
-        word-break: break-all !important;
-        /* Androidで見切れる問題を強制解決 */
-        overflow-wrap: break-word !important;
+        line-break: strict !important;
+        overflow-wrap: anywhere !important;
         white-space: normal !important;
     }
 }
@@ -846,8 +858,10 @@ body {
 /* --- Artist Section --- */
 .artist-layout {
     display: grid;
-    grid-template-columns: 0.8fr 1.2fr;
-    gap: 6rem;
+    grid-template-columns: minmax(300px, 0.7fr) 1.3fr;
+    /* テキスト側を少し広めに */
+    gap: 4vw;
+    /* 画面幅に応じて調整 */
     align-items: start;
 }
 
@@ -896,41 +910,35 @@ body {
     color: var(--fg);
 }
 
-.artist-bio-container {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
+/* アーティスト紹介ブロック専用スタイル */
+.artist-bio {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 clamp(16px, 4vw, 40px);
 }
 
-.artist-bio-lead {
-    font-family: var(--font-jp);
-    font-size: 1.4rem;
-    line-height: 1.8;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: 0.05em;
-    overflow-wrap: break-word;
-    word-break: normal;
-    line-break: strict;
-    text-align: justify;
-}
-
-.artist-bio-text {
+.artist-bio p {
+    white-space: normal;
+    /* ソース改行を表示に反映させない */
+    text-align: left;
+    line-height: 1.9;
+    letter-spacing: 0.02em;
     font-family: var(--font-jp);
     font-size: 1rem;
-    line-height: 2.2;
     color: #ccc;
-    letter-spacing: 0.05em;
     font-weight: 400;
-    overflow-wrap: break-word;
-    word-break: normal;
     line-break: strict;
-    text-align: justify;
+    /* 日本語の禁則処理を強化 */
+    word-break: normal;
+    overflow-wrap: break-word;
+    margin: 0 0 1.2em 0;
 }
 
-.keep-together {
-    display: inline-block;
-    white-space: nowrap;
+.artist-bio p:first-child {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.8;
 }
 
 /* --- Info --- */
@@ -1541,18 +1549,16 @@ body.hovered .cursor-circle {
         max-width: 100%;
     }
 
-    .artist-bio-container {
-        width: 100%;
+    .artist-bio {
+        max-width: 100%;
     }
 
-    .artist-bio-lead {
-        font-size: 1.2rem;
-        line-height: 1.6;
+    .artist-bio p {
+        line-height: 2.0;
     }
 
-    .artist-bio-text {
-        font-size: 0.95rem;
-        line-height: 1.8;
+    .artist-bio p:first-child {
+        font-size: 1.15rem;
     }
 
     .artist-img-wrapper {

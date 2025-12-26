@@ -367,10 +367,16 @@ function initAnimations() {
         scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }
     });
 
-    // マーキーアニメーション（スマホでは速く、デスクトップでは通常速度）
+    // マーキーアニメーション（スマホでは速く、デスクトップでは通常速度、シームレスループ）
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
     const marqueeDuration = isMobile ? 7 : 15;
-    gsap.to('.marquee-track', { xPercent: -50, ease: 'none', duration: marqueeDuration, repeat: -1 });
+    // コンテンツを複製しているので、50%移動でシームレスにループ
+    gsap.to('.marquee-track', { 
+        xPercent: -50, 
+        ease: 'none', 
+        duration: marqueeDuration, 
+        repeat: -1 
+    });
 
     const splitTypes = document.querySelectorAll('.split-text');
     splitTypes.forEach(char => {

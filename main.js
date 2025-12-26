@@ -141,11 +141,10 @@ function initLoader() {
 
     // --- タイムライン実行 ---
 
-    // START（ビート感を出すため短く）
+    // START（最初は「NOW LOADING...」）
     tl.call(() => {
-        if (textEl) textEl.textContent = 'PREPARING...';
+        if (textEl) textEl.textContent = 'NOW LOADING...';
     });
-    tl.to({}, { duration: 0.3 });
 
     // Count: 3
     countStep('3', 'images/count3.jpg');
@@ -155,8 +154,12 @@ function initLoader() {
 
     // Count: 1 (画像と同じ間隔で黒背景＋ノイズ)
     tl.call(() => { 
-        if(loader) loader.classList.add('show-noise'); 
-        if(textEl) textEl.textContent = 'GET READY...';
+        if(loader) loader.classList.add('show-noise');
+        // ここで「READY?」に変更し、中央に配置
+        if(textEl) {
+            textEl.textContent = 'READY?';
+            textEl.classList.add('centered');
+        }
     });
     
     // 黒背景を画像と同じ時間維持
@@ -173,63 +176,56 @@ function initLoader() {
         { opacity: 1, scale: 1, filter: "blur(0px)", y: 0, duration: 0.35, ease: "back.out(2)" }
     );
 
-    // 数字を維持（ビート感）
-    tl.to({}, { duration: 0.25 });
+    // 数字を維持（ビート感）- さらに短縮
+    tl.to({}, { duration: 0.1 });
 
     // 数字: パルス（ドンッ）
     tl.to(counterEl, { 
         scale: 1.15, 
-        duration: 0.06, 
+        duration: 0.04, 
         ease: "power2.out" 
     });
     tl.to(counterEl, { 
         scale: 1.0, 
-        duration: 0.06, 
+        duration: 0.04, 
         ease: "power2.in" 
     });
     
-    // 待機
-    tl.to({}, { duration: 0.15 });
+    // 待機 - さらに短縮
+    tl.to({}, { duration: 0.05 });
 
-    // 数字: クイックフェードアウト
+    // 数字: クイックフェードアウト - さらに短く
     tl.to(counterEl, { 
         opacity: 0, 
         scale: 0.8, 
         y: -30,
         filter: "blur(8px)", 
-        duration: 0.2, 
+        duration: 0.12, 
         ease: "power3.in" 
     });
     
-    // Count: 0 (The Movie Starts - クイックカットで動画へ)
+    // 動画開始（即座に動画へ）
     tl.call(() => {
-        if (textEl) {
-            textEl.textContent = 'NOW';
-            textEl.style.fontSize = '1.5rem';
-            textEl.style.letterSpacing = '0.5em';
-        }
+        if (textEl) textEl.textContent = '';
         
         // 動画再生開始
         if (heroVideo) {
             const p = heroVideo.play?.();
             if (p && typeof p.catch === 'function') p.catch(() => {});
         }
-    });
-    
-    // NOWをフラッシュ的に表示
-    tl.to({}, { duration: 0.15 });
-
-    // ローダーをクイックフェードアウト（カット的に）
-    tl.to(loader, {
-        opacity: 0,
-        duration: 0.4,
-        ease: "power3.out",
-        onComplete: () => {
-            loader.style.display = 'none';
-            document.body.classList.remove('is-loading');
-            document.body.style.overflow = '';
-            initHeroReveal();
-        }
+        
+        // ローダーをクイックフェードアウト（カット的に）- さらに高速化
+        gsap.to(loader, {
+            opacity: 0,
+            duration: 0.25,
+            ease: "power3.out",
+            onComplete: () => {
+                loader.style.display = 'none';
+                document.body.classList.remove('is-loading');
+                document.body.style.overflow = '';
+                initHeroReveal();
+            }
+        });
     });
 }
 

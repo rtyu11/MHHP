@@ -11,6 +11,90 @@ if (history.scrollRestoration) {
 
 // Lenis instance (グローバルスコープ)
 let lenis;
+const LOADER_SESSION_KEY = 'masato-loader-seen';
+const LOADER_GLOBAL_KEY = 'masato-loader-global-seen';
+const LOCAL_STORAGE_AVAILABLE = (() => {
+    try {
+        const key = '__masato-local-test';
+        localStorage.setItem(key, key);
+        localStorage.removeItem(key);
+        return true;
+    } catch (_) {
+        return false;
+    }
+})();
+
+function hasSeenLoader() {
+    try {
+        return sessionStorage.getItem(LOADER_SESSION_KEY) === 'true';
+    } catch (_) {
+        return false;
+    }
+}
+
+function hasGlobalLoaderFlag() {
+    if (!LOCAL_STORAGE_AVAILABLE) return true;
+    try {
+        return localStorage.getItem(LOADER_GLOBAL_KEY) === 'true';
+    } catch (_) {
+        return false;
+    }
+}
+
+function markLoaderSeen() {
+    try {
+        sessionStorage.setItem(LOADER_SESSION_KEY, 'true');
+    } catch (_) {
+        // ignore
+    }
+    if (!LOCAL_STORAGE_AVAILABLE) return;
+    try {
+        localStorage.setItem(LOADER_GLOBAL_KEY, 'true');
+    } catch (_) {
+        // ignore
+    }
+}
+
+function resetSessionLoaderFlag() {
+    try {
+        sessionStorage.removeItem(LOADER_SESSION_KEY);
+    } catch (_) {
+        // ignore
+    }
+}
+
+function getNavigationType() {
+    if (typeof performance === 'undefined') {
+        return 'navigate';
+    }
+    try {
+        const [entry] = performance.getEntriesByType('navigation') || [];
+        if (entry && entry.type) {
+            return entry.type;
+        }
+    } catch (_) {
+        // ignore
+    }
+    if ('navigation' in performance) {
+        switch (performance.navigation.type) {
+            case 1:
+                return 'reload';
+            case 2:
+                return 'back_forward';
+            default:
+                return 'navigate';
+        }
+    }
+    return 'navigate';
+}
+
+function playHeroVideoIfAvailable(video) {
+    if (!video) return;
+    const playPromise = video.play?.();
+    if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(() => { });
+    }
+}
 
 // 戻る操作時のローディング回避（pageshowイベント）
 window.addEventListener('pageshow', (event) => {
@@ -27,6 +111,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // Android向けの最適化
     const isAndroid = /Android/i.test(navigator.userAgent);
     const isMobile = window.matchMedia('(max-width: 900px)').matches;
+    const navType = getNavigationType();
+    if (navType === 'reload') {
+        resetSessionLoaderFlag();
+    }
 
     // 強制スクロール（初回のみ推奨だが、既存ロジック維持のため最小限の変更）
     // ※戻る操作などの不具合回避のため、Lenis初期化時の強制スクロールは削除または調整推奨
@@ -70,7 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     gsap.registerPlugin(ScrollTrigger);
 
-    initLoader();
+    initLoader(navType);
     initCursor();
     initAnimations();
     initDistortionCanvas();
@@ -80,13 +168,27 @@ document.addEventListener("DOMContentLoaded", () => {
     setupForm();
 });
 
-function initLoader() {
-    const tl = gsap.timeline();
+function initLoader(navType) {
     const loader = document.querySelector('.loader');
+    if (!loader) return;
     const counterEl = document.querySelector('.loader-counter'); // 巨大な数字用
     const textEl = document.querySelector('.loader-text'); // 下部の小さいテキスト
     const flashImgEl = document.querySelector('.loader-flash');
     const heroVideo = document.querySelector('.hero-video');
+
+    const seenSession = hasSeenLoader();
+    const seenGlobal = hasGlobalLoaderFlag();
+    const shouldSkipLoader = seenSession && seenGlobal && navType !== 'reload';
+    if (shouldSkipLoader) {
+        loader.style.display = 'none';
+        document.body.classList.remove('is-loading');
+        document.body.style.overflow = '';
+        playHeroVideoIfAvailable(heroVideo);
+        initHeroReveal();
+        return;
+    }
+
+    const tl = gsap.timeline();
 
     // 初期設定
     gsap.set(counterEl, { opacity: 0, scale: 1.2 });
@@ -243,10 +345,7 @@ function initLoader() {
         if (textEl) textEl.textContent = '';
 
         // 動画再生開始
-        if (heroVideo) {
-            const p = heroVideo.play?.();
-            if (p && typeof p.catch === 'function') p.catch(() => { });
-        }
+        playHeroVideoIfAvailable(heroVideo);
 
         // ローダーをクイックフェードアウト（カット的に）- さらに高速化
         gsap.to(loader, {
@@ -257,6 +356,7 @@ function initLoader() {
                 loader.style.display = 'none';
                 document.body.classList.remove('is-loading');
                 document.body.style.overflow = '';
+                markLoaderSeen();
                 initHeroReveal();
             }
         });

@@ -48,34 +48,217 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function initLoader() {
     const tl = gsap.timeline();
-    const counter = { val: 0 };
+    const loader = document.querySelector('.loader');
+    const counterEl = document.querySelector('.loader-counter'); // 巨大な数字用
+    const textEl = document.querySelector('.loader-text'); // 下部の小さいテキスト
+    const flashImgEl = document.querySelector('.loader-flash');
+    const heroVideo = document.querySelector('.hero-video');
 
-    tl.to(counter, {
-        val: 100, duration: 2.5, ease: "expo.inOut",
-        onUpdate: () => {
-            document.querySelector('.loader-counter').textContent = Math.floor(counter.val).toString().padStart(3, '0');
+    // 初期設定
+    gsap.set(counterEl, { opacity: 0, scale: 1.2 });
+    gsap.set(flashImgEl, { opacity: 0, scale: 1.1 });
+    
+    // 動画は一時停止して待機
+    if (heroVideo) {
+        try {
+            heroVideo.pause();
+            heroVideo.currentTime = 0;
+        } catch (_) {}
+    }
+
+    // --- カウントダウン演出関数（クールなライブ感） ---
+    const countStep = (num, imgUrl) => {
+        // 1. 画像の切り替え（ある場合）
+        if (imgUrl && flashImgEl) {
+            // 画像をセット
+            tl.call(() => { 
+                flashImgEl.src = imgUrl;
+                if(loader) loader.classList.remove('show-noise');
+            });
+            // 画像をクイックフラッシュで表示（ライブのスポットライト的）
+            tl.to(flashImgEl, { 
+                opacity: 0.7,
+                scale: 1.0,
+                duration: 0.15, 
+                ease: 'power3.out' 
+            });
+        // 画像を維持
+        tl.to({}, { duration: 0.5 });
+        // 画像をフェードアウト
+        tl.to(flashImgEl, {
+            opacity: 0,
+            scale: 1.05,
+            duration: 0.2,
+            ease: 'power2.in'
+        });
+        } else {
+            // 画像がない場合は黒背景＋ノイズ
+            tl.call(() => {
+                if(loader) loader.classList.add('show-noise');
+            });
+            tl.to(flashImgEl, { opacity: 0, duration: 0.1 });
+        }
+
+        // 2. 数字の登場（ライブのカウントダウン的なインパクト）
+        tl.call(() => {
+            if (counterEl) counterEl.textContent = num;
+        });
+
+        // 数字: 爆発的に登場
+        tl.fromTo(counterEl, 
+            { opacity: 0, scale: 0.3, filter: "blur(20px)", y: 50 },
+            { opacity: 1, scale: 1, filter: "blur(0px)", y: 0, duration: 0.35, ease: "back.out(2)" }
+        );
+
+        // 数字を維持（ビート感）
+        tl.to({}, { duration: 0.25 });
+
+        // 数字: パルス（ドンッ）
+        tl.to(counterEl, { 
+            scale: 1.15, 
+            duration: 0.06, 
+            ease: "power2.out" 
+        });
+        tl.to(counterEl, { 
+            scale: 1.0, 
+            duration: 0.06, 
+            ease: "power2.in" 
+        });
+        
+        // 待機
+        tl.to({}, { duration: 0.15 });
+
+        // 数字: クイックフェードアウト
+        tl.to(counterEl, { 
+            opacity: 0, 
+            scale: 0.8, 
+            y: -30,
+            filter: "blur(8px)", 
+            duration: 0.2, 
+            ease: "power3.in" 
+        });
+    };
+
+    // --- タイムライン実行 ---
+
+    // START（ビート感を出すため短く）
+    tl.call(() => {
+        if (textEl) textEl.textContent = 'PREPARING...';
+    });
+    tl.to({}, { duration: 0.3 });
+
+    // Count: 3
+    countStep('3', 'images/count3.jpg');
+
+    // Count: 2
+    countStep('2', 'images/count2.jpg');
+
+    // Count: 1 (画像と同じ間隔で黒背景＋ノイズ)
+    tl.call(() => { 
+        if(loader) loader.classList.add('show-noise'); 
+        if(textEl) textEl.textContent = 'GET READY...';
+    });
+    
+    // 黒背景を画像と同じ時間維持
+    tl.to({}, { duration: 0.5 }); // 画像の維持時間と同じ
+    
+    // 数字「1」の登場（画像と同じリズムで）
+    tl.call(() => {
+        if (counterEl) counterEl.textContent = '1';
+    });
+    
+    // 数字: 爆発的に登場
+    tl.fromTo(counterEl, 
+        { opacity: 0, scale: 0.3, filter: "blur(20px)", y: 50 },
+        { opacity: 1, scale: 1, filter: "blur(0px)", y: 0, duration: 0.35, ease: "back.out(2)" }
+    );
+
+    // 数字を維持（ビート感）
+    tl.to({}, { duration: 0.25 });
+
+    // 数字: パルス（ドンッ）
+    tl.to(counterEl, { 
+        scale: 1.15, 
+        duration: 0.06, 
+        ease: "power2.out" 
+    });
+    tl.to(counterEl, { 
+        scale: 1.0, 
+        duration: 0.06, 
+        ease: "power2.in" 
+    });
+    
+    // 待機
+    tl.to({}, { duration: 0.15 });
+
+    // 数字: クイックフェードアウト
+    tl.to(counterEl, { 
+        opacity: 0, 
+        scale: 0.8, 
+        y: -30,
+        filter: "blur(8px)", 
+        duration: 0.2, 
+        ease: "power3.in" 
+    });
+    
+    // Count: 0 (The Movie Starts - クイックカットで動画へ)
+    tl.call(() => {
+        if (textEl) {
+            textEl.textContent = 'NOW';
+            textEl.style.fontSize = '1.5rem';
+            textEl.style.letterSpacing = '0.5em';
+        }
+        
+        // 動画再生開始
+        if (heroVideo) {
+            const p = heroVideo.play?.();
+            if (p && typeof p.catch === 'function') p.catch(() => {});
         }
     });
+    
+    // NOWをフラッシュ的に表示
+    tl.to({}, { duration: 0.15 });
 
-    tl.to('.loader', {
-        yPercent: -100, duration: 1.2, ease: "power4.inOut",
-        onStart: () => {
+    // ローダーをクイックフェードアウト（カット的に）
+    tl.to(loader, {
+        opacity: 0,
+        duration: 0.4,
+        ease: "power3.out",
+        onComplete: () => {
+            loader.style.display = 'none';
             document.body.classList.remove('is-loading');
-            initHeroReveal();
             document.body.style.overflow = '';
+            initHeroReveal();
         }
     });
 }
 
 function initHeroReveal() {
-    gsap.fromTo('.hero-video',
-        { scale: 1.2, filter: 'brightness(0)' },
-        { scale: 1, filter: 'brightness(0.7) contrast(1.1)', duration: 2.0, ease: "power2.out" }
-    );
-    gsap.from('.hero-title .char-wrap', {
-        y: 150, opacity: 0, rotateX: 10, duration: 1.5, stagger: 0.1, ease: "power3.out", delay: 0.5
+    // 文字を確実に非表示の状態から開始（念のため）
+    gsap.set('.hero-title .char-wrap', { opacity: 0, y: 150, rotateX: 10 });
+    gsap.set('.hero-subtitle', { opacity: 0, y: 20 });
+    
+    // 動画はそのまま表示（エフェクトなし）
+    // 動画のエフェクトを削除し、通常の状態で表示
+    
+    // 動画が流れ始めてから遅れて、ゆっくりと文字を表示
+    gsap.to('.hero-title .char-wrap', {
+        y: 0, 
+        opacity: 1, 
+        rotateX: 0, 
+        duration: 2.0, // よりゆっくり
+        stagger: 0.15, // 文字間の間隔も広げる
+        ease: "power3.out", 
+        delay: 1.5 // 動画開始から1.5秒後に表示開始
     });
-    gsap.to('.hero-subtitle', { opacity: 1, y: 0, duration: 1, delay: 1.0 });
+    
+    // サブタイトルも遅れて表示
+    gsap.to('.hero-subtitle', { 
+        opacity: 1, 
+        y: 0, 
+        duration: 1.2, 
+        delay: 2.5 // 文字の表示が始まってからさらに遅れて
+    });
 }
 
 function initLogoScroll() {

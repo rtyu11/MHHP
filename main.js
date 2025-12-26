@@ -169,7 +169,7 @@ function initCursor() {
     });
 
     // FontAwesomeのアイコンもホバー対象に追加
-    const hoverEls = document.querySelectorAll('a, button, input, textarea, .news-item, .artist-photo, i');
+    const hoverEls = document.querySelectorAll('a, button, input, textarea, .artist-photo, i');
     hoverEls.forEach(el => {
         el.addEventListener('mouseenter', () => {
             document.body.classList.add('hovered');
@@ -302,9 +302,9 @@ async function fetchData() {
         if (newsItems.length === 0) {
             console.warn('No news items found. Using fallback data.');
             renderNews([
-                { title: "RAPSTAR 2025 - FINAL STAGE RESULT", date: "2025-03-25", link_url: "#" },
-                { title: "NEW SINGLE 'SILENCE' OUT NOW", date: "2025-02-14", link_url: "#" },
-                { title: "LIVE TOUR 2025 ANNOUNCEMENT", date: "2025-01-10", link_url: "#" }
+                { title: "RAPSTAR 2025 - FINAL STAGE RESULT", date: "2025-03-25", link_url: "#", body: "Final stage results are in. Check the details." },
+                { title: "NEW SINGLE 'SILENCE' OUT NOW", date: "2025-02-14", link_url: "#", body: "New single 'SILENCE' is available on all platforms." },
+                { title: "LIVE TOUR 2025 ANNOUNCEMENT", date: "2025-01-10", link_url: "#", body: "Live tour 2025 has been announced. Tickets on sale soon." }
             ]);
         } else {
             renderNews(newsItems);
@@ -318,9 +318,9 @@ async function fetchData() {
         });
         // エラー時はフォールバックデータを表示
         renderNews([
-            { title: "RAPSTAR 2025 - FINAL STAGE RESULT", date: "2025-03-25", link_url: "#" },
-            { title: "NEW SINGLE 'SILENCE' OUT NOW", date: "2025-02-14", link_url: "#" },
-            { title: "LIVE TOUR 2025 ANNOUNCEMENT", date: "2025-01-10", link_url: "#" }
+            { title: "RAPSTAR 2025 - FINAL STAGE RESULT", date: "2025-03-25", link_url: "#", body: "Final stage results are in. Check the details." },
+            { title: "NEW SINGLE 'SILENCE' OUT NOW", date: "2025-02-14", link_url: "#", body: "New single 'SILENCE' is available on all platforms." },
+            { title: "LIVE TOUR 2025 ANNOUNCEMENT", date: "2025-01-10", link_url: "#", body: "Live tour 2025 has been announced. Tickets on sale soon." }
         ]);
     }
 }
@@ -361,53 +361,91 @@ function convertGoogleDriveUrl(url) {
 }
 
 function renderNews(items) {
-    const container = document.getElementById('news-grid');
-    if (!container) {
-        console.error('News grid container not found');
-        return;
-    }
-    container.innerHTML = '';
-    const defaultImage = 'images/info-bg.jpg';
-    items.forEach(item => {
-        const a = document.createElement('a');
-        a.className = 'news-item';
-        a.href = item.link_url || '#';
-        a.target = item.link_url ? '_blank' : '_self';
-        
-        // GoogleドライブのURLを変換
-        const imageUrl = item.image_url ? convertGoogleDriveUrl(item.image_url) : defaultImage;
-        a.dataset.img = imageUrl;
-        
-        // 日付の処理（安全に）
-        let formattedDate = '';
-        if (item.date) {
-            try {
-                formattedDate = item.date.split('T')[0].replace(/-/g, '.');
-            } catch (e) {
-                formattedDate = item.date.toString();
-            }
-        }
-        
-        a.innerHTML = `
-            <span class="news-date">${formattedDate}</span>
-            <span class="news-title">${item.title || 'No title'}</span>
-            <span class="news-arrow">↗</span>
-        `;
-        a.addEventListener('mouseenter', () => {
-            const imgContainer = document.querySelector('.hover-reveal-img');
-            imgContainer.style.backgroundImage = `url(${a.dataset.img})`;
-            gsap.to(imgContainer, { opacity: 1, scale: 1, duration: 0.3 });
-        });
-        a.addEventListener('mousemove', (e) => {
-            const imgContainer = document.querySelector('.hover-reveal-img');
-            gsap.to(imgContainer, { x: e.clientX, y: e.clientY, duration: 0.5, ease: 'power3.out' });
-        });
-        a.addEventListener('mouseleave', () => {
-            const imgContainer = document.querySelector('.hover-reveal-img');
-            gsap.to(imgContainer, { opacity: 0, scale: 0.8, duration: 0.3 });
-        });
-        container.appendChild(a);
+  const container = document.getElementById('news-grid');
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  // モーダル要素
+  const modal = document.getElementById('news-modal');
+  const modalDate = document.getElementById('news-modal-date');
+  const modalTitle = document.getElementById('news-modal-title');
+  const modalBody = document.getElementById('news-modal-body');
+  const modalLink = document.getElementById('news-modal-link');
+
+  if (!modal) return;
+
+  // 開閉
+  const openModal = () => {
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  };
+  const closeModal = () => {
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  };
+
+  // 既にイベントがある前提で多重登録を避けたいなら、ここは一回だけにする
+  // ※fetchDataが何度も呼ばれる場合はここを外部に出すのがベターですが、
+  // 現状に合わせて関数内で完結させる場合は、古いリスナーを消すか、
+  // bodyに委譲するか、一度だけ登録されるようにガードします。
+  if (!modal.dataset.initialized) {
+    modal.addEventListener('click', (e) => {
+        if (e.target && e.target.dataset && e.target.dataset.close) closeModal();
     });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+    });
+    modal.dataset.initialized = 'true';
+  }
+
+  items.forEach(item => {
+    // 日付整形
+    let formattedDate = '';
+    if (item.date) {
+      try { formattedDate = item.date.split('T')[0].replace(/-/g, '.'); }
+      catch { formattedDate = String(item.date); }
+    }
+
+    // 一覧の行（今のデザインに合わせて a.news-item を維持）
+    const a = document.createElement('a');
+    a.className = 'news-item';
+    a.href = '#'; // ページ遷移はさせない
+    a.innerHTML = `
+      <span class="news-date">${formattedDate}</span>
+      <span class="news-title">${item.title || 'No title'}</span>
+      <span class="news-arrow">↗</span>
+    `;
+
+    // クリックでモーダルに流し込む
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+
+      modalDate.textContent = formattedDate || '';
+      modalTitle.textContent = item.title || '';
+
+      // 詳細本文：スプレッドシートに detail/body みたいな列が無いなら空でOK
+      // もし列名を増やすなら item.body / item.detail / item.description などに合わせる
+      const detailText = item.body || item.detail || item.description || '';
+      modalBody.textContent = detailText;
+
+      // URLリンク：無いなら非表示
+      const url = item.link_url || '';
+      if (url) {
+        modalLink.href = url;
+        modalLink.style.display = 'inline-block';
+      } else {
+        modalLink.href = '#';
+        modalLink.style.display = 'none';
+      }
+
+      openModal();
+    });
+
+    container.appendChild(a);
+  });
 }
 
 function setupForm() {

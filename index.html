@@ -41,8 +41,7 @@
     <div class="cursor-circle"></div>
 
     <!-- Hover Image Container -->
-    <div class="hover-reveal-img"></div>
-
+    
     <!-- Navigation -->
     <nav class="fixed-nav">
         <a href="#hero" class="nav-logo">
@@ -258,6 +257,27 @@
             </filter>
         </defs>
     </svg>
+
+    <!-- News Modal -->
+    <div id="news-modal" class="news-modal" aria-hidden="true">
+        <div class="news-modal__overlay" data-close="1"></div>
+
+        <div class="news-modal__panel" role="dialog" aria-modal="true" aria-label="News detail">
+            <button class="news-modal__close" type="button" data-close="1" aria-label="Close">×</button>
+
+            <div class="news-modal__meta">
+                <div id="news-modal-date" class="news-modal__date"></div>
+            </div>
+
+            <h2 id="news-modal-title" class="news-modal__title"></h2>
+
+            <div id="news-modal-body" class="news-modal__body"></div>
+
+            <a id="news-modal-link" class="news-modal__link" href="#" target="_blank" rel="noopener">
+                こちら →
+            </a>
+        </div>
+    </div>
 
     <script src="main.js"></script>
 </body>

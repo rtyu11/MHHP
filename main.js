@@ -771,19 +771,162 @@ function renderTicker(items) {
 
 function setupForm() {
     const form = document.getElementById('contact-form');
-    if (!form) return;
+    const submitBtn = document.getElementById('submit-btn');
+    const statusEl = document.getElementById('form-status');
+    if (!form || !submitBtn) return;
+
+    const btnText = submitBtn.querySelector('.btn-text');
+    const originalBtnText = btnText ? btnText.textContent.trim() : 'TRANSMIT';
+    const maxMessageLength = 1000;
+    const formLoadedAt = Date.now();
+    const categoryField = form.querySelector('select[name="category"]');
+    const messageField = form.querySelector('textarea[name="message"]');
+    let isSubmitting = false;
+
+    const setStatus = (state, message) => {
+        if (!statusEl) return;
+        statusEl.classList.remove('is-success', 'is-error', 'is-warning');
+        if (state) statusEl.classList.add(`is-${state}`);
+        statusEl.textContent = message || '';
+    };
+
+    const updatePlaceholder = () => {
+        if (!messageField) return;
+        const priority = messageField.dataset.placeholderPriority || '内容 / 希望時期 / 予算感（任意）';
+        const fallback = messageField.dataset.placeholderDefault || 'ご用件をお書きください。';
+        if (categoryField?.value === 'work') {
+            messageField.placeholder = priority;
+        } else {
+            messageField.placeholder = fallback;
+        }
+    };
+
+    updatePlaceholder();
+    categoryField?.addEventListener('change', updatePlaceholder);
+
+    const lastSubmitKey = 'masato-contact-last-submit';
+    const getLastSubmit = () => {
+        try {
+            const value = localStorage.getItem(lastSubmitKey);
+            return value ? Number(value) : 0;
+        } catch (error) {
+            return 0;
+        }
+    };
+
+    const recordSubmit = () => {
+        try {
+            localStorage.setItem(lastSubmitKey, String(Date.now()));
+        } catch (error) {
+            // ignore
+        }
+    };
+
+    const setButtonState = (sending) => {
+        isSubmitting = sending;
+        submitBtn.disabled = sending;
+        if (sending) {
+            submitBtn.setAttribute('aria-busy', 'true');
+            if (btnText) btnText.textContent = '送信中...';
+        } else {
+            submitBtn.removeAttribute('aria-busy');
+            if (btnText) btnText.textContent = originalBtnText;
+        }
+    };
+
+    const payloadFromData = (data) => {
+        return {
+            name: data.get('name')?.trim() || '',
+            email: data.get('email')?.trim() || '',
+            message: data.get('message')?.trim() || '',
+            category: data.get('category')?.trim() || '',
+            website: data.get('website')?.trim() || '',
+            timestamp: new Date().toISOString()
+        };
+    };
+
+    const sendPost = async (payload) => {
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error('POST_FAILED');
+        return res;
+    };
+
+    const sendGet = async (params) => {
+        const query = new URLSearchParams(params).toString();
+        const res = await fetch(`${API_URL}?${query}`);
+        if (!res.ok) throw new Error('GET_FAILED');
+        return res;
+    };
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const btn = document.getElementById('submit-btn');
-        const btnText = btn.querySelector('.btn-text');
-        const originalText = btnText.textContent;
-        btnText.textContent = 'SENDING...';
-        btn.style.opacity = '0.5';
-        setTimeout(() => {
-            btnText.textContent = 'SENT';
-            btn.style.opacity = '1';
+        if (isSubmitting) return;
+
+        const now = Date.now();
+        const formData = new FormData(form);
+        const payload = payloadFromData(formData);
+
+        if (!payload.category) {
+            setStatus('error', 'お問い合わせ種別を選択してください。');
+            return;
+        }
+        if (!payload.name) {
+            setStatus('error', 'お名前を入力してください。');
+            return;
+        }
+        if (!payload.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) {
+            setStatus('error', '有効なメールアドレスを入力してください。');
+            return;
+        }
+        if (!payload.message) {
+            setStatus('error', 'メッセージをご記入ください。');
+            return;
+        }
+        if (payload.message.length > maxMessageLength) {
+            setStatus('error', `メッセージは${maxMessageLength}文字以内にしてください。`);
+            return;
+        }
+        if (payload.website) {
+            setStatus('error', '送信できませんでした。');
+            return;
+        }
+
+        const lastSubmit = getLastSubmit();
+        if (lastSubmit && now - lastSubmit < 60_000) {
+            setStatus('warning', '送信間隔を空けてください（1分ほど）。');
+            return;
+        }
+
+        if (now - formLoadedAt < 3000) {
+            setStatus('warning', 'ページ表示から3秒以上お待ちください。');
+            return;
+        }
+
+        setButtonState(true);
+        setStatus('', '');
+
+        try {
+            await sendPost(payload);
+            recordSubmit();
+            setStatus('success', 'ありがとうございます。自動返信はありませんが、追って担当よりご連絡いたします。');
             form.reset();
-            setTimeout(() => btnText.textContent = originalText, 3000);
-        }, 1500);
+            updatePlaceholder();
+        } catch (postError) {
+            try {
+                await sendGet(payload);
+                recordSubmit();
+                setStatus('success', 'ありがとうございます。自動返信はありませんが、追って担当よりご連絡いたします。');
+                form.reset();
+                updatePlaceholder();
+            } catch (getError) {
+                setStatus('error', '通信に失敗しました。時間をおいて再度お試しください。');
+            }
+        } finally {
+            setButtonState(false);
+        }
     });
 }

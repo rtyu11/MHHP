@@ -13,20 +13,39 @@ if (history.scrollRestoration) {
 let lenis;
 
 document.addEventListener("DOMContentLoaded", () => {
-
+    // Android向けの最適化
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    const isMobile = window.matchMedia('(max-width: 900px)').matches;
+    
     // 強制的に一番上へ
     window.scrollTo(0, 0);
     document.body.scrollTop = 0;
     document.body.style.overflow = 'hidden';
 
-    // Smooth Scroll
+    // Smooth Scroll（Android向けに最適化）
     lenis = new Lenis({
-        duration: 1.5,
+        duration: isMobile ? 1.2 : 1.5, // モバイルでは少し速く
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         smooth: true,
-        mouseMultiplier: 1,
+        mouseMultiplier: isMobile ? 0.8 : 1, // モバイルでは感度を下げる
+        touchMultiplier: isMobile ? 1.2 : 1, // タッチ操作の感度を上げる
+        infinite: false,
     });
     lenis.scrollTo(0, { immediate: true });
+    
+    // Android向けのパフォーマンス最適化
+    if (isAndroid) {
+        // パッシブリスナーの使用（スクロールパフォーマンス向上）
+        document.addEventListener('touchstart', () => {}, { passive: true });
+        document.addEventListener('touchmove', () => {}, { passive: true });
+        
+        // メモリ使用量の最適化
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(() => {
+                // アイドル時に最適化処理を実行
+            });
+        }
+    }
 
     function raf(time) {
         lenis.raf(time);
@@ -299,35 +318,52 @@ function initHamburgerMenu() {
         document.body.style.overflow = 'hidden';
     }
     
-    hamburger.addEventListener('click', (e) => {
+    // タッチイベントとクリックイベントの最適化（Android対応）
+    const handleMenuToggle = (e) => {
+        e.preventDefault();
         e.stopPropagation();
         if (navMenu.classList.contains('active')) {
             closeMenu();
         } else {
             openMenu();
         }
-    });
+    };
+    
+    hamburger.addEventListener('click', handleMenuToggle);
+    hamburger.addEventListener('touchend', handleMenuToggle, { passive: false });
     
     // 閉じるボタンをクリックしたらメニューを閉じる
     if (closeButton) {
-        closeButton.addEventListener('click', (e) => {
+        const handleClose = (e) => {
+            e.preventDefault();
             e.stopPropagation();
             closeMenu();
-        });
+        };
+        closeButton.addEventListener('click', handleClose);
+        closeButton.addEventListener('touchend', handleClose, { passive: false });
     }
     
     // メニュー内のナビゲーションリンクをクリックしたらメニューを閉じる（SNSリンクは除外）
     const menuLinks = navMenu.querySelectorAll('.nav-menu-links a');
     menuLinks.forEach(link => {
-        link.addEventListener('click', () => {
-            closeMenu();
-        });
+        const handleLinkClick = (e) => {
+            // 外部リンクの場合は閉じる前に少し待つ
+            if (link.target === '_blank' || link.href.startsWith('http')) {
+                setTimeout(closeMenu, 100);
+            } else {
+                closeMenu();
+            }
+        };
+        link.addEventListener('click', handleLinkClick);
+        link.addEventListener('touchend', handleLinkClick, { passive: true });
     });
     
     // オーバーレイをクリックしたら閉じる
-    overlay.addEventListener('click', () => {
+    const handleOverlayClick = () => {
         closeMenu();
-    });
+    };
+    overlay.addEventListener('click', handleOverlayClick);
+    overlay.addEventListener('touchend', handleOverlayClick, { passive: true });
     
     // ESCキーで閉じる
     document.addEventListener('keydown', (e) => {
@@ -369,13 +405,17 @@ function initAnimations() {
 
     // マーキーアニメーション（スマホでは速く、デスクトップでは通常速度、シームレスループ）
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    const isAndroid = /Android/i.test(navigator.userAgent);
     const marqueeDuration = isMobile ? 7 : 15;
     // コンテンツを複製しているので、50%移動でシームレスにループ
+    // Android向けにハードウェアアクセラレーションを有効化
     gsap.to('.marquee-track', { 
         xPercent: -50, 
         ease: 'none', 
         duration: marqueeDuration, 
-        repeat: -1 
+        repeat: -1,
+        force3D: true, // ハードウェアアクセラレーション
+        lazy: false // パフォーマンス最適化
     });
 
     const splitTypes = document.querySelectorAll('.split-text');

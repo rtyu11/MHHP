@@ -16,7 +16,17 @@
 *::before,
 *::after {
     box-sizing: border-box;
-    cursor: none;
+    -webkit-tap-highlight-color: transparent; /* Android タップハイライトを無効化 */
+    -webkit-touch-callout: none; /* 長押しメニューを無効化 */
+}
+
+/* デスクトップのみカーソルを非表示 */
+@media (min-width: 901px) {
+    *,
+    *::before,
+    *::after {
+        cursor: none;
+    }
 }
 
 body {
@@ -26,7 +36,16 @@ body {
     font-family: var(--font-main);
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     font-weight: 400;
+    /* Android スクロール最適化 */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: none;
+    /* テキスト選択の最適化 */
+    -webkit-user-select: none;
+    user-select: none;
+    /* タッチ操作の最適化 */
+    touch-action: pan-y;
 }
 
 /* --- Loader --- */
@@ -36,6 +55,7 @@ body {
     left: 0;
     width: 100%;
     height: 100vh;
+    height: 100dvh; /* Android向けの動的ビューポート高さ */
     background: #000;
     z-index: 100000;
     display: flex;
@@ -44,6 +64,11 @@ body {
     align-items: center;
     color: #fff;
     overflow: hidden;
+    /* ハードウェアアクセラレーション */
+    transform: translateZ(0);
+    will-change: transform, opacity;
+    /* タッチ操作の無効化（ローディング中） */
+    touch-action: none;
 }
 
 /* 背景画像の調整（クールなライブ感） */
@@ -700,8 +725,11 @@ body {
 
 /* --- Section Global --- */
 .section {
-    padding: 10rem 0;
+    padding: clamp(5rem, 10vw, 10rem) 0; /* Android向けにレスポンシブ */
     position: relative;
+    /* スクロールパフォーマンスの最適化 */
+    transform: translateZ(0);
+    will-change: transform;
 }
 
 .container {
@@ -1287,40 +1315,73 @@ body.hovered .cursor-circle {
 }
 
 @media (max-width: 900px) {
+    /* Android向けの基本最適化 */
+    body {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
+    
+    /* タッチターゲットサイズの確保（最小44x44px） */
     .fixed-nav {
         padding: 1.5rem 1.5rem;
+        min-height: 44px; /* タッチターゲットサイズ */
     }
 
     .hamburger-menu {
         top: 1.5rem;
         right: 1.5rem;
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0.5rem;
+        /* タッチ操作の最適化 */
+        touch-action: manipulation;
     }
 
     .menu-overlay.active {
         width: 100%;
+        /* ハードウェアアクセラレーション */
+        transform: translateZ(0);
+        will-change: width;
     }
 
     .nav-menu.active {
         width: 100%;
         border-left: none;
+        /* ハードウェアアクセラレーション */
+        transform: translateZ(0);
+        will-change: transform;
     }
 
     .nav-menu-links a {
         font-size: 1.5rem;
         padding: 1.2rem 1.5rem;
+        min-height: 44px; /* タッチターゲットサイズ */
+        display: flex;
+        align-items: center;
+        /* タッチ操作の最適化 */
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(212, 175, 55, 0.2);
     }
 
     .nav-menu-social .social-link {
         font-size: 0.9rem !important;
         padding: 0.7rem 1.2rem !important;
+        min-height: 44px; /* タッチターゲットサイズ */
+        /* タッチ操作の最適化 */
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(212, 175, 55, 0.2);
     }
 
     .nav-menu-close {
         top: 1.5rem;
         right: 1.5rem;
-        width: 45px;
-        height: 45px;
+        width: 48px; /* タッチターゲットサイズを確保 */
+        height: 48px;
+        min-width: 48px;
+        min-height: 48px;
         font-size: 1.8rem;
+        /* タッチ操作の最適化 */
+        touch-action: manipulation;
     }
 
     .nav-logo {
@@ -1423,6 +1484,9 @@ body.hovered .cursor-circle {
     /* マーキーセクション（Android最適化） */
     .marquee-section {
         padding: 0.8rem 0;
+        /* ハードウェアアクセラレーション */
+        transform: translateZ(0);
+        will-change: transform;
     }
     
     .marquee-item {
@@ -1431,6 +1495,72 @@ body.hovered .cursor-circle {
         letter-spacing: 0.03em;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+        /* テキストレンダリングの最適化 */
+        text-rendering: optimizeLegibility;
+    }
+    
+    /* ヒーローセクション（Android最適化） */
+    .hero-video {
+        /* ハードウェアアクセラレーション */
+        transform: translateZ(0);
+        will-change: transform;
+        /* ビデオの最適化 */
+        object-fit: cover;
+        -webkit-transform: translateZ(0);
+    }
+    
+    /* セクション全体の最適化 */
+    .section {
+        /* スクロールパフォーマンスの最適化 */
+        transform: translateZ(0);
+        will-change: transform;
+    }
+    
+    /* 画像の最適化 */
+    img {
+        /* 画像レンダリングの最適化 */
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+        /* ハードウェアアクセラレーション */
+        transform: translateZ(0);
+    }
+    
+    /* ボタンとリンクの最適化 */
+    button, a {
+        /* タッチ操作の最適化 */
+        touch-action: manipulation;
+        /* タップハイライトの調整 */
+        -webkit-tap-highlight-color: rgba(212, 175, 55, 0.2);
+    }
+    
+    /* フォーム要素の最適化 */
+    input, textarea {
+        /* フォントサイズの自動調整を無効化（iOS/Android） */
+        font-size: 16px !important;
+        /* タッチ操作の最適化 */
+        touch-action: manipulation;
+        /* ズームを防ぐ */
+        -webkit-appearance: none;
+        appearance: none;
+        /* ボーダーラディウスのリセット */
+        border-radius: 0;
+    }
+    
+    /* フォームグループの最適化 */
+    .form-group input,
+    .form-group textarea {
+        min-height: 44px; /* タッチターゲットサイズ */
+        padding: 1rem;
+    }
+    
+    /* 送信ボタンの最適化 */
+    .modern-form button[type="submit"] {
+        min-height: 48px; /* タッチターゲットサイズ */
+        min-width: 120px;
+        padding: 1rem 2rem;
+        /* タッチ操作の最適化 */
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(212, 175, 55, 0.3);
     }
 
     .artist-name {

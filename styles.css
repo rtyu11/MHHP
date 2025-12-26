@@ -16,12 +16,30 @@
 *::before,
 *::after {
     box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent; /* Android タップハイライトを無効化 */
-    -webkit-touch-callout: none; /* 長押しメニューを無効化 */
+    -webkit-tap-highlight-color: transparent;
+    /* Android タップハイライトを無効化 */
+    -webkit-touch-callout: none;
+    /* 長押しメニューを無効化 */
+}
+
+/* モバイル向けのテキスト折り返し最適化（指定クラスへの強力な上書き） */
+@media (max-width: 900px) {
+
+    .artist-bio-text,
+    .artist-bio-lead,
+    .split-text,
+    .word,
+    .line {
+        word-break: break-all !important;
+        /* Androidで見切れる問題を強制解決 */
+        overflow-wrap: break-word !important;
+        white-space: normal !important;
+    }
 }
 
 /* デスクトップのみカーソルを非表示 */
 @media (min-width: 901px) {
+
     *,
     *::before,
     *::after {
@@ -78,7 +96,8 @@ body {
     left: 0;
     width: 100%;
     height: 100vh;
-    height: 100dvh; /* Android向けの動的ビューポート高さ */
+    height: 100dvh;
+    /* Android向けの動的ビューポート高さ */
     background: #000;
     z-index: 100000;
     display: flex;
@@ -124,24 +143,27 @@ body {
 .loader-counter {
     position: relative;
     z-index: 10;
-    font-family: 'Bebas Neue', 'Oswald', sans-serif; /* 縦長の強いフォント */
-    font-size: clamp(8rem, 30vw, 25rem); /* 画面いっぱいに大きく */
+    font-family: 'Bebas Neue', 'Oswald', sans-serif;
+    /* 縦長の強いフォント */
+    font-size: clamp(8rem, 30vw, 25rem);
+    /* 画面いっぱいに大きく */
     font-weight: 400;
     line-height: 1;
     color: #fff;
-    
+
     /* 質感のある文字にする */
     background: linear-gradient(to bottom, #ffffff 0%, #aaaaaa 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    
+
     /* グロー効果 */
     filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.3));
-    
+
     /* ブレンドモードで背景となじませる（お好みで） */
     mix-blend-mode: overlay;
-    opacity: 0; /* JSで制御するため初期は0 */
+    opacity: 0;
+    /* JSで制御するため初期は0 */
 }
 
 /* 小さいテキストの調整 */
@@ -178,41 +200,54 @@ body {
     pointer-events: none;
     z-index: 1;
     animation: loader-noise 0.1s steps(8) infinite;
-    opacity: 0.05; /* 常時うっすらノイズ */
+    opacity: 0.05;
+    /* 常時うっすらノイズ */
 }
 
 .loader.show-noise::after {
-    opacity: 0.15; /* 強調時 */
+    opacity: 0.15;
+    /* 強調時 */
 }
 
 @keyframes loader-noise {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: translate(0, 0);
     }
+
     10% {
         transform: translate(-1%, -1%);
     }
+
     20% {
         transform: translate(1%, 1%);
     }
+
     30% {
         transform: translate(-1%, 1%);
     }
+
     40% {
         transform: translate(1%, -1%);
     }
+
     50% {
         transform: translate(-1%, -1%);
     }
+
     60% {
         transform: translate(1%, 1%);
     }
+
     70% {
         transform: translate(-1%, 1%);
     }
+
     80% {
         transform: translate(1%, -1%);
     }
+
     90% {
         transform: translate(-1%, -1%);
     }
@@ -449,7 +484,8 @@ body {
     z-index: 998;
     pointer-events: none;
     opacity: 0;
-    display: none; /* 初期状態は非表示 */
+    display: none;
+    /* 初期状態は非表示 */
 }
 
 .menu-overlay.active {
@@ -468,7 +504,8 @@ body {
     height: 100vh;
     background: #000000;
     backdrop-filter: blur(20px);
-    display: none; /* 初期状態は非表示 */
+    display: none;
+    /* 初期状態は非表示 */
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
@@ -633,7 +670,8 @@ body {
 /* --- Hero --- */
 .hero {
     height: 100vh;
-    height: 100dvh; /* Android向けの動的ビューポート高さ */
+    height: 100dvh;
+    /* Android向けの動的ビューポート高さ */
     width: 100%;
     position: relative;
     overflow: hidden;
@@ -720,7 +758,8 @@ body {
 }
 
 .hero-title .char-wrap {
-    opacity: 0; /* 初期状態で非表示 */
+    opacity: 0;
+    /* 初期状態で非表示 */
 }
 
 .hero-subtitle {
@@ -732,7 +771,8 @@ body {
     font-family: var(--font-tech);
     font-size: 0.8rem;
     letter-spacing: 0.2em;
-    opacity: 0; /* 初期状態で非表示 */
+    opacity: 0;
+    /* 初期状態で非表示 */
     color: #ddd;
 }
 
@@ -742,14 +782,16 @@ body {
     background: var(--fg);
     color: var(--bg);
     overflow: hidden;
-    -webkit-overflow-scrolling: touch; /* iOS/Android スムーズスクロール */
+    -webkit-overflow-scrolling: touch;
+    /* iOS/Android スムーズスクロール */
 }
 
 .marquee-track {
     display: flex;
     white-space: nowrap;
     width: fit-content;
-    will-change: transform; /* パフォーマンス最適化 */
+    will-change: transform;
+    /* パフォーマンス最適化 */
 }
 
 .marquee-item {
@@ -770,7 +812,8 @@ body {
 
 /* --- Section Global --- */
 .section {
-    padding: clamp(5rem, 10vw, 10rem) 0; /* Android向けにレスポンシブ */
+    padding: clamp(5rem, 10vw, 10rem) 0;
+    /* Android向けにレスポンシブ */
     position: relative;
     /* スクロールパフォーマンスの最適化 */
     transform: translateZ(0);
@@ -1366,13 +1409,14 @@ body.hovered .cursor-circle {
 }
 
 @media (max-width: 900px) {
+
     /* Android向けの基本最適化 */
     html {
         /* スクロールバーのスペースを確保 */
         overflow-y: scroll;
         scrollbar-gutter: stable;
     }
-    
+
     body {
         -webkit-text-size-adjust: 100%;
         text-size-adjust: 100%;
@@ -1382,7 +1426,7 @@ body.hovered .cursor-circle {
         /* 中央揃えのための設定 */
         box-sizing: border-box;
     }
-    
+
     /* コンテナの中央揃えを確実に */
     .container {
         width: 100%;
@@ -1393,7 +1437,7 @@ body.hovered .cursor-circle {
         padding-right: clamp(1rem, 5vw, 2rem);
         box-sizing: border-box;
     }
-    
+
     /* ヒーローコンテンツの中央揃え */
     .hero-content {
         width: 100%;
@@ -1401,11 +1445,12 @@ body.hovered .cursor-circle {
         padding: 0 clamp(1rem, 5vw, 2rem);
         box-sizing: border-box;
     }
-    
+
     /* タッチターゲットサイズの確保（最小44x44px） */
     .fixed-nav {
         padding: 1.5rem 1.5rem;
-        min-height: 44px; /* タッチターゲットサイズ */
+        min-height: 44px;
+        /* タッチターゲットサイズ */
     }
 
     .hamburger-menu {
@@ -1436,7 +1481,8 @@ body.hovered .cursor-circle {
     .nav-menu-links a {
         font-size: 1.5rem;
         padding: 1.2rem 1.5rem;
-        min-height: 44px; /* タッチターゲットサイズ */
+        min-height: 44px;
+        /* タッチターゲットサイズ */
         display: flex;
         align-items: center;
         /* タッチ操作の最適化 */
@@ -1447,7 +1493,8 @@ body.hovered .cursor-circle {
     .nav-menu-social .social-link {
         font-size: 0.9rem !important;
         padding: 0.7rem 1.2rem !important;
-        min-height: 44px; /* タッチターゲットサイズ */
+        min-height: 44px;
+        /* タッチターゲットサイズ */
         /* タッチ操作の最適化 */
         touch-action: manipulation;
         -webkit-tap-highlight-color: rgba(212, 175, 55, 0.2);
@@ -1456,7 +1503,8 @@ body.hovered .cursor-circle {
     .nav-menu-close {
         top: 1.5rem;
         right: 1.5rem;
-        width: 48px; /* タッチターゲットサイズを確保 */
+        width: 48px;
+        /* タッチターゲットサイズを確保 */
         height: 48px;
         min-width: 48px;
         min-height: 48px;
@@ -1548,27 +1596,28 @@ body.hovered .cursor-circle {
     }
 
     .hero {
-        height: 100dvh; /* Android向けの動的ビューポート高さ */
+        height: 100dvh;
+        /* Android向けの動的ビューポート高さ */
         width: 100%;
         left: 0;
         right: 0;
         margin: 0;
         padding: 0;
     }
-    
+
     .hero-bg-container {
         width: 100%;
         left: 0;
         right: 0;
     }
-    
+
     .hero-title {
         font-size: 16vw;
         width: 100%;
         margin: 0 auto;
         padding: 0;
     }
-    
+
     .hero-overlay {
         background:
             linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0.2)),
@@ -1578,14 +1627,14 @@ body.hovered .cursor-circle {
         left: 0;
         right: 0;
     }
-    
+
     .hero-video {
         filter: brightness(1.1) contrast(1);
         width: 100%;
         left: 0;
         right: 0;
     }
-    
+
     /* マーキーセクション（Android最適化） */
     .marquee-section {
         padding: 0.8rem 0;
@@ -1593,7 +1642,7 @@ body.hovered .cursor-circle {
         transform: translateZ(0);
         will-change: transform;
     }
-    
+
     .marquee-item {
         font-size: clamp(1rem, 4vw, 2rem);
         margin-right: 2rem;
@@ -1603,7 +1652,7 @@ body.hovered .cursor-circle {
         /* テキストレンダリングの最適化 */
         text-rendering: optimizeLegibility;
     }
-    
+
     /* ヒーローセクション（Android最適化） */
     .hero-video {
         /* ハードウェアアクセラレーション */
@@ -1613,14 +1662,14 @@ body.hovered .cursor-circle {
         object-fit: cover;
         -webkit-transform: translateZ(0);
     }
-    
+
     /* セクション全体の最適化 */
     .section {
         /* スクロールパフォーマンスの最適化 */
         transform: translateZ(0);
         will-change: transform;
     }
-    
+
     /* 画像の最適化 */
     img {
         /* 画像レンダリングの最適化 */
@@ -1629,17 +1678,19 @@ body.hovered .cursor-circle {
         /* ハードウェアアクセラレーション */
         transform: translateZ(0);
     }
-    
+
     /* ボタンとリンクの最適化 */
-    button, a {
+    button,
+    a {
         /* タッチ操作の最適化 */
         touch-action: manipulation;
         /* タップハイライトの調整 */
         -webkit-tap-highlight-color: rgba(212, 175, 55, 0.2);
     }
-    
+
     /* フォーム要素の最適化 */
-    input, textarea {
+    input,
+    textarea {
         /* フォントサイズの自動調整を無効化（iOS/Android） */
         font-size: 16px !important;
         /* タッチ操作の最適化 */
@@ -1650,17 +1701,19 @@ body.hovered .cursor-circle {
         /* ボーダーラディウスのリセット */
         border-radius: 0;
     }
-    
+
     /* フォームグループの最適化 */
     .form-group input,
     .form-group textarea {
-        min-height: 44px; /* タッチターゲットサイズ */
+        min-height: 44px;
+        /* タッチターゲットサイズ */
         padding: 1rem;
     }
-    
+
     /* 送信ボタンの最適化 */
     .modern-form button[type="submit"] {
-        min-height: 48px; /* タッチターゲットサイズ */
+        min-height: 48px;
+        /* タッチターゲットサイズ */
         min-width: 120px;
         padding: 1rem 2rem;
         /* タッチ操作の最適化 */

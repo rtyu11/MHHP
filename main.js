@@ -4,34 +4,49 @@
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbyRWjZHf-qy3d7OZeSP4hjrryfsybjXWxp41Z6oMOLH3TtTmrw5gSJXxbu0yYhbCZLcmQ/exec';
 
-// ★重要: スクロール位置の記憶を無効化
+// ★重要: スクロール位置の記憶を有効化（戻る操作修正のため）
 if (history.scrollRestoration) {
-    history.scrollRestoration = 'manual';
+    history.scrollRestoration = 'auto';
 }
 
 // Lenis instance (グローバルスコープ)
 let lenis;
+
+// 戻る操作時のローディング回避（pageshowイベント）
+window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+        const loader = document.querySelector('.loader');
+        if (loader) {
+            loader.style.display = 'none';
+        }
+        document.body.classList.remove('is-loading');
+    }
+});
 
 document.addEventListener("DOMContentLoaded", () => {
     // Android向けの最適化
     const isAndroid = /Android/i.test(navigator.userAgent);
     const isMobile = window.matchMedia('(max-width: 900px)').matches;
 
-    // 強制的に一番上へ
-    window.scrollTo(0, 0);
-    document.body.scrollTop = 0;
-    document.body.style.overflow = 'hidden';
+    // 強制スクロール（初回のみ推奨だが、既存ロジック維持のため最小限の変更）
+    // ※戻る操作などの不具合回避のため、Lenis初期化時の強制スクロールは削除または調整推奨
+    // window.scrollTo(0, 0); // 既存動作維持
 
-    // Smooth Scroll（Android向けに最適化）
+    // Smooth Scroll（モバイルは数値を極小にしてネイティブ動作に近づける）
     lenis = new Lenis({
-        duration: isMobile ? 1.2 : 1.5, // モバイルでは少し速く
+        // モバイルのみほぼ遅延なし(0.1)に設定し、カクつきを軽減
+        duration: isMobile ? 0.1 : 1.5,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         smooth: true,
-        mouseMultiplier: isMobile ? 0.8 : 1, // モバイルでは感度を下げる
-        touchMultiplier: isMobile ? 1.2 : 1, // タッチ操作の感度を上げる
+        mouseMultiplier: isMobile ? 0.5 : 1,
+        touchMultiplier: isMobile ? 2 : 1, // タッチ感度調整
         infinite: false,
     });
-    lenis.scrollTo(0, { immediate: true });
+
+    // 初期位置強制はバック時の位置までリセットしてしまうためコメントアウトまたは削除が望ましいが
+    // 既存ロジック維持の観点から、もし必要ならここではなくLoader完了後などが適切。
+    // 今回は「スクロール遅延・戻る不具合」修正のため、この強制スクロールは無効化します。
+    // lenis.scrollTo(0, { immediate: true }); 
 
     // Android向けのパフォーマンス最適化
     if (isAndroid) {

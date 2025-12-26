@@ -665,6 +665,10 @@ body {
     font-weight: 700;
     color: #fff;
     letter-spacing: 0.05em;
+    overflow-wrap: break-word;
+    word-break: normal;
+    line-break: strict;
+    text-align: justify;
 }
 
 .artist-bio-text {
@@ -674,6 +678,15 @@ body {
     color: #ccc;
     letter-spacing: 0.05em;
     font-weight: 400;
+    overflow-wrap: break-word;
+    word-break: normal;
+    line-break: strict;
+    text-align: justify;
+}
+
+.keep-together {
+    display: inline-block;
+    white-space: nowrap;
 }
 
 /* --- Info --- */
@@ -1206,12 +1219,37 @@ body.hovered .cursor-circle {
 
     .artist-layout {
         grid-template-columns: 1fr;
-        gap: 2rem;
+        gap: 3rem;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .artist-text-wrapper {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .artist-bio-container {
+        width: 100%;
+    }
+
+    .artist-bio-lead {
+        font-size: 1.2rem;
+        line-height: 1.6;
+    }
+
+    .artist-bio-text {
+        font-size: 0.95rem;
+        line-height: 1.8;
     }
 
     .artist-img-wrapper {
         position: relative;
         top: 0;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
     }
 
     .contact-layout {

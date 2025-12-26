@@ -211,13 +211,17 @@ function initAnimations() {
     });
 
     const bioLines = document.querySelectorAll('.artist-bio-text, .artist-bio-lead');
-    bioLines.forEach(block => {
-        const text = new SplitType(block, { types: 'lines' });
-        gsap.from(text.lines, {
-            y: 20, opacity: 0, duration: 1, stagger: 0.1, ease: "power2.out",
-            scrollTrigger: { trigger: block, start: "top 85%" }
+    
+    // スマホでの不自然な改行を防ぐため、レイアウトが確定するまでわずかに待機
+    setTimeout(() => {
+        bioLines.forEach(block => {
+            const text = new SplitType(block, { types: 'lines' });
+            gsap.from(text.lines, {
+                y: 20, opacity: 0, duration: 1, stagger: 0.1, ease: "power2.out",
+                scrollTrigger: { trigger: block, start: "top 85%" }
+            });
         });
-    });
+    }, 200);
 }
 
 function initDistortionCanvas() {

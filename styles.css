@@ -393,13 +393,17 @@ body {
     height: 100vh;
     background: rgba(0, 0, 0, 0.95);
     backdrop-filter: blur(10px);
-    transition: width 0.4s var(--ease-out);
+    transition: width 0.4s var(--ease-out), opacity 0.4s;
     z-index: 998;
     pointer-events: none;
+    opacity: 0;
+    display: none; /* 初期状態は非表示 */
 }
 
 .menu-overlay.active {
+    display: block;
     width: 400px;
+    opacity: 1;
     pointer-events: auto;
 }
 
@@ -412,7 +416,7 @@ body {
     height: 100vh;
     background: #000000;
     backdrop-filter: blur(20px);
-    display: flex;
+    display: none; /* 初期状態は非表示 */
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
@@ -428,6 +432,7 @@ body {
 }
 
 .nav-menu.active {
+    display: flex;
     transform: translateX(0);
 }
 
@@ -1290,7 +1295,7 @@ body.hovered .cursor-circle {
         width: 100%;
     }
 
-    .nav-menu {
+    .nav-menu.active {
         width: 100%;
         border-left: none;
     }

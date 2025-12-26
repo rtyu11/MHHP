@@ -878,6 +878,13 @@ body {
     padding-left: 1rem;
 }
 
+.section-subtext {
+    font-family: var(--font-jp);
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0 0 1.5rem;
+}
+
 /* --- Artist Section --- */
 .artist-layout {
     display: grid;
@@ -1193,22 +1200,12 @@ canvas#distortionCanvas {
     margin: 2rem 0 3rem 0;
 }
 
-.contact-heading {
-    font-family: var(--font-main);
-    font-size: clamp(3rem, 6vw, 5.5rem);
-    line-height: 1;
+.contact-subtitle {
+    font-family: var(--font-jp);
+    font-size: 1rem;
+    color: #fff;
+    letter-spacing: 0.2em;
     margin: 0;
-    font-weight: 400;
-    font-style: italic;
-    letter-spacing: 0.05em;
-}
-
-.contact-heading-underline {
-    width: 100px;
-    height: 2px;
-    background: linear-gradient(to right, var(--accent), transparent);
-    margin-top: 1.5rem;
-    box-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
 }
 
 .contact-desc {
@@ -1682,15 +1679,6 @@ body.hovered .cursor-circle {
     .contact-layout {
         grid-template-columns: 1fr;
         gap: 3rem;
-    }
-
-    .contact-heading {
-        font-size: 4rem;
-    }
-
-    .contact-heading-underline {
-        margin-left: 0;
-        width: 80px;
     }
 
     .contact-desc {

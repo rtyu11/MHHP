@@ -319,11 +319,9 @@ body {
 .nav-logo {
     color: #fff;
     text-decoration: none;
-    font-family: var(--font-main);
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    line-height: 1.15;
+    align-items: center;
+    justify-content: center;
     transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
     cursor: pointer;
     position: relative;
@@ -360,45 +358,13 @@ body {
     pointer-events: none;
 }
 
-.logo-main {
-    font-weight: 600;
-    font-size: 1rem;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-    color: #ffffff;
+.logo-image {
+    width: auto;
+    height: 3rem;
+    max-width: 100%;
+    object-fit: contain;
     transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-    margin-bottom: 0.1rem;
-    position: relative;
-    font-family: var(--font-script);
-    transform: translateX(0);
-    font-variant: normal;
-}
-
-.logo-main::first-letter {
-    font-size: 1.1em;
-    color: var(--accent);
-    text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
-}
-
-.logo-sub {
-    font-weight: 400;
-    font-size: 0.55rem;
-    letter-spacing: 0.05em;
-    color: rgba(255, 255, 255, 0.6);
-    text-transform: lowercase;
-    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-    transform: translateX(4px);
-    font-family: var(--font-script);
-    position: relative;
-}
-
-.logo-sub::before {
-    content: '—';
-    position: absolute;
-    left: -12px;
-    color: rgba(212, 175, 55, 0.4);
-    font-style: normal;
-    transition: all 0.5s var(--ease-out);
+    display: block;
 }
 
 .nav-logo:hover {
@@ -416,27 +382,9 @@ body {
     border-color: rgba(212, 175, 55, 0.4);
 }
 
-.nav-logo:hover .logo-main {
-    color: var(--accent);
-    text-shadow: 0 0 20px rgba(212, 175, 55, 0.6), 0 4px 10px rgba(0, 0, 0, 0.3);
-    transform: translateX(4px);
-    letter-spacing: 0.15em;
-}
-
-.nav-logo:hover .logo-main::first-letter {
-    text-shadow: 0 0 15px rgba(212, 175, 55, 0.8);
-    transform: scale(1.1);
-}
-
-.nav-logo:hover .logo-sub {
-    color: rgba(212, 175, 55, 0.9);
-    transform: translateX(8px);
-    letter-spacing: 0.3em;
-}
-
-.nav-logo:hover .logo-sub::before {
-    color: rgba(212, 175, 55, 0.7);
-    transform: translateX(-2px);
+.nav-logo:hover .logo-image {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.4));
 }
 
 /* Hamburger Menu Wrapper */
@@ -1697,16 +1645,8 @@ body.hovered .cursor-circle {
         padding: 0.6rem 1rem;
     }
 
-    .logo-main {
-        font-size: 0.9rem;
-    }
-
-    .logo-sub {
-        font-size: 0.5rem;
-    }
-
-    .logo-sub::before {
-        left: -10px;
+    .logo-image {
+        height: 2.5rem;
     }
 
     .artist-layout {

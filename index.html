@@ -68,10 +68,19 @@
         <button class="nav-menu-close" id="nav-menu-close" aria-label="メニューを閉じる">
             <span class="close-icon">×</span>
         </button>
+        <!-- Language Switcher -->
+        <div class="nav-menu-language">
+            <button class="lang-switch-btn active" data-lang="ja" id="lang-ja">
+                <span>日本語</span>
+            </button>
+            <button class="lang-switch-btn" data-lang="en" id="lang-en">
+                <span>ENGLISH</span>
+            </button>
+        </div>
         <div class="nav-menu-links">
-            <a href="#artist" data-text="ARTIST">ARTIST</a>
-            <a href="#updates" data-text="INFORMATION">INFORMATION</a>
-            <a href="#contact" data-text="CONTACT">CONTACT</a>
+            <a href="#artist" data-text="ARTIST" data-i18n="nav.artist">ARTIST</a>
+            <a href="#updates" data-text="INFORMATION" data-i18n="nav.info">INFORMATION</a>
+            <a href="#contact" data-text="CONTACT" data-i18n="nav.contact">CONTACT</a>
             <a href="https://x8tokyo.official.ec/" target="_blank" rel="noopener" data-text="STORE" class="nav-store-link">
                 <span class="nav-store-main">ONLINE SHOP</span>
                 <span class="nav-store-sub">powered by BASE</span>
@@ -126,7 +135,7 @@
             <section id="artist" class="section artist">
                 <div class="container relative">
                     <div class="section-label section-label--with-subtext">
-                        <span class="section-label-main">ARTIST</span>
+                        <span class="section-label-main" data-i18n="artist.title">ARTIST</span>
                         <span class="section-label-subtext">Masato Hayashi</span>
                     </div>
 
@@ -146,21 +155,21 @@
                             </h2>
 
                             <div class="artist-bio">
-                                <p>東京都八王子市出身のヒップホップ・アーティスト。</p>
-                                <p>2017年より Pablo Blasta 名義で活動を開始。「Tokyo Young OG」や、DJ CHARI & DJ TATSUKI「ビッチと会う feat.
+                                <p data-i18n="artist.bio.1">東京都八王子市出身のヒップホップ・アーティスト。</p>
+                                <p data-i18n="artist.bio.2">2017年より Pablo Blasta 名義で活動を開始。「Tokyo Young OG」や、DJ CHARI & DJ TATSUKI「ビッチと会う feat.
                                     Weny Dacillo, Pablo Blasta & JP THE WAVY」、「Good Die Young feat. RYKEY & Pablo
                                     Blasta」などへの客演参加をきっかけに頭角を現す。</p>
-                                <p>2019年に一度活動を休止するも、約2年の沈黙を経て2021年に Masato Hayashi として活動を再開。2022年2月にはシングル『やるしかねえ (feat.
+                                <p data-i18n="artist.bio.3">2019年に一度活動を休止するも、約2年の沈黙を経て2021年に Masato Hayashi として活動を再開。2022年2月にはシングル『やるしかねえ (feat.
                                     ELIONE & CHICO CARLITO)』をリリースし、Spotify Viral 50にランクイン。</p>
-                                <p>2025年1月には、前年にリリースされバイラルヒットとなった「By Your Side (feat. 唾奇 &
+                                <p data-i18n="artist.bio.4">2025年1月には、前年にリリースされバイラルヒットとなった「By Your Side (feat. 唾奇 &
                                     ELIONE)」を収録した3rdアルバム『1』、そして強烈なエネルギーで話題を呼んだ「Vibes!」を収録した4thアルバム『MELANISM』の2作品を携え、J-HIPHOPの聖地・HARLEMにてワンマンライブを成功させた。
                                 </p>
-                                <p>また、ABEMA『RAPSTAR
+                                <p data-i18n="artist.bio.5">また、ABEMA『RAPSTAR
                                     2025』では、約6,780人の応募者の中からファイナルステージへ進出。惜しくも準優勝となったが、圧倒的なバイブスと研ぎ澄まされたスピード感あふれるラップスキル、そして観客を巻き込むライブパフォーマンスで強烈なインパクトを残し、シーン内外から大きな注目を集めた。
                                 </p>
-                                <p>往年のロックスターを彷彿とさせる、ハスキーで艶のある唯一無二のボーカル。力強さの中に痛みや哀愁を感じさせるメロディアスかつスキルフルなラップ。そして、生々しくも繊細に心情を描き出すリリック——。
+                                <p data-i18n="artist.bio.6">往年のロックスターを彷彿とさせる、ハスキーで艶のある唯一無二のボーカル。力強さの中に痛みや哀愁を感じさせるメロディアスかつスキルフルなラップ。そして、生々しくも繊細に心情を描き出すリリック——。
                                 </p>
-                                <p>すべてにおいて"Masato Hayashi"でしか成し得ない存在感を放ち、今もっとも飛躍が期待されるアーティストの一人として注目を集めている。</p>
+                                <p data-i18n="artist.bio.7">すべてにおいて"Masato Hayashi"でしか成し得ない存在感を放ち、今もっとも飛躍が期待されるアーティストの一人として注目を集めている。</p>
                             </div>
                         </div>
                     </div>
@@ -171,13 +180,13 @@
             <section id="updates" class="section updates">
                 <div class="container">
                     <div class="section-label section-label--with-subtext">
-                        <span class="section-label-main">INFORMATION</span>
-                        <span class="section-label-subtext" lang="ja">お知らせ</span>
+                        <span class="section-label-main" data-i18n="info.title">INFORMATION</span>
+                        <span class="section-label-subtext" data-i18n="info.subtitle" lang="ja">お知らせ</span>
                     </div>
                     <div class="news-list" id="news-grid"></div>
                     <div class="news-more-wrapper" id="news-more-wrapper" style="display: none;">
                         <button class="news-more-btn" id="news-more-btn">
-                            <span class="news-more-text">MORE</span>
+                            <span class="news-more-text" data-i18n="news.more">MORE</span>
                             <span class="news-more-arrow">↓</span>
                         </button>
                     </div>
@@ -207,26 +216,26 @@
                     <div class="contact-layout">
                         <div class="contact-info">
                             <div class="section-label section-label--with-subtext">
-                                <span class="section-label-main">CONTACT</span>
-                                <span class="section-label-subtext" lang="ja">お問い合わせ</span>
+                                <span class="section-label-main" data-i18n="contact.title">CONTACT</span>
+                                <span class="section-label-subtext" data-i18n="contact.subtitle" lang="ja">お問い合わせ</span>
                             </div>
-                            <p class="contact-desc">お仕事のご依頼・各種お問い合わせはこちらからご連絡ください。</p>
+                            <p class="contact-desc" data-i18n="contact.desc">お仕事のご依頼・各種お問い合わせはこちらからご連絡ください。</p>
                         </div>
                         <div class="contact-form-panel">
                             <form id="contact-form" class="modern-form">
                                 <div class="form-group">
-                                    <label>お問い合わせ種別</label>
+                                    <label data-i18n="form.category.label">お問い合わせ種別</label>
                                     <select name="category" required>
-                                        <option value="" disabled selected>▾ 選択してください</option>
-                                        <option value="work">仕事依頼</option>
-                                        <option value="appearance">出演依頼</option>
-                                        <option value="inquiry">お問い合わせ</option>
-                                        <option value="other">その他</option>
+                                        <option value="" disabled selected data-i18n="form.category.placeholder">▾ 選択してください</option>
+                                        <option value="work" data-i18n="form.category.work">仕事依頼</option>
+                                        <option value="appearance" data-i18n="form.category.appearance">出演依頼</option>
+                                        <option value="inquiry" data-i18n="form.category.inquiry">お問い合わせ</option>
+                                        <option value="other" data-i18n="form.category.other">その他</option>
                                     </select>
                                     <span class="line"></span>
                                 </div>
                                 <div class="form-group">
-                                <label>お名前</label>
+                                <label data-i18n="form.name.label">お名前</label>
                                     <input type="text" name="name" required>
                                     <span class="line"></span>
                                 </div>
@@ -245,7 +254,7 @@
                                     <span class="line"></span>
                                 </div>
                                 <button type="submit" class="submit-btn" id="submit-btn">
-                                    <span class="btn-text">送信</span>
+                                    <span class="btn-text" data-i18n="form.submit">送信</span>
                                     <span class="btn-arrow">→</span>
                                 </button>
                                 <div id="form-status"></div>

@@ -164,9 +164,212 @@ document.addEventListener("DOMContentLoaded", () => {
     initDistortionCanvas();
     initHamburgerMenu();
     initLogoScroll();
+    initLanguageSwitcher();
     fetchData();
     setupForm();
 });
+
+// Language Switcher
+const translations = {
+    ja: {
+        nav: {
+            artist: 'ARTIST',
+            info: 'INFORMATION',
+            contact: 'CONTACT'
+        },
+        artist: {
+            title: 'ARTIST',
+            bio: {
+                1: '東京都八王子市出身のヒップホップ・アーティスト。',
+                2: '2017年より Pablo Blasta 名義で活動を開始。「Tokyo Young OG」や、DJ CHARI & DJ TATSUKI「ビッチと会う feat. Weny Dacillo, Pablo Blasta & JP THE WAVY」、「Good Die Young feat. RYKEY & Pablo Blasta」などへの客演参加をきっかけに頭角を現す。',
+                3: '2019年に一度活動を休止するも、約2年の沈黙を経て2021年に Masato Hayashi として活動を再開。2022年2月にはシングル『やるしかねえ (feat. ELIONE & CHICO CARLITO)』をリリースし、Spotify Viral 50にランクイン。',
+                4: '2025年1月には、前年にリリースされバイラルヒットとなった「By Your Side (feat. 唾奇 & ELIONE)」を収録した3rdアルバム『1』、そして強烈なエネルギーで話題を呼んだ「Vibes!」を収録した4thアルバム『MELANISM』の2作品を携え、J-HIPHOPの聖地・HARLEMにてワンマンライブを成功させた。',
+                5: 'また、ABEMA『RAPSTAR 2025』では、約6,780人の応募者の中からファイナルステージへ進出。惜しくも準優勝となったが、圧倒的なバイブスと研ぎ澄まされたスピード感あふれるラップスキル、そして観客を巻き込むライブパフォーマンスで強烈なインパクトを残し、シーン内外から大きな注目を集めた。',
+                6: '往年のロックスターを彷彿とさせる、ハスキーで艶のある唯一無二のボーカル。力強さの中に痛みや哀愁を感じさせるメロディアスかつスキルフルなラップ。そして、生々しくも繊細に心情を描き出すリリック——。',
+                7: 'すべてにおいて"Masato Hayashi"でしか成し得ない存在感を放ち、今もっとも飛躍が期待されるアーティストの一人として注目を集めている。'
+            }
+        },
+        info: {
+            title: 'INFORMATION',
+            subtitle: 'お知らせ'
+        },
+        news: {
+            more: 'MORE'
+        },
+        contact: {
+            title: 'CONTACT',
+            subtitle: 'お問い合わせ',
+            desc: 'お仕事のご依頼・各種お問い合わせはこちらからご連絡ください。'
+        },
+        form: {
+            category: {
+                label: 'お問い合わせ種別',
+                placeholder: '▾ 選択してください',
+                work: '仕事依頼',
+                appearance: '出演依頼',
+                inquiry: 'お問い合わせ',
+                other: 'その他'
+            },
+            name: {
+                label: 'お名前'
+            },
+            submit: '送信'
+        }
+    },
+    en: {
+        nav: {
+            artist: 'ARTIST',
+            info: 'INFORMATION',
+            contact: 'CONTACT'
+        },
+        artist: {
+            title: 'ARTIST',
+            bio: {
+                1: 'Hip-hop artist from Hachioji, Tokyo.',
+                2: 'Started his career in 2017 under the name Pablo Blasta. Gained recognition through guest appearances on tracks such as "Tokyo Young OG" and DJ CHARI & DJ TATSUKI\'s "ビッチと会う feat. Weny Dacillo, Pablo Blasta & JP THE WAVY" and "Good Die Young feat. RYKEY & Pablo Blasta".',
+                3: 'After a brief hiatus in 2019, Masato Hayashi resumed activities in 2021. In February 2022, he released the single "やるしかねえ (feat. ELIONE & CHICO CARLITO)", which charted on Spotify Viral 50.',
+                4: 'In January 2025, he successfully held a one-man live show at HARLEM, the sacred ground of J-HIPHOP, with two albums: the 3rd album "1" featuring the viral hit "By Your Side (feat. 唾奇 & ELIONE)" released the previous year, and the 4th album "MELANISM" featuring "Vibes!", which generated buzz with its intense energy.',
+                5: 'Additionally, in ABEMA\'s "RAPSTAR 2025", he advanced to the final stage from approximately 6,780 applicants. Although he finished as runner-up, he left a strong impact with his overwhelming vibe, refined rap skills with sharp speed, and live performances that captivated the audience, attracting significant attention both within and outside the scene.',
+                6: 'A unique vocal style reminiscent of rock stars of the past—husky and lustrous. Melodic and skillful rap that conveys pain and melancholy within its strength. Lyrics that vividly and delicately depict emotions—.',
+                7: 'He exudes a presence that only "Masato Hayashi" can achieve in every aspect, and is attracting attention as one of the artists most expected to make a breakthrough.'
+            }
+        },
+        info: {
+            title: 'INFORMATION',
+            subtitle: 'News'
+        },
+        news: {
+            more: 'MORE'
+        },
+        contact: {
+            title: 'CONTACT',
+            subtitle: 'Contact',
+            desc: 'For work inquiries and other inquiries, please contact us here.'
+        },
+        form: {
+            category: {
+                label: 'Inquiry Type',
+                placeholder: '▾ Please select',
+                work: 'Work Request',
+                appearance: 'Performance Request',
+                inquiry: 'Inquiry',
+                other: 'Other'
+            },
+            name: {
+                label: 'Name'
+            },
+            submit: 'Send'
+        }
+    }
+};
+
+let currentLang = 'ja';
+
+function initLanguageSwitcher() {
+    const langJaBtn = document.getElementById('lang-ja');
+    const langEnBtn = document.getElementById('lang-en');
+    
+    if (!langJaBtn || !langEnBtn) return;
+    
+    // Load saved language preference
+    try {
+        const savedLang = localStorage.getItem('masato-lang');
+        if (savedLang && (savedLang === 'ja' || savedLang === 'en')) {
+            currentLang = savedLang;
+        }
+    } catch (_) {
+        // ignore
+    }
+    
+    // Set initial language
+    updateLanguage(currentLang);
+    updateLanguageButtons();
+    
+    // Event listeners
+    langJaBtn.addEventListener('click', () => {
+        switchLanguage('ja');
+    });
+    
+    langEnBtn.addEventListener('click', () => {
+        switchLanguage('en');
+    });
+}
+
+function switchLanguage(lang) {
+    if (lang === currentLang) return;
+    currentLang = lang;
+    
+    // Save preference
+    try {
+        localStorage.setItem('masato-lang', lang);
+    } catch (_) {
+        // ignore
+    }
+    
+    // Update HTML lang attribute
+    document.documentElement.lang = lang;
+    
+    updateLanguage(lang);
+    updateLanguageButtons();
+}
+
+function updateLanguageButtons() {
+    const langJaBtn = document.getElementById('lang-ja');
+    const langEnBtn = document.getElementById('lang-en');
+    
+    if (langJaBtn) {
+        langJaBtn.classList.toggle('active', currentLang === 'ja');
+    }
+    if (langEnBtn) {
+        langEnBtn.classList.toggle('active', currentLang === 'en');
+    }
+}
+
+function updateLanguage(lang) {
+    const t = translations[lang];
+    if (!t) return;
+    
+    // Update all elements with data-i18n attribute
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        const value = getNestedValue(t, key);
+        if (value !== undefined) {
+            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                el.placeholder = value;
+            } else if (el.tagName === 'OPTION') {
+                el.textContent = value;
+            } else {
+                el.textContent = value;
+            }
+        }
+    });
+    
+    // Update form placeholders
+    const messageField = document.querySelector('textarea[name="message"]');
+    if (messageField) {
+        const categoryField = document.querySelector('select[name="category"]');
+        const priority = lang === 'ja' ? '内容 / 希望時期 / 予算感（任意）' : 'Content / Preferred Date / Budget (Optional)';
+        const fallback = lang === 'ja' ? 'ご用件をお書きください。' : 'Please write your inquiry.';
+        if (categoryField?.value === 'work') {
+            messageField.placeholder = priority;
+        } else {
+            messageField.placeholder = fallback;
+        }
+    }
+    
+    // Update select placeholder option
+    const selectPlaceholder = document.querySelector('select[name="category"] option[value=""]');
+    if (selectPlaceholder) {
+        const placeholderText = lang === 'ja' ? '▾ 選択してください' : '▾ Please select';
+        selectPlaceholder.textContent = placeholderText;
+    }
+}
+
+function getNestedValue(obj, path) {
+    return path.split('.').reduce((current, key) => {
+        return current && current[key] !== undefined ? current[key] : undefined;
+    }, obj);
+}
 
 function initLoader(navType) {
     const loader = document.querySelector('.loader');
@@ -839,7 +1042,7 @@ function renderNews(items) {
                     });
                     const textEl = currentMoreBtn.querySelector('.news-more-text');
                     const arrowEl = currentMoreBtn.querySelector('.news-more-arrow');
-                    if (textEl) textEl.textContent = 'LESS';
+                    if (textEl) textEl.textContent = currentLang === 'ja' ? 'LESS' : 'LESS';
                     if (arrowEl) arrowEl.textContent = '↑';
                     currentMoreBtn.dataset.expanded = 'true';
                 } else {
@@ -857,7 +1060,8 @@ function renderNews(items) {
                     });
                     const textEl = currentMoreBtn.querySelector('.news-more-text');
                     const arrowEl = currentMoreBtn.querySelector('.news-more-arrow');
-                    if (textEl) textEl.textContent = 'MORE';
+                    const moreText = currentLang === 'ja' ? translations.ja.news.more : translations.en.news.more;
+                    if (textEl) textEl.textContent = moreText;
                     if (arrowEl) arrowEl.textContent = '↓';
                     currentMoreBtn.dataset.expanded = 'false';
                 }
@@ -981,8 +1185,8 @@ function setupForm() {
 
     const updatePlaceholder = () => {
         if (!messageField) return;
-        const priority = messageField.dataset.placeholderPriority || '内容 / 希望時期 / 予算感（任意）';
-        const fallback = messageField.dataset.placeholderDefault || 'ご用件をお書きください。';
+        const priority = currentLang === 'ja' ? '内容 / 希望時期 / 予算感（任意）' : 'Content / Preferred Date / Budget (Optional)';
+        const fallback = currentLang === 'ja' ? 'ご用件をお書きください。' : 'Please write your inquiry.';
         if (categoryField?.value === 'work') {
             messageField.placeholder = priority;
         } else {
@@ -1016,7 +1220,7 @@ function setupForm() {
         submitBtn.disabled = sending;
         if (sending) {
             submitBtn.setAttribute('aria-busy', 'true');
-            if (btnText) btnText.textContent = '送信中...';
+            if (btnText) btnText.textContent = currentLang === 'ja' ? '送信中...' : 'Sending...';
         } else {
             submitBtn.removeAttribute('aria-busy');
             if (btnText) btnText.textContent = originalBtnText;
@@ -1059,39 +1263,63 @@ function setupForm() {
         const formData = new FormData(form);
         const payload = payloadFromData(formData);
 
+        const errorMessages = currentLang === 'ja' ? {
+            category: 'お問い合わせ種別を選択してください。',
+            name: 'お名前を入力してください。',
+            email: '有効なメールアドレスを入力してください。',
+            message: 'メッセージをご記入ください。',
+            messageLength: `メッセージは${maxMessageLength}文字以内にしてください。`,
+            website: '送信できませんでした。',
+            interval: '送信間隔を空けてください（1分ほど）。',
+            timing: 'ページ表示から3秒以上お待ちください。',
+            success: 'ありがとうございます。自動返信はありませんが、追って担当よりご連絡いたします。',
+            error: '通信に失敗しました。時間をおいて再度お試しください。'
+        } : {
+            category: 'Please select an inquiry type.',
+            name: 'Please enter your name.',
+            email: 'Please enter a valid email address.',
+            message: 'Please enter your message.',
+            messageLength: `Message must be within ${maxMessageLength} characters.`,
+            website: 'Unable to send.',
+            interval: 'Please wait about 1 minute between submissions.',
+            timing: 'Please wait at least 3 seconds after the page loads.',
+            success: 'Thank you. There is no automatic reply, but we will contact you later.',
+            error: 'Communication failed. Please try again later.'
+        };
+
         if (!payload.category) {
-            setStatus('error', 'お問い合わせ種別を選択してください。');
+            setStatus('error', errorMessages.category);
             return;
         }
         if (!payload.name) {
-            setStatus('error', 'お名前を入力してください。');
+            setStatus('error', errorMessages.name);
             return;
         }
         if (!payload.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) {
-            setStatus('error', '有効なメールアドレスを入力してください。');
+            setStatus('error', errorMessages.email);
             return;
         }
         if (!payload.message) {
-            setStatus('error', 'メッセージをご記入ください。');
+            setStatus('error', errorMessages.message);
             return;
         }
         if (payload.message.length > maxMessageLength) {
-            setStatus('error', `メッセージは${maxMessageLength}文字以内にしてください。`);
+            setStatus('error', errorMessages.messageLength);
             return;
         }
         if (payload.website) {
-            setStatus('error', '送信できませんでした。');
+            setStatus('error', errorMessages.website);
             return;
         }
 
         const lastSubmit = getLastSubmit();
         if (lastSubmit && now - lastSubmit < 60_000) {
-            setStatus('warning', '送信間隔を空けてください（1分ほど）。');
+            setStatus('warning', errorMessages.interval);
             return;
         }
 
         if (now - formLoadedAt < 3000) {
-            setStatus('warning', 'ページ表示から3秒以上お待ちください。');
+            setStatus('warning', errorMessages.timing);
             return;
         }
 
@@ -1101,18 +1329,18 @@ function setupForm() {
         try {
             await sendPost(payload);
             recordSubmit();
-            setStatus('success', 'ありがとうございます。自動返信はありませんが、追って担当よりご連絡いたします。');
+            setStatus('success', errorMessages.success);
             form.reset();
             updatePlaceholder();
         } catch (postError) {
             try {
                 await sendGet(payload);
                 recordSubmit();
-                setStatus('success', 'ありがとうございます。自動返信はありませんが、追って担当よりご連絡いたします。');
+                setStatus('success', errorMessages.success);
                 form.reset();
                 updatePlaceholder();
             } catch (getError) {
-                setStatus('error', '通信に失敗しました。時間をおいて再度お試しください。');
+                setStatus('error', errorMessages.error);
             }
         } finally {
             setButtonState(false);

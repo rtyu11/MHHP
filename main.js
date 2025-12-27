@@ -680,19 +680,23 @@ function convertGoogleDriveUrl(url) {
 
 function renderNews(items) {
     const container = document.getElementById('news-grid');
+    const moreWrapper = document.getElementById('news-more-wrapper');
+    const moreBtn = document.getElementById('news-more-btn');
     if (!container) return;
 
     container.innerHTML = '';
+    if (moreWrapper) moreWrapper.style.display = 'none';
 
-    // Sort by date desc (newest first)
+    // Sort by date desc (newest first) - 最新が上
     items.sort((a, b) => {
         const da = new Date(a.date);
         const db = new Date(b.date);
-        return db - da; // Descending
+        return db - da; // Descending (新しい順)
     });
 
-    // Take top 5
-    const topItems = items.slice(0, 5);
+    // 最初の5件と残りを分ける
+    const initialItems = items.slice(0, 5);
+    const remainingItems = items.slice(5);
 
     // Date calculation for NEW badge (14 days)
     const now = new Date();
@@ -733,7 +737,8 @@ function renderNews(items) {
         modal.open = openModal;
     }
 
-    topItems.forEach(item => {
+    // 記事を生成する関数
+    const createNewsItem = (item, isHidden = false) => {
         // Formatted Date (yyyy.mm.dd)
         let formattedDate = '';
         let itemDateObj = null;
@@ -753,6 +758,9 @@ function renderNews(items) {
 
         const a = document.createElement('a');
         a.className = 'news-item';
+        if (isHidden) {
+            a.classList.add('news-item-hidden');
+        }
         a.href = '#';
 
         // Build inner HTML with badge
@@ -788,8 +796,76 @@ function renderNews(items) {
                 modal.open();
             }
         });
-        container.appendChild(a);
+        return a;
+    };
+
+    // 最初の5件を表示
+    initialItems.forEach(item => {
+        container.appendChild(createNewsItem(item, false));
     });
+
+    // 残りのアイテムがあれば「もっと見る」ボタンを表示
+    if (remainingItems.length > 0 && moreWrapper && moreBtn) {
+        moreWrapper.style.display = 'block';
+        
+        // 残りのアイテムを非表示で追加
+        remainingItems.forEach(item => {
+            const hiddenItem = createNewsItem(item, true);
+            container.appendChild(hiddenItem);
+        });
+
+        // 「もっと見る」ボタンのイベント（重複防止）
+        // 既存のイベントリスナーを削除
+        const newMoreBtn = moreBtn.cloneNode(true);
+        moreBtn.parentNode.replaceChild(newMoreBtn, moreBtn);
+        const currentMoreBtn = newMoreBtn;
+        
+        if (!currentMoreBtn.dataset.initialized) {
+            currentMoreBtn.addEventListener('click', () => {
+                const allItems = container.querySelectorAll('.news-item');
+                const initialCount = initialItems.length;
+                const expandedItems = Array.from(allItems).slice(initialCount);
+                
+                const isExpanded = currentMoreBtn.dataset.expanded === 'true';
+                
+                if (!isExpanded) {
+                    // 展開
+                    expandedItems.forEach(item => {
+                        item.classList.remove('news-item-hidden');
+                        gsap.fromTo(item, 
+                            { opacity: 0, y: -20 },
+                            { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }
+                        );
+                    });
+                    const textEl = currentMoreBtn.querySelector('.news-more-text');
+                    const arrowEl = currentMoreBtn.querySelector('.news-more-arrow');
+                    if (textEl) textEl.textContent = 'LESS';
+                    if (arrowEl) arrowEl.textContent = '↑';
+                    currentMoreBtn.dataset.expanded = 'true';
+                } else {
+                    // 折りたたみ
+                    expandedItems.forEach(item => {
+                        gsap.to(item, {
+                            opacity: 0,
+                            y: -20,
+                            duration: 0.3,
+                            ease: 'power2.in',
+                            onComplete: () => {
+                                item.classList.add('news-item-hidden');
+                            }
+                        });
+                    });
+                    const textEl = currentMoreBtn.querySelector('.news-more-text');
+                    const arrowEl = currentMoreBtn.querySelector('.news-more-arrow');
+                    if (textEl) textEl.textContent = 'MORE';
+                    if (arrowEl) arrowEl.textContent = '↓';
+                    currentMoreBtn.dataset.expanded = 'false';
+                }
+            });
+            currentMoreBtn.dataset.initialized = 'true';
+            currentMoreBtn.dataset.expanded = 'false';
+        }
+    }
 }
 
 function renderTicker(items) {

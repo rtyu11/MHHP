@@ -928,11 +928,35 @@ body {
     padding-left: 1rem;
 }
 
-.section-subtext {
+.section-label--with-subtext {
+    margin-bottom: 1.4rem;
+}
+
+.section-label--with-subtext .section-label-main {
+    display: block;
+    margin-bottom: 0.2rem;
+    color: var(--accent);
+    font-family: var(--font-tech);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.section-label--with-subtext .section-label-subtext {
+    display: block;
+    font-size: 1rem;
+    line-height: 1.4;
+    letter-spacing: 0.2em;
+    color: #ffffff;
+    text-transform: none;
+    opacity: 0.85;
+    font-family: var(--font-main);
+}
+
+/* 日本語テキスト用のフォント指定 */
+.section-label--with-subtext .section-label-subtext:lang(ja),
+.section-label--with-subtext .section-label-subtext[lang="ja"] {
     font-family: var(--font-jp);
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.7);
-    margin: 0 0 1.5rem;
 }
 
 /* --- Artist Section --- */
@@ -1247,19 +1271,6 @@ canvas#distortionCanvas {
 
 .contact-info {
     position: relative;
-}
-
-.contact-heading-wrapper {
-    position: relative;
-    margin: 2rem 0 3rem 0;
-}
-
-.contact-subtitle {
-    font-family: var(--font-jp);
-    font-size: 1rem;
-    color: #fff;
-    letter-spacing: 0.2em;
-    margin: 0;
 }
 
 .contact-desc {

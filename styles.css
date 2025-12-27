@@ -1385,22 +1385,23 @@ canvas#distortionCanvas {
 }
 
 .submit-btn {
-    background: transparent;
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(212, 175, 55, 0.15);
+    border: 1px solid rgba(212, 175, 55, 0.55);
     color: #fff;
-    padding: 2rem 3rem;
+    padding: 1.6rem 3rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-family: var(--font-tech);
     font-size: 1rem;
-    cursor: none;
+    cursor: pointer;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    transition: all 0.3s var(--ease-out);
+    transition: transform 0.3s var(--ease-out), border 0.3s var(--ease-out), color 0.3s var(--ease-out);
     margin-top: 1rem;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.55);
 }
 
 .submit-btn::before {
@@ -1417,8 +1418,8 @@ canvas#distortionCanvas {
 
 .submit-btn:hover {
     border-color: var(--accent);
-    color: #000;
-    transform: translateX(5px);
+    color: #050505;
+    transform: translateY(-2px);
 }
 
 .submit-btn:hover::before {
@@ -1696,6 +1697,26 @@ body.hovered .cursor-circle {
 
     .contact-form-panel {
         padding: 2.5rem 1.5rem;
+    }
+
+    .form-group select {
+        font-size: 1.15rem;
+        padding: 0.75rem 2rem 0.6rem 0.35rem;
+    }
+
+    .form-group select option {
+        font-size: 1rem;
+        letter-spacing: 0.05em;
+    }
+
+    .submit-btn {
+        padding: 1.3rem 2.6rem;
+        font-size: 0.95rem;
+        letter-spacing: 0.18em;
+    }
+
+    .submit-btn .btn-arrow {
+        font-size: 0.9rem;
     }
 
     .hero {

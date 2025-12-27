@@ -794,33 +794,13 @@ function renderNews(items) {
 
 function renderTicker(items) {
     const track = document.querySelector('.marquee-track');
-    if (!track) return;
+    const section = document.querySelector('.marquee-section');
+    if (!track || !section) return;
 
     // Clear existing static items
     track.innerHTML = '';
 
-    // Create base items
-    const elements = items.map(item => {
-        const div = document.createElement('div');
-        div.className = 'marquee-item';
-
-        // Body text
-        let text = item.body || '';
-        div.textContent = text + ' — '; // Add separator
-
-        // Link handling
-        if (item.link_url) {
-            div.style.cursor = 'pointer';
-            div.style.textDecoration = 'underline'; // Optional visual cue
-            div.addEventListener('click', () => {
-                window.open(item.link_url, '_blank');
-            });
-        }
-
-        return div;
-    });
-
-    if (elements.length === 0) return;
+    if (items.length === 0) return;
 
     // Clone items to fill screen + loop buffer
     // Creating minimal sets to ensure smooth loop. 
@@ -834,23 +814,35 @@ function renderTicker(items) {
         items.forEach(item => {
             const div = document.createElement('div');
             div.className = 'marquee-item';
-            div.textContent = (item.body || '') + ' — ';
+            
+            // Body text (separator is added via CSS ::after)
+            let text = item.body || '';
+            div.textContent = text;
 
+            // Link handling
             if (item.link_url) {
                 div.style.cursor = 'pointer';
                 div.addEventListener('click', () => {
                     window.open(item.link_url, '_blank');
                 });
             }
+            
             track.appendChild(div);
         });
+    }
+
+    // Check for prefers-reduced-motion
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    
+    if (prefersReducedMotion) {
+        // No animation for reduced motion
+        return;
     }
 
     // Start Animation
     // Re-implement the GSAP animation here
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
-    const isAndroid = /Android/i.test(navigator.userAgent);
-    const marqueeDuration = isMobile ? 8 : 20; // Slightly adjust for readability
+    const marqueeDuration = isMobile ? 25 : 35; // Slower, more elegant speed
 
     // Kill existing tweaks if any
     gsap.killTweensOf('.marquee-track');
@@ -858,7 +850,8 @@ function renderTicker(items) {
     // Reset position cleanly
     gsap.set('.marquee-track', { xPercent: 0 });
 
-    gsap.to('.marquee-track', {
+    // Animation timeline for pause on hover/touch
+    let animation = gsap.to('.marquee-track', {
         xPercent: -50, // Move by 50% of track width. Requires track to be wide enough (2 sets of content at least covering screen)
         // With 6 sets, 50% is 3 sets. 3 sets should definitely cover the screen width unless items are tiny and screen is huge.
         ease: 'none',
@@ -867,6 +860,26 @@ function renderTicker(items) {
         force3D: true,
         lazy: false
     });
+
+    // Pause on hover/touch
+    let isPaused = false;
+    const pauseAnimation = () => {
+        if (!isPaused && animation) {
+            animation.pause();
+            isPaused = true;
+        }
+    };
+    const resumeAnimation = () => {
+        if (isPaused && animation) {
+            animation.resume();
+            isPaused = false;
+        }
+    };
+
+    section.addEventListener('mouseenter', pauseAnimation);
+    section.addEventListener('mouseleave', resumeAnimation);
+    section.addEventListener('touchstart', pauseAnimation);
+    section.addEventListener('touchend', resumeAnimation);
 }
 
 function setupForm() {

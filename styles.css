@@ -813,12 +813,18 @@ body {
 
 /* --- Marquee --- */
 .marquee-section {
-    padding: 1rem 0;
-    background: var(--fg);
-    color: var(--bg);
+    padding: 1.2rem 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #e8e8e8;
     overflow: hidden;
     -webkit-overflow-scrolling: touch;
     /* iOS/Android スムーズスクロール */
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    position: relative;
+    z-index: 10;
 }
 
 .marquee-track {
@@ -831,13 +837,42 @@ body {
 
 .marquee-item {
     font-family: var(--font-tech);
-    font-size: clamp(1.2rem, 3vw, 3rem);
+    font-size: clamp(1rem, 2.5vw, 2.2rem);
     font-weight: 400;
-    margin-right: 4rem;
+    margin-right: 0;
     font-style: normal;
     text-transform: none;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.12em;
     white-space: nowrap;
+    color: #e8e8e8;
+    display: inline-flex;
+    align-items: center;
+}
+
+.marquee-item::after {
+    content: '・';
+    margin: 0 2.5rem;
+    color: rgba(255, 255, 255, 0.25);
+    font-size: 0.8em;
+}
+
+.marquee-item:last-child::after {
+    display: none;
+}
+
+.marquee-item.highlight {
+    color: var(--accent);
+}
+
+/* prefers-reduced-motion: アニメーション停止 */
+@media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+        animation: none !important;
+    }
+    
+    .marquee-section {
+        overflow-x: auto;
+    }
 }
 
 .outline {
@@ -1761,20 +1796,23 @@ body.hovered .cursor-circle {
 
     /* マーキーセクション（Android最適化） */
     .marquee-section {
-        padding: 0.8rem 0;
+        padding: 1rem 0;
         /* ハードウェアアクセラレーション */
         transform: translateZ(0);
         will-change: transform;
     }
 
     .marquee-item {
-        font-size: clamp(1rem, 4vw, 2rem);
-        margin-right: 2rem;
-        letter-spacing: 0.03em;
+        font-size: clamp(0.9rem, 3.5vw, 1.8rem);
+        letter-spacing: 0.1em;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         /* テキストレンダリングの最適化 */
         text-rendering: optimizeLegibility;
+    }
+    
+    .marquee-item::after {
+        margin: 0 1.5rem;
     }
 
     /* ヒーローセクション（Android最適化） */

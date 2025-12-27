@@ -286,13 +286,19 @@ function initLanguageSwitcher() {
     updateLanguageButtons();
     
     // Event listeners
-    langJaBtn.addEventListener('click', () => {
-        switchLanguage('ja');
-    });
+    const handleLangSwitch = (lang) => {
+        return (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            switchLanguage(lang);
+        };
+    };
     
-    langEnBtn.addEventListener('click', () => {
-        switchLanguage('en');
-    });
+    langJaBtn.addEventListener('click', handleLangSwitch('ja'));
+    langJaBtn.addEventListener('touchend', handleLangSwitch('ja'), { passive: false });
+    
+    langEnBtn.addEventListener('click', handleLangSwitch('en'));
+    langEnBtn.addEventListener('touchend', handleLangSwitch('en'), { passive: false });
 }
 
 function switchLanguage(lang) {
@@ -363,6 +369,35 @@ function updateLanguage(lang) {
         const placeholderText = lang === 'ja' ? '▾ 選択してください' : '▾ Please select';
         selectPlaceholder.textContent = placeholderText;
     }
+    
+    // Update news items if they exist
+    updateNewsItemsLanguage(lang);
+}
+
+function updateNewsItemsLanguage(lang) {
+    const newsItems = document.querySelectorAll('.news-item');
+    newsItems.forEach(itemEl => {
+        try {
+            const storedItem = JSON.parse(itemEl.dataset.newsItem || '{}');
+            if (!storedItem || Object.keys(storedItem).length === 0) return;
+            
+            // Get localized title
+            const getLocalizedTitle = (item) => {
+                if (lang === 'en' && item.title_en) {
+                    return item.title_en;
+                }
+                return item.title || 'No title';
+            };
+            
+            const title = getLocalizedTitle(storedItem);
+            const titleEl = itemEl.querySelector('.news-title');
+            if (titleEl) {
+                titleEl.textContent = title;
+            }
+        } catch (e) {
+            console.warn('Failed to update news item language:', e);
+        }
+    });
 }
 
 function getNestedValue(obj, path) {
@@ -966,27 +1001,55 @@ function renderNews(items) {
         }
         a.href = '#';
 
+        // Get localized content based on current language
+        const getLocalizedTitle = (item) => {
+            if (currentLang === 'en' && item.title_en) {
+                return item.title_en;
+            }
+            return item.title || 'No title';
+        };
+
+        const getLocalizedBody = (item) => {
+            if (currentLang === 'en' && item.body_en) {
+                return item.body_en;
+            }
+            return item.body || item.detail || '';
+        };
+
+        const getLocalizedLinkLabel = (item) => {
+            if (currentLang === 'en' && item.link_label_en) {
+                return item.link_label_en;
+            }
+            return item.link_label || (currentLang === 'ja' ? 'こちら →' : 'Here →');
+        };
+
+        const title = getLocalizedTitle(item);
+
         // Build inner HTML with badge
         let html = `
           <span class="news-date">
             ${formattedDate}
             ${isNew ? '<span class="news-badge">NEW</span>' : ''}
           </span>
-          <span class="news-title">${item.title || 'No title'}</span>
+          <span class="news-title">${title}</span>
           <span class="news-arrow">↗</span>
         `;
         a.innerHTML = html;
+
+        // Store original item data for modal
+        a.dataset.newsItem = JSON.stringify(item);
 
         // Modal Click Event
         a.addEventListener('click', (e) => {
             e.preventDefault();
             if (modal && modal.open) {
+                const storedItem = JSON.parse(a.dataset.newsItem);
                 modalDate.textContent = formattedDate || '';
-                modalTitle.textContent = item.title || '';
-                modalBody.innerHTML = (item.body || item.detail || '').replace(/\n/g, '<br>');
+                modalTitle.textContent = getLocalizedTitle(storedItem);
+                modalBody.innerHTML = getLocalizedBody(storedItem).replace(/\n/g, '<br>');
 
-                const url = item.link_url || '';
-                const linkLabel = item.link_label || 'こちら →'; // Support custom label
+                const url = storedItem.link_url || '';
+                const linkLabel = getLocalizedLinkLabel(storedItem);
 
                 if (url) {
                     modalLink.href = url;
@@ -1001,6 +1064,12 @@ function renderNews(items) {
         });
         return a;
     };
+
+    // Store news items globally for language switching
+    if (!window.newsItemsData) {
+        window.newsItemsData = [];
+    }
+    window.newsItemsData = items;
 
     // 最初の5件を表示
     initialItems.forEach(item => {

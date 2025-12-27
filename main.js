@@ -122,13 +122,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Smooth Scroll（モバイルは数値を極小にしてネイティブ動作に近づける）
     lenis = new Lenis({
-        // モバイルのみほぼ遅延なし(0.1)に設定し、カクつきを軽減
-        duration: isMobile ? 0.1 : 1.5,
+        // Android向けにさらに最適化：durationを極小にしてネイティブスクロールに近づける
+        duration: isAndroid ? 0.05 : (isMobile ? 0.1 : 1.5),
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smooth: true,
+        smooth: true, // smoothは有効のまま、durationで調整
         mouseMultiplier: isMobile ? 0.5 : 1,
-        touchMultiplier: isMobile ? 2 : 1, // タッチ感度調整
+        touchMultiplier: isAndroid ? 1.5 : (isMobile ? 2 : 1), // Android向けにタッチ感度を調整
         infinite: false,
+        // Android向けのパフォーマンス最適化
+        wheelMultiplier: isAndroid ? 0.5 : 1,
     });
 
     // 初期位置強制はバック時の位置までリセットしてしまうためコメントアウトまたは削除が望ましいが
@@ -165,6 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initHamburgerMenu();
     initLogoScroll();
     initLanguageSwitcher();
+    initVideoOptimization(); // 動画最適化を追加
     fetchData();
     setupForm();
 });
@@ -629,6 +632,73 @@ function initHeroReveal() {
     });
 }
 
+function initVideoOptimization() {
+    const heroVideo = document.querySelector('.hero-video');
+    if (!heroVideo) return;
+
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    const isMobile = window.matchMedia('(max-width: 900px)').matches;
+
+    // Android向けの動画最適化
+    if (isAndroid || isMobile) {
+        // IntersectionObserverでビューポート外で動画を一時停止
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // ビューポート内に入ったら再生
+                    if (heroVideo.paused) {
+                        const playPromise = heroVideo.play();
+                        if (playPromise && typeof playPromise.catch === 'function') {
+                            playPromise.catch(() => { });
+                        }
+                    }
+                } else {
+                    // ビューポート外に出たら一時停止（パフォーマンス向上）
+                    if (!heroVideo.paused) {
+                        heroVideo.pause();
+                    }
+                }
+            });
+        }, {
+            threshold: 0.1, // 10%以上見えている場合に再生
+            rootMargin: '50px' // 少し余裕を持たせる
+        });
+
+        observer.observe(heroVideo);
+
+        // スクロール時の動画品質を下げる（Android向け）
+        if (isAndroid) {
+            // 動画のpreloadをnoneにして初期読み込みを軽量化
+            heroVideo.setAttribute('preload', 'none');
+            
+            // スクロール中は動画の更新を抑制
+            let isScrolling = false;
+            let scrollTimeout;
+            
+            const handleScroll = () => {
+                if (!isScrolling) {
+                    isScrolling = true;
+                    // スクロール中は動画の更新を抑制
+                    heroVideo.style.willChange = 'auto';
+                }
+                
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    isScrolling = false;
+                    heroVideo.style.willChange = 'transform';
+                }, 150);
+            };
+
+            // Lenisのスクロールイベントに最適化
+            if (lenis) {
+                lenis.on('scroll', handleScroll);
+            } else {
+                window.addEventListener('scroll', handleScroll, { passive: true });
+            }
+        }
+    }
+}
+
 function initLogoScroll() {
     const logo = document.querySelector('.nav-logo');
     if (!logo) return;
@@ -751,9 +821,29 @@ function initCursor() {
 }
 
 function initAnimations() {
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    const isMobile = window.matchMedia('(max-width: 900px)').matches;
+    
+    // Android向けにScrollTriggerの設定を最適化
+    const scrollTriggerDefaults = {
+        markers: false,
+        // Android向けにrefreshPriorityを下げてパフォーマンス向上
+        refreshPriority: isAndroid ? -1 : 0,
+        // Android向けにonceをtrueにしてアニメーションを1回のみ実行
+        once: isAndroid,
+        // Android向けにinvalidateOnRefreshをfalseにしてパフォーマンス向上
+        invalidateOnRefresh: !isAndroid,
+    };
+
     gsap.to('.hero-bg-container', {
         yPercent: 30, ease: 'none',
-        scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }
+        scrollTrigger: { 
+            trigger: '.hero', 
+            start: 'top top', 
+            end: 'bottom top', 
+            scrub: isAndroid ? 0.5 : true, // Androidではscrubを軽量化
+            ...scrollTriggerDefaults
+        }
     });
 
 
@@ -764,16 +854,28 @@ function initAnimations() {
     splitTypes.forEach(char => {
         const text = new SplitType(char, { types: 'lines, words' });
         gsap.from(text.words, {
-            y: 50, opacity: 0, duration: 1, stagger: 0.05, ease: 'power3.out',
-            scrollTrigger: { trigger: char, start: 'top 80%' }
+            y: 50, opacity: 0, 
+            duration: isAndroid ? 0.8 : 1, // Android向けに短縮
+            stagger: isAndroid ? 0.03 : 0.05, // Android向けにstaggerを短縮
+            ease: 'power3.out',
+            scrollTrigger: { 
+                trigger: char, 
+                start: 'top 80%',
+                ...scrollTriggerDefaults
+            }
         });
     });
 
     gsap.utils.toArray('.img-reveal-mask').forEach(mask => {
         gsap.to(mask, {
             clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
-            duration: 1.5, ease: 'power4.out',
-            scrollTrigger: { trigger: mask, start: 'top 85%' }
+            duration: isAndroid ? 1.0 : 1.5, // Android向けに短縮
+            ease: 'power4.out',
+            scrollTrigger: { 
+                trigger: mask, 
+                start: 'top 85%',
+                ...scrollTriggerDefaults
+            }
         });
     });
 
@@ -784,8 +886,15 @@ function initAnimations() {
         bioLines.forEach(block => {
             const text = new SplitType(block, { types: 'lines' });
             gsap.from(text.lines, {
-                y: 20, opacity: 0, duration: 1, stagger: 0.1, ease: "power2.out",
-                scrollTrigger: { trigger: block, start: "top 85%" }
+                y: 20, opacity: 0, 
+                duration: isAndroid ? 0.8 : 1, // Android向けに短縮
+                stagger: isAndroid ? 0.08 : 0.1, // Android向けにstaggerを短縮
+                ease: "power2.out",
+                scrollTrigger: { 
+                    trigger: block, 
+                    start: "top 85%",
+                    ...scrollTriggerDefaults
+                }
             });
         });
     }, 200);

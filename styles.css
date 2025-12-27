@@ -792,6 +792,13 @@ body {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    /* Android向けのパフォーマンス最適化 */
+    transform: translateZ(0);
+    will-change: transform;
+    -webkit-transform: translateZ(0);
+    /* ハードウェアアクセラレーション */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
 }
 
 .hero-video {
@@ -802,6 +809,13 @@ body {
     top: 0;
     left: 0;
     filter: none;
+    /* Android向けのパフォーマンス最適化 */
+    transform: translateZ(0);
+    will-change: transform;
+    -webkit-transform: translateZ(0);
+    /* ハードウェアアクセラレーション */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
 }
 
 .hero-overlay {
@@ -1042,6 +1056,13 @@ body {
     aspect-ratio: 3/4;
     overflow: hidden;
     clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+    /* Android向けのパフォーマンス最適化 */
+    transform: translateZ(0);
+    will-change: clip-path;
+    -webkit-transform: translateZ(0);
+    /* ハードウェアアクセラレーション */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
 }
 
 .artist-photo {
@@ -1050,6 +1071,15 @@ body {
     object-fit: cover;
     filter: grayscale(100%) contrast(1.2);
     transition: filter 0.5s ease;
+    /* Android向けのパフォーマンス最適化 */
+    transform: translateZ(0);
+    will-change: transform, filter;
+    -webkit-transform: translateZ(0);
+    /* ハードウェアアクセラレーション */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    /* 画像レンダリングの最適化 */
+    image-rendering: -webkit-optimize-contrast;
 }
 
 .artist-photo:hover {
@@ -1929,6 +1959,11 @@ body.hovered .cursor-circle {
         /* ビデオの最適化 */
         object-fit: cover;
         -webkit-transform: translateZ(0);
+        /* Android向けの動画レンダリング最適化 */
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        /* 動画の更新頻度を最適化 */
+        image-rendering: -webkit-optimize-contrast;
     }
 
     /* セクション全体の最適化 */
@@ -1938,13 +1973,27 @@ body.hovered .cursor-circle {
         will-change: transform;
     }
 
+    /* ARTISTセクションの最適化 */
+    .artist {
+        /* コンテンツの読み込みを最適化 */
+        contain: layout style paint;
+    }
+
+    .artist-img-wrapper {
+        /* 画像読み込み時のレイアウトシフトを防ぐ */
+        min-height: 400px;
+    }
+
     /* 画像の最適化 */
     img {
         /* 画像レンダリングの最適化 */
         image-rendering: -webkit-optimize-contrast;
-        image-rendering: crisp-edges;
         /* ハードウェアアクセラレーション */
         transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+        /* 画像読み込み時の最適化 */
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
     }
 
     /* ボタンとリンクの最適化 */

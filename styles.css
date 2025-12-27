@@ -134,19 +134,19 @@ body {
     object-fit: cover;
     opacity: 0;
     z-index: 1;
-    /* 画像を暗くしてコントラスト強調 */
-    filter: grayscale(90%) brightness(0.35) contrast(1.3);
+    /* 画像を明るくして視認性を向上（Android対応） */
+    filter: grayscale(60%) brightness(0.75) contrast(1.2);
     transform: scale(1.1);
-    /* スポットライト的なビネット効果 */
-    box-shadow: inset 0 0 200px rgba(0, 0, 0, 0.8);
+    /* スポットライト的なビネット効果（軽減） */
+    box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.4);
 }
 
-/* 画像にビネット効果を追加 */
+/* 画像にビネット効果を追加（軽減） */
 .loader-flash::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at center, transparent 20%, rgba(0, 0, 0, 0.9) 100%);
+    background: radial-gradient(circle at center, transparent 30%, rgba(0, 0, 0, 0.5) 100%);
     pointer-events: none;
     z-index: 1;
 }
@@ -1918,6 +1918,16 @@ body.hovered .cursor-circle {
         min-height: 44px;
         touch-action: manipulation;
         -webkit-tap-highlight-color: rgba(212, 175, 55, 0.2);
+    }
+
+    /* Android向け：ローダー画像をさらに明るく */
+    .loader-flash {
+        filter: grayscale(40%) brightness(0.9) contrast(1.1) !important;
+        box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .loader-flash::after {
+        background: radial-gradient(circle at center, transparent 40%, rgba(0, 0, 0, 0.3) 100%) !important;
     }
 }
 

@@ -1283,6 +1283,39 @@ body {
     border-bottom-color: rgba(155, 208, 255, .9);
 }
 
+/* --- Discography --- */
+.discography-panel {
+    background: rgba(5, 5, 5, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.discography-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+    opacity: 0.3;
+}
+
+.discography-panel iframe {
+    width: 100%;
+    height: 420px;
+    border: none;
+    border-radius: 8px;
+    display: block;
+    background: transparent;
+}
+
 /* --- Visual Break --- */
 .visual-break {
     height: 80vh;
@@ -2063,6 +2096,16 @@ body.hovered .cursor-circle {
 
     .statement-text {
         font-size: 2.5rem;
+    }
+
+    .discography-panel {
+        padding: 1rem;
+        border-radius: 8px;
+    }
+
+    .discography-panel iframe {
+        height: 380px;
+        border-radius: 6px;
     }
 
     .cursor-dot,

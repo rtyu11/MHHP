@@ -844,29 +844,39 @@ body {
     margin: 0 auto;
     padding: 0 clamp(1rem, 5vw, 2rem);
     box-sizing: border-box;
+    /* 文字が切れないようにoverflowをvisibleに */
+    overflow: visible;
 }
 
 .hero-title {
     font-family: var(--font-main);
     font-size: 12vw;
-    line-height: 0.8;
+    /* ディセンダー（y等）が切れないように行高と下余白を確保 */
+    line-height: 0.92;
+    padding-bottom: 0.14em;
     margin: 0;
     letter-spacing: -0.02em;
     font-weight: 300;
     font-style: italic;
-
-    /* Gold Gradient */
+    /* 文字が切れないようにoverflowをvisibleに */
+    overflow: visible;
+    /* フォールバック色（グラデーションが効かない環境向け） */
     color: #d4af37;
-    background: linear-gradient(to bottom right, #fbf5b7 10%, #bf953f 40%, #b38728 60%, #aa771c 90%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.3));
 }
 
 .hero-title .char-wrap {
     opacity: 0;
     /* 初期状態で非表示 */
+    display: inline-block; /* transform時の字面欠けを防ぐ */
+    padding-bottom: 0.14em; /* yの下が切れないように */
+    will-change: transform, opacity;
+
+    /* Gold Gradient（文字が透明にならないよう、span側に適用） */
+    background: linear-gradient(to bottom right, #fbf5b7 10%, #bf953f 40%, #b38728 60%, #aa771c 90%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.3));
 }
 
 .hero-subtitle {
@@ -881,6 +891,8 @@ body {
     opacity: 0;
     /* 初期状態で非表示 */
     color: #ddd;
+    /* 文字が背景に溶け込まないように、確実に見えるようにする */
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 0, 0, 0.7);
 }
 
 /* --- Marquee --- */
@@ -1709,6 +1721,8 @@ body.hovered .cursor-circle {
         margin: 0 auto;
         padding: 0 clamp(1rem, 5vw, 2rem);
         box-sizing: border-box;
+        /* 文字が切れないようにoverflowをvisibleに */
+        overflow: visible;
     }
 
     /* タッチターゲットサイズの確保（最小44x44px） */
@@ -1909,6 +1923,11 @@ body.hovered .cursor-circle {
         width: 100%;
         margin: 0 auto;
         padding: 0;
+        /* 文字が切れないようにoverflowをvisibleに */
+        overflow: visible;
+        /* モバイルでもディセンダー（y等）を確保 */
+        line-height: 0.92;
+        padding-bottom: 0.14em;
     }
 
     .hero-overlay {

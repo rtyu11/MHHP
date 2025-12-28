@@ -605,31 +605,55 @@ function initLoader(navType) {
 }
 
 function initHeroReveal() {
-    // 文字を確実に非表示の状態から開始（念のため）
-    gsap.set('.hero-title .char-wrap', { opacity: 0, y: 150, rotateX: 10 });
-    gsap.set('.hero-subtitle', { opacity: 0, y: 20 });
+    // 文字を確実に非表示の状態から開始
+    // 3D回転は字面の欠け/クリップに繋がりやすいので使わず、シンプルに表示する
+    gsap.set('.hero-title .char-wrap', { opacity: 0, y: 36 });
+    gsap.set('.hero-subtitle', { opacity: 0, y: 16 });
 
     // 動画はそのまま表示（エフェクトなし）
     // 動画のエフェクトを削除し、通常の状態で表示
 
-    // 動画が流れ始めてから遅れて、ゆっくりと文字を表示
-    gsap.to('.hero-title .char-wrap', {
-        y: 0,
-        opacity: 1,
-        rotateX: 0,
-        duration: 2.0, // よりゆっくり
-        stagger: 0.15, // 文字間の間隔も広げる
-        ease: "power3.out",
-        delay: 1.5 // 動画開始から1.5秒後に表示開始
-    });
+    // MasatoとHayashiを個別にアニメーション（ゆっくりと余裕のある感じ）
+    gsap.fromTo(
+        '.hero-title .char-wrap[data-word="masato"]',
+        { opacity: 0, y: 36 },
+        {
+            opacity: 1,
+            y: 0,
+            duration: 3.2, // 余裕のあるスピード
+            ease: "power2.out",
+            delay: 2.0,
+            overwrite: 'auto'
+        }
+    );
 
-    // サブタイトルも遅れて表示
-    gsap.to('.hero-subtitle', {
-        opacity: 1,
-        y: 0,
-        duration: 1.2,
-        delay: 2.5 // 文字の表示が始まってからさらに遅れて
-    });
+    // HayashiはMasatoより少し遅れて表示
+    gsap.fromTo(
+        '.hero-title .char-wrap[data-word="hayashi"]',
+        { opacity: 0, y: 36 },
+        {
+            opacity: 1,
+            y: 0,
+            duration: 3.2,
+            ease: "power2.out",
+            delay: 2.6, // 少しだけずらす
+            overwrite: 'auto'
+        }
+    );
+
+    // サブタイトルも遅れて表示（文字が背景に溶け込まないようにopacityを確実に1にする）
+    gsap.fromTo(
+        '.hero-subtitle',
+        { opacity: 0, y: 16 },
+        {
+            opacity: 1,
+            y: 0,
+            duration: 1.8,
+            ease: "power2.out",
+            delay: 3.8,
+            overwrite: 'auto'
+        }
+    );
 }
 
 function initVideoOptimization() {

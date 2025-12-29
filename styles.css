@@ -1403,96 +1403,189 @@ body {
     margin-right: 0.5rem;
 }
 
-.btn-spotify {
+.discography-featured-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.btn-play-30s {
     display: inline-flex;
     align-items: center;
-    gap: 0.8rem;
-    padding: 1rem 2rem;
-    background: rgba(212, 175, 55, 0.1);
-    border: 1px solid rgba(212, 175, 55, 0.4);
+    gap: 0.75rem;
+    padding: 0.9rem 1.8rem;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     color: #fff;
     font-family: var(--font-tech);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    text-decoration: none;
+    cursor: pointer;
     border-radius: 4px;
     transition: all 0.3s var(--ease-out);
     width: fit-content;
-    margin-top: 1rem;
 }
 
-.btn-spotify:hover {
-    background: rgba(212, 175, 55, 0.2);
+.btn-play-30s:hover {
     border-color: var(--accent);
     color: var(--accent);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+    background: rgba(212, 175, 55, 0.05);
 }
 
-.btn-spotify i {
-    font-size: 1.1rem;
+.btn-play-30s .is-playing {
+    border-color: var(--accent);
+    color: var(--accent);
 }
 
-/* Discography Grid - 高級感重視のレイアウト */
-.discography-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 36px;
-    margin-top: 0;
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 0;
+.btn-play-icon {
+    font-size: 0.9rem;
+    line-height: 1;
 }
 
-.track-card {
+.btn-spotify-link {
+    display: inline-block;
+    color: rgba(255, 255, 255, 0.6);
+    font-family: var(--font-tech);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: color 0.3s var(--ease-out);
+    width: fit-content;
+}
+
+.btn-spotify-link:hover {
+    color: var(--accent);
+}
+
+/* Horizontal Rail - 横スクロール */
+.discography-rail {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 32px;
+    padding: 2rem 0;
+    margin: 0;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.discography-rail::-webkit-scrollbar {
+    height: 4px;
+}
+
+.discography-rail::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.discography-rail::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+.discography-rail::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.rail-card {
     position: relative;
-    cursor: pointer;
-    transition: transform 0.4s var(--ease-out), opacity 0.4s var(--ease-out);
+    flex: 0 0 auto;
+    width: 300px;
+    scroll-snap-align: start;
     border: 1px solid rgba(255, 255, 255, 0.08);
     background: rgba(0, 0, 0, 0.15);
     border-radius: 12px;
     overflow: hidden;
-    padding: 0;
+    transition: transform 0.3s var(--ease-out), border-color 0.3s var(--ease-out);
+    cursor: pointer;
 }
 
-.track-card:hover {
+.rail-card:hover {
     transform: translateY(-2px);
     border-color: rgba(255, 255, 255, 0.12);
 }
 
-.track-card-image-wrapper {
+.rail-card.is-playing {
+    border-color: var(--accent);
+}
+
+.rail-card-image-wrapper {
     position: relative;
     width: 100%;
     aspect-ratio: 1;
     overflow: hidden;
     background: rgba(255, 255, 255, 0.03);
-    padding: 0;
 }
 
-.track-card-image {
+.rail-card-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.5s var(--ease-out);
     display: block;
+    transition: transform 0.5s var(--ease-out);
 }
 
-.track-card:hover .track-card-image {
+.rail-card:hover .rail-card-image {
     transform: scale(1.02);
 }
 
-.track-card-content {
-    padding: 1.5rem;
+.rail-card-play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 56px;
+    height: 56px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
     display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s var(--ease-out);
+    opacity: 0;
+    pointer-events: none;
 }
 
-.track-card-title {
+.rail-card:hover .rail-card-play-btn,
+.rail-card.is-playing .rail-card-play-btn {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.rail-card-play-btn:hover {
+    background: rgba(0, 0, 0, 0.9);
+    border-color: var(--accent);
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+.rail-card.is-playing .rail-card-play-btn {
+    background: rgba(212, 175, 55, 0.2);
+    border-color: var(--accent);
+}
+
+.rail-card-play-icon {
+    color: #fff;
+    font-size: 1.2rem;
+    line-height: 1;
+    margin-left: 2px;
+}
+
+.rail-card-content {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.rail-card-title {
     font-family: var(--font-main);
-    font-size: 1.05rem;
+    font-size: 1rem;
     font-weight: 400;
     color: #fff;
     margin: 0;
@@ -1503,55 +1596,13 @@ body {
     white-space: nowrap;
 }
 
-.track-card-year {
+.rail-card-year {
     font-family: var(--font-tech);
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: rgba(255, 255, 255, 0.5);
     letter-spacing: 0.1em;
     text-transform: uppercase;
     margin: 0;
-}
-
-/* Load More Button */
-.discography-loadmore-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 5rem;
-    padding: 2rem 0;
-}
-
-.discography-loadmore-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1rem 2.5rem;
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    color: #fff;
-    font-family: var(--font-tech);
-    font-size: 0.85rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: all 0.3s var(--ease-out);
-}
-
-.discography-loadmore-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(212, 175, 55, 0.05);
-    transform: translateY(-2px);
-}
-
-.discography-loadmore-arrow {
-    font-size: 1rem;
-    transition: transform 0.3s var(--ease-out);
-}
-
-.discography-loadmore-btn:hover .discography-loadmore-arrow {
-    transform: translateY(2px);
 }
 
 /* Responsive - 高級感を維持 */
@@ -1561,17 +1612,16 @@ body {
         gap: 4rem;
     }
 
-    .discography-grid {
-        gap: 32px;
+    .discography-rail {
+        gap: 28px;
+    }
+
+    .rail-card {
+        width: 280px;
     }
 }
 
 @media (max-width: 980px) {
-    .discography-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 28px;
-    }
-
     .discography-featured-content {
         grid-template-columns: 1fr;
         gap: 3rem;
@@ -1586,8 +1636,16 @@ body {
         text-align: center;
     }
 
-    .btn-spotify {
-        margin: 0 auto;
+    .discography-featured-actions {
+        align-items: center;
+    }
+
+    .discography-rail {
+        gap: 24px;
+    }
+
+    .rail-card {
+        width: 280px;
     }
 }
 
@@ -1604,12 +1662,16 @@ body {
         font-size: 2.2rem;
     }
 
-    .discography-grid {
-        grid-template-columns: 1fr;
-        gap: 24px;
+    .discography-rail {
+        gap: 20px;
+        padding: 1.5rem 0;
     }
 
-    .track-card-title {
+    .rail-card {
+        width: 80vw;
+    }
+
+    .rail-card-title {
         white-space: normal;
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -1619,13 +1681,8 @@ body {
         line-height: 1.4;
     }
 
-    .track-card-content {
-        padding: 1.25rem;
-    }
-
-    .discography-loadmore-wrapper {
-        margin-top: 3rem;
-        padding: 1.5rem 0;
+    .rail-card-content {
+        padding: 1rem;
     }
 }
 

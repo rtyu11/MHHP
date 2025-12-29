@@ -1424,15 +1424,26 @@ function renderTicker(items) {
 }
 
 // -------- Discography (Landing) --------
+// Audio管理（グローバル1個のみ）
+let discographyAudio = null;
+let currentPlayingTrackId = null;
+
 function initLandingDiscography() {
     const featuredEl = document.getElementById('discography-featured');
-    const gridEl = document.getElementById('discography-grid-lp');
-    const loadMoreWrapper = document.getElementById('discography-loadmore-wrapper');
-    const loadMoreBtn = document.getElementById('discography-loadmore-btn');
+    const railEl = document.getElementById('discography-rail');
     const loadingEl = document.getElementById('discography-loading-lp');
     const errorEl = document.getElementById('discography-error-lp');
 
-    if (!featuredEl || !gridEl) return;
+    if (!featuredEl || !railEl) return;
+
+    // Audioインスタンスを初期化（1個のみ）
+    if (!discographyAudio) {
+        discographyAudio = new Audio();
+        discographyAudio.addEventListener('ended', () => {
+            // 再生終了時にUIを元に戻す
+            stopAllPlayback();
+        });
+    }
 
     const hideLoading = () => {
         if (loadingEl) loadingEl.style.display = 'none';
@@ -1459,25 +1470,22 @@ function initLandingDiscography() {
                 return db.localeCompare(da);
             });
 
-            // 最新1件をFeatured、残りをGrid用に分割
-            const featured = sorted[0];
-            const rest = sorted.slice(1);
+            // 最新1件をFeatured、残りをRail用に分割
+            const featuredTrack = sorted[0];
+            const others = sorted.slice(1);
 
             hideLoading();
 
             // Featured（最新1件）を表示
-            if (featured) {
-                renderFeatured(featured, featuredEl);
+            if (featuredTrack) {
+                renderFeatured(featuredTrack, featuredEl);
                 featuredEl.style.display = 'block';
             }
 
-            // Grid（初期12件）を表示
-            if (rest.length > 0) {
-                const initialTracks = rest.slice(0, 12);
-                const remainingTracks = rest.slice(12);
-                
-                renderGridLP(initialTracks, gridEl, remainingTracks, loadMoreWrapper, loadMoreBtn);
-                gridEl.style.display = 'grid';
+            // Rail（横スクロール）を表示
+            if (others.length > 0) {
+                renderRail(others, railEl);
+                railEl.style.display = 'flex';
             }
         })
         .catch((err) => {
@@ -1495,6 +1503,8 @@ function renderFeatured(track, targetEl) {
     const trackName = track?.name || 'Unknown Track';
     const releaseDate = track?.album?.release_date || '';
     const spotifyUrl = track?.external_url || '';
+    const previewUrl = track?.preview_url || null;
+    const trackId = track?.id || `featured-${Date.now()}`;
 
     const formattedDate = releaseDate ? releaseDate.split('T')[0] : '';
 
@@ -1511,114 +1521,144 @@ function renderFeatured(track, targetEl) {
                         <span>${formattedDate}</span>
                     </div>
                 ` : ''}
-                ${spotifyUrl ? `
-                    <a href="${spotifyUrl}" target="_blank" rel="noopener" class="btn-spotify">
-                        <i class="fa-brands fa-spotify"></i>
-                        <span>OPEN IN SPOTIFY</span>
-                    </a>
-                ` : ''}
+                <div class="discography-featured-actions">
+                    ${previewUrl ? `
+                        <button class="btn-play-30s" data-track-id="${escapeHtml(trackId)}" data-preview-url="${escapeHtml(previewUrl)}" data-spotify-url="${spotifyUrl ? escapeHtml(spotifyUrl) : ''}">
+                            <span class="btn-play-icon">▶︎</span>
+                            <span class="btn-play-text">PLAY 30s</span>
+                        </button>
+                    ` : ''}
+                    ${spotifyUrl ? `
+                        <a href="${spotifyUrl}" target="_blank" rel="noopener" class="btn-spotify-link">
+                            OPEN IN SPOTIFY
+                        </a>
+                    ` : ''}
+                </div>
             </div>
         </div>
     `;
+
+    // 再生ボタンのイベントを設定
+    if (previewUrl) {
+        attachPlayHandler(targetEl.querySelector('.btn-play-30s'), trackId, previewUrl, spotifyUrl);
+    }
 }
 
-// Grid（12件ずつ表示、Load More機能付き）
-function renderGridLP(tracks, gridEl, remainingTracks = [], loadMoreWrapper = null, loadMoreBtn = null) {
-    if (!gridEl) return;
+// Rail（横スクロール）を表示
+function renderRail(tracks, railEl) {
+    if (!railEl) return;
 
-    // カードを生成する関数
-    const createCard = (track) => {
+    const cards = tracks.map((track) => {
         const imageUrl = track?.album?.image || '';
         const trackName = track?.name || 'Unknown Track';
         const releaseDate = track?.album?.release_date || '';
         const spotifyUrl = track?.external_url || '';
+        const previewUrl = track?.preview_url || null;
+        const trackId = track?.id || `rail-${Date.now()}-${Math.random()}`;
         const year = releaseDate ? releaseDate.split('-')[0] : '';
 
         return `
-            <div class="track-card" ${spotifyUrl ? `data-spotify-url="${escapeHtml(spotifyUrl)}"` : ''}>
-                <div class="track-card-image-wrapper">
-                    <img src="${imageUrl}" alt="${escapeHtml(trackName)}" class="track-card-image" loading="lazy">
+            <div class="rail-card" data-track-id="${escapeHtml(trackId)}" ${spotifyUrl ? `data-spotify-url="${escapeHtml(spotifyUrl)}"` : ''}>
+                <div class="rail-card-image-wrapper">
+                    <img src="${imageUrl}" alt="${escapeHtml(trackName)}" class="rail-card-image" loading="lazy">
+                    ${previewUrl ? `
+                        <button class="rail-card-play-btn" data-track-id="${escapeHtml(trackId)}" data-preview-url="${escapeHtml(previewUrl)}" data-spotify-url="${spotifyUrl ? escapeHtml(spotifyUrl) : ''}">
+                            <span class="rail-card-play-icon">▶︎</span>
+                        </button>
+                    ` : ''}
                 </div>
-                <div class="track-card-content">
-                    <div class="track-card-title">${escapeHtml(trackName)}</div>
-                    ${year ? `<div class="track-card-year">${year}</div>` : ''}
+                <div class="rail-card-content">
+                    <div class="rail-card-title">${escapeHtml(trackName)}</div>
+                    ${year ? `<div class="rail-card-year">${year}</div>` : ''}
                 </div>
             </div>
         `;
-    };
+    }).join('');
 
-    // 初期表示分をレンダリング
-    const cards = tracks.map(createCard).join('');
-    gridEl.innerHTML = cards;
+    railEl.innerHTML = cards;
 
-    // クリックイベントを設定
-    gridEl.querySelectorAll('.track-card').forEach((card) => {
+    // 再生ボタンのイベントを設定
+    railEl.querySelectorAll('.rail-card-play-btn').forEach((btn) => {
+        const trackId = btn.dataset.trackId;
+        const previewUrl = btn.dataset.previewUrl;
+        const spotifyUrl = btn.dataset.spotifyUrl || '';
+        attachPlayHandler(btn, trackId, previewUrl, spotifyUrl);
+    });
+
+    // カードクリック（preview_urlがない場合のみSpotifyへ）
+    railEl.querySelectorAll('.rail-card').forEach((card) => {
+        const hasPreview = card.querySelector('.rail-card-play-btn');
+        if (hasPreview) return; // preview_urlがある場合は再生ボタンのみ
+        
         const url = card.dataset.spotifyUrl;
         if (!url) return;
         card.addEventListener('click', () => {
             window.open(url, '_blank');
         });
     });
+}
 
-    // Load More機能
-    if (remainingTracks.length > 0 && loadMoreWrapper && loadMoreBtn) {
-        loadMoreWrapper.style.display = 'flex';
+// 再生ボタンのハンドラーを設定
+function attachPlayHandler(buttonEl, trackId, previewUrl, spotifyUrl) {
+    if (!buttonEl || !previewUrl) return;
+
+    buttonEl.addEventListener('click', async (e) => {
+        e.stopPropagation();
         
-        // 既存のイベントリスナーを削除して再設定
-        const newBtn = loadMoreBtn.cloneNode(true);
-        loadMoreBtn.parentNode.replaceChild(newBtn, loadMoreBtn);
-        const currentBtn = newBtn;
-        
-        if (!currentBtn.dataset.initialized) {
-            let currentIndex = 0;
+        const card = buttonEl.closest('.rail-card, .discography-featured-content');
+        const isCurrentlyPlaying = currentPlayingTrackId === trackId;
+
+        if (isCurrentlyPlaying) {
+            // 同じ曲なら一時停止（トグル）
+            stopAllPlayback();
+        } else {
+            // 別の曲なら停止→再生
+            stopAllPlayback();
             
-            currentBtn.addEventListener('click', () => {
-                const nextBatch = remainingTracks.slice(currentIndex, currentIndex + 12);
-                if (nextBatch.length === 0) {
-                    loadMoreWrapper.style.display = 'none';
-                    return;
+            try {
+                discographyAudio.src = previewUrl;
+                await discographyAudio.play();
+                
+                currentPlayingTrackId = trackId;
+                if (card) card.classList.add('is-playing');
+                updatePlayButton(buttonEl, true);
+            } catch (error) {
+                console.error('Audio play failed:', error);
+                // フォールバック: Spotifyへ遷移
+                if (spotifyUrl) {
+                    window.open(spotifyUrl, '_blank');
                 }
-                
-                // 新しいカードを追加
-                nextBatch.forEach(track => {
-                    const cardHtml = createCard(track);
-                    const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = cardHtml;
-                    const card = tempDiv.firstElementChild;
-                    
-                    // クリックイベントを設定
-                    const url = card.dataset.spotifyUrl;
-                    if (url) {
-                        card.addEventListener('click', () => {
-                            window.open(url, '_blank');
-                        });
-                    }
-                    
-                    // アニメーション付きで追加
-                    card.style.opacity = '0';
-                    card.style.transform = 'translateY(20px)';
-                    gridEl.appendChild(card);
-                    
-                    gsap.to(card, {
-                        opacity: 1,
-                        y: 0,
-                        duration: 0.4,
-                        ease: 'power2.out'
-                    });
-                });
-                
-                currentIndex += 12;
-                
-                // 残りがなくなったらボタンを非表示
-                if (currentIndex >= remainingTracks.length) {
-                    loadMoreWrapper.style.display = 'none';
-                }
-            });
-            
-            currentBtn.dataset.initialized = 'true';
+            }
         }
-    } else if (loadMoreWrapper) {
-        loadMoreWrapper.style.display = 'none';
+    });
+}
+
+// すべての再生を停止
+function stopAllPlayback() {
+    if (discographyAudio) {
+        discographyAudio.pause();
+        discographyAudio.currentTime = 0;
+    }
+    
+    // UIを元に戻す
+    document.querySelectorAll('.is-playing').forEach((el) => {
+        el.classList.remove('is-playing');
+    });
+    
+    document.querySelectorAll('.rail-card-play-btn, .btn-play-30s').forEach((btn) => {
+        updatePlayButton(btn, false);
+    });
+    
+    currentPlayingTrackId = null;
+}
+
+// 再生ボタンの表示を更新
+function updatePlayButton(buttonEl, isPlaying) {
+    if (!buttonEl) return;
+    
+    const iconEl = buttonEl.querySelector('.rail-card-play-icon, .btn-play-icon');
+    if (iconEl) {
+        iconEl.textContent = isPlaying ? '⏸︎' : '▶︎';
     }
 }
 

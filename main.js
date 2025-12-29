@@ -1590,16 +1590,23 @@ function renderRailLP(tracks, gridEl, artistId) {
             <div class="track-card" data-track-id="${escapeHtml(trackId)}" ${spotifyUrl ? `data-spotify-url="${escapeHtml(spotifyUrl)}"` : ''}>
                 <div class="track-card-image-wrapper">
                     <img src="${imageUrl}" alt="${escapeHtml(trackName)}" class="track-card-image" loading="lazy">
-                    ${previewUrl ? `
-                        <button class="btn-preview" data-track-id="${escapeHtml(trackId)}" data-preview-url="${escapeHtml(previewUrl)}" data-track-name="${escapeHtml(trackName)}" data-artist-name="${escapeHtml(artistNames)}" data-spotify-url="${spotifyUrl ? escapeHtml(spotifyUrl) : ''}">
-                            <span class="btn-preview-icon">▶︎</span>
-                            <span class="btn-preview-text">PLAY 30s</span>
-                        </button>
-                    ` : ''}
                 </div>
                 <div class="track-card-body">
                     <div class="track-card-title">${escapeHtml(trackName)}</div>
                     ${year ? `<div class="track-card-year">${year}</div>` : ''}
+                    <div class="track-card-actions">
+                        ${previewUrl ? `
+                            <button class="btn-preview" data-track-id="${escapeHtml(trackId)}" data-preview-url="${escapeHtml(previewUrl)}" data-track-name="${escapeHtml(trackName)}" data-artist-name="${escapeHtml(artistNames)}" data-spotify-url="${spotifyUrl ? escapeHtml(spotifyUrl) : ''}">
+                                <span class="btn-preview-icon">▶︎</span>
+                                <span class="btn-preview-text">PLAY 30s</span>
+                            </button>
+                        ` : ''}
+                        ${spotifyUrl ? `
+                            <a href="${spotifyUrl}" target="_blank" rel="noopener noreferrer" class="btn-spotify-link">
+                                OPEN IN SPOTIFY
+                            </a>
+                        ` : ''}
+                    </div>
                 </div>
             </div>
         `;
@@ -1629,6 +1636,39 @@ function renderRailLP(tracks, gridEl, artistId) {
         moreLink.setAttribute('aria-label', 'Spotifyで全曲を見る');
         moreLink.textContent = isEnglish ? 'View all on Spotify' : 'Spotifyで全曲を見る';
         gridEl.appendChild(moreLink);
+    }
+
+    // カード下部の簡易再生リスト（プレビューがある曲のみ）
+    const playlistParent = gridEl.parentElement;
+    if (playlistParent) {
+        const existing = playlistParent.querySelector('.discography-playlist');
+        if (existing) existing.remove();
+
+        const previewable = tracks.filter((t) => t?.preview_url);
+        if (previewable.length > 0) {
+            const playlistEl = document.createElement('div');
+            playlistEl.className = 'discography-playlist';
+
+            playlistEl.innerHTML = previewable.map((t) => {
+                const tId = t?.id || `pl-${Math.random()}`;
+                const tName = t?.name || 'Unknown Track';
+                const artists = (t?.artists || []).map((a) => a?.name).filter(Boolean).join(', ');
+                const pUrl = t?.preview_url;
+                const sUrl = t?.external_url || '';
+                return `
+                    <button class="playlist-item" data-track-id="${escapeHtml(tId)}" data-preview-url="${escapeHtml(pUrl)}" data-track-name="${escapeHtml(tName)}" data-artist-name="${escapeHtml(artists)}" data-spotify-url="${sUrl ? escapeHtml(sUrl) : ''}">
+                        <span class="playlist-item__title">${escapeHtml(tName)}</span>
+                        <span class="playlist-item__artist">${escapeHtml(artists)}</span>
+                    </button>
+                `;
+            }).join('');
+
+            playlistParent.appendChild(playlistEl);
+
+            playlistEl.querySelectorAll('.playlist-item').forEach((btn) => {
+                attachPreviewHandler(btn);
+            });
+        }
     }
 }
 

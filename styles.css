@@ -1612,13 +1612,17 @@ body {
     transform: scale(1.03);
 }
 
+.track-card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    margin-top: 0.6rem;
+}
+
 .track-card .btn-preview {
-    position: absolute;
-    bottom: 14px;
-    left: 14px;
-    right: 14px;
+    position: static;
     justify-content: center;
-    width: calc(100% - 28px);
+    width: 100%;
 }
 
 .track-card-body {
@@ -1626,6 +1630,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 0.35rem;
+    min-height: 150px;
 }
 
 .track-card-title {
@@ -1759,6 +1764,47 @@ body {
     .track-card-body {
         padding: 1rem;
     }
+}
+
+.discography-playlist {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.playlist-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 12px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.28);
+    color: #fff;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.playlist-item:hover,
+.playlist-item:focus-visible {
+    border-color: rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.06);
+    outline: none;
+}
+
+.playlist-item__title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.playlist-item__artist {
+    font-size: 0.82rem;
+    color: #bbb;
+    line-height: 1.4;
 }
 
 /* --- Visual Break --- */

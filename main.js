@@ -795,8 +795,15 @@ function initHamburgerMenu() {
     const menuLinks = navMenu.querySelectorAll('.nav-menu-links a');
     menuLinks.forEach(link => {
         const handleLinkClick = (e) => {
-            // 外部リンクの場合は閉じる前に少し待つ
-            if (link.target === '_blank' || link.href.startsWith('http')) {
+            let isExternal = link.target === '_blank';
+            try {
+                const linkUrl = new URL(link.href, window.location.href);
+                isExternal = isExternal || linkUrl.origin !== window.location.origin;
+            } catch (_) {
+                // ignore URL parse errors
+            }
+
+            if (isExternal) {
                 setTimeout(closeMenu, 100);
             } else {
                 closeMenu();

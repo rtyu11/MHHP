@@ -132,7 +132,18 @@
             }
         } catch (err) {
             safelySetDisplay(loadingEl, 'none');
-            if (errorEl) safelySetDisplay(errorEl, 'block');
+            if (errorEl) {
+                safelySetDisplay(errorEl, 'block');
+                const prevDebug = errorEl.querySelector('.discography-error-debug');
+                if (prevDebug && prevDebug.remove) {
+                    prevDebug.remove();
+                }
+                const detail = document.createElement('p');
+                detail.className = 'discography-error-debug';
+                const message = err?.stack || err?.message || String(err);
+                detail.innerHTML = `Error detail: ${escapeHtml(message)}`;
+                errorEl.appendChild(detail);
+            }
         }
     };
 

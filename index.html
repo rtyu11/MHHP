@@ -201,17 +201,22 @@
                         <span class="section-label-main">DISCOGRAPHY</span>
                         <span class="section-label-subtext" lang="ja">作品</span>
                     </div>
-                    <div class="discography-panel">
-                        <iframe 
-                            src="https://open.spotify.com/embed/artist/5j7m1n3HAdmbJoYMizwzk2" 
-                            width="100%" 
-                            height="420" 
-                            frameBorder="0" 
-                            allowtransparency="true" 
-                            allow="encrypted-media"
-                            loading="lazy">
-                        </iframe>
+
+                    <!-- Loading State -->
+                    <div id="discography-loading-lp" class="discography-loading">
+                        <div class="discography-loading-text">NOW LOADING...</div>
                     </div>
+
+                    <!-- Error State -->
+                    <div id="discography-error-lp" class="discography-error" style="display: none;">
+                        <p>データの取得に失敗しました。しばらく時間をおいて再度お試しください。</p>
+                    </div>
+
+                    <!-- Latest Release -->
+                    <div id="discography-latest-lp" class="discography-hero" style="display: none;"></div>
+
+                    <!-- Discography Grid -->
+                    <div id="discography-grid-lp" class="discography-grid" style="display: none;"></div>
                 </div>
             </section>
 

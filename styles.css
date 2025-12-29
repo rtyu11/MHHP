@@ -1357,6 +1357,11 @@ body {
     align-items: center;
 }
 
+.discography-hero-image-wrapper {
+    width: 100%;
+    max-width: 440px;
+}
+
 .discography-hero-image {
     width: 100%;
     aspect-ratio: 1;

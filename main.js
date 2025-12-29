@@ -169,6 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initLanguageSwitcher();
     initVideoOptimization(); // 動画最適化を追加
     fetchData();
+    initLandingDiscography();
     setupForm();
 });
 
@@ -1364,6 +1365,130 @@ function renderTicker(items) {
     section.addEventListener('touchend', resumeAnimation);
 }
 
+// -------- Discography (Landing) --------
+function initLandingDiscography() {
+    const latestEl = document.getElementById('discography-latest-lp');
+    const gridEl = document.getElementById('discography-grid-lp');
+    const loadingEl = document.getElementById('discography-loading-lp');
+    const errorEl = document.getElementById('discography-error-lp');
+
+    if (!latestEl || !gridEl) return;
+
+    const hideLoading = () => {
+        if (loadingEl) loadingEl.style.display = 'none';
+    };
+
+    const showError = () => {
+        if (errorEl) errorEl.style.display = 'block';
+    };
+
+    fetch('/api/spotify')
+        .then((res) => {
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return res.json();
+        })
+        .then((data) => {
+            if (!data?.tracks || !Array.isArray(data.tracks) || data.tracks.length === 0) {
+                throw new Error('no tracks');
+            }
+
+            const sorted = [...data.tracks].sort((a, b) => {
+                const da = a?.album?.release_date || '';
+                const db = b?.album?.release_date || '';
+                return db.localeCompare(da);
+            });
+
+            const latest = sorted[0];
+            const rest = sorted.slice(1);
+
+            hideLoading();
+
+            if (latest) {
+                renderLatestReleaseLP(latest, latestEl);
+                latestEl.style.display = 'block';
+            }
+
+            if (rest.length > 0) {
+                renderGridLP(rest, gridEl);
+                gridEl.style.display = 'grid';
+            }
+        })
+        .catch((err) => {
+            console.error('Discography fetch failed', err);
+            hideLoading();
+            showError();
+        });
+}
+
+function renderLatestReleaseLP(track, targetEl) {
+    if (!targetEl) return;
+
+    const imageUrl = track?.album?.image || '';
+    const trackName = track?.name || 'Unknown Track';
+    const releaseDate = track?.album?.release_date || '';
+    const spotifyUrl = track?.external_url || '';
+
+    const formattedDate = releaseDate ? releaseDate.split('T')[0] : '';
+
+    targetEl.innerHTML = `
+        <div class="discography-hero-content">
+            <div class="discography-hero-image-wrapper">
+                <img src="${imageUrl}" alt="${escapeHtml(trackName)}" class="discography-hero-image" loading="lazy">
+            </div>
+            <div class="discography-hero-info">
+                <h2 class="discography-hero-title">${escapeHtml(trackName)}</h2>
+                ${formattedDate ? `
+                    <div class="discography-hero-release">
+                        <span class="discography-hero-release-label">RELEASE</span>
+                        <span>${formattedDate}</span>
+                    </div>
+                ` : ''}
+                ${spotifyUrl ? `
+                    <a href="${spotifyUrl}" target="_blank" rel="noopener" class="btn-spotify">
+                        <i class="fa-brands fa-spotify"></i>
+                        <span>Open in Spotify</span>
+                    </a>
+                ` : ''}
+            </div>
+        </div>
+    `;
+}
+
+function renderGridLP(tracks, gridEl) {
+    if (!gridEl) return;
+
+    const cards = tracks.map((track) => {
+        const imageUrl = track?.album?.image || '';
+        const trackName = track?.name || 'Unknown Track';
+        const releaseDate = track?.album?.release_date || '';
+        const spotifyUrl = track?.external_url || '';
+        const year = releaseDate ? releaseDate.split('-')[0] : '';
+
+        return `
+            <div class="track-card" ${spotifyUrl ? `onclick="window.open('${spotifyUrl}', '_blank')"` : ''}>
+                <div class="track-card-image-wrapper">
+                    <img src="${imageUrl}" alt="${escapeHtml(trackName)}" class="track-card-image" loading="lazy">
+                    <div class="track-card-info">
+                        <div class="track-card-title">${escapeHtml(trackName)}</div>
+                        ${year ? `<div class="track-meta">${year}</div>` : ''}
+                    </div>
+                </div>
+                <div class="track-card-name">${escapeHtml(trackName)}</div>
+                ${year ? `<div class="track-card-year">${year}</div>` : ''}
+            </div>
+        `;
+    }).join('');
+
+    gridEl.innerHTML = cards;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text ?? '';
+    return div.innerHTML;
+}
+
+// -------- Contact Form --------
 function setupForm() {
     const form = document.getElementById('contact-form');
     const submitBtn = document.getElementById('submit-btn');

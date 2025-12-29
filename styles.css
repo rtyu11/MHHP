@@ -1585,10 +1585,10 @@ body {
     justify-content: center;
     width: 48px;
     height: 48px;
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(212, 175, 55, 0.3);
     background: rgba(0, 0, 0, 0.32);
     border-radius: 50%;
-    color: #fff;
+    color: var(--accent);
     text-decoration: none;
     cursor: pointer;
     user-select: none;
@@ -1600,12 +1600,13 @@ body {
 
 .streaming-link i {
     transition: transform 0.3s ease;
+    color: var(--accent);
 }
 
 .streaming-link:hover,
 .streaming-link:focus-visible {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(212, 175, 55, 0.15);
+    border-color: var(--accent);
     transform: translateY(-2px);
     outline: none;
 }
@@ -1613,29 +1614,7 @@ body {
 .streaming-link:hover i,
 .streaming-link:focus-visible i {
     transform: scale(1.1);
-}
-
-/* 各サービスのブランドカラー（ホバー時） */
-.streaming-link:hover.fa-spotify,
-.streaming-link:focus-visible.fa-spotify {
-    background: rgba(30, 215, 96, 0.2);
-    border-color: #1DB954;
-    color: #1DB954;
-}
-
-.streaming-link:hover .fa-apple,
-.streaming-link:focus-visible .fa-apple {
-    color: #FA2D48;
-}
-
-.streaming-link:hover .fa-youtube,
-.streaming-link:focus-visible .fa-youtube {
-    color: #FF0000;
-}
-
-.streaming-link:hover .fa-amazon,
-.streaming-link:focus-visible .fa-amazon {
-    color: #FF9900;
+    color: var(--accent);
 }
 
 /* 全曲見るボタン（カードの最後に配置） */

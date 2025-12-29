@@ -1602,7 +1602,17 @@ function renderRailLP(tracks, gridEl, artistId) {
 
     gridEl.innerHTML = `${cards}${viewAllButton}`;
 
-    gridEl.querySelectorAll('.track-card').forEach((card) => {
+    // 全曲見るボタンのクリックイベント（親要素への伝播を防止）
+    const viewAllBtn = gridEl.querySelector('.view-all-button');
+    if (viewAllBtn) {
+        viewAllBtn.addEventListener('click', (e) => {
+            // リンクは自動的に動作するので、親要素のイベントを防ぐだけ
+            e.stopPropagation();
+        });
+    }
+
+    // track-cardのクリックイベント（view-all-cardは除外）
+    gridEl.querySelectorAll('.track-card:not(.view-all-card)').forEach((card) => {
         card.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();

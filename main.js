@@ -1442,11 +1442,21 @@ function renderTicker(items) {
 }
 
 // -------- Discography (Landing) --------
-// Audio管理（グローバル1個のみ）
-let discographyAudio = null;
-let currentPlayingTrackId = null;
-let currentPlayingTrackName = null;
+// Audioはグローバルで1つのみ使い回す
+const previewAudio = new Audio();
+let currentTrackId = null;
+let currentTrackName = null;
 let audioPlayerUpdateInterval = null;
+
+previewAudio.addEventListener('ended', () => {
+    resetPreviewState();
+});
+previewAudio.addEventListener('loadedmetadata', () => {
+    updateAudioPlayerDuration();
+});
+previewAudio.addEventListener('timeupdate', () => {
+    updateAudioPlayerProgress();
+});
 
 function initLandingDiscography() {
     const featuredEl = document.getElementById('discography-featured');
@@ -1455,21 +1465,6 @@ function initLandingDiscography() {
     const errorEl = document.getElementById('discography-error-lp');
 
     if (!featuredEl || !gridEl) return;
-
-    // Audioインスタンスを初期化（1個のみ）
-    if (!discographyAudio) {
-        discographyAudio = new Audio();
-        discographyAudio.addEventListener('ended', () => {
-            // 再生終了時にUIを元に戻す
-            stopAllPlayback();
-        });
-        discographyAudio.addEventListener('loadedmetadata', () => {
-            updateAudioPlayerDuration();
-        });
-        discographyAudio.addEventListener('timeupdate', () => {
-            updateAudioPlayerProgress();
-        });
-    }
 
     // プレイヤーUIを初期化
     initAudioPlayer();
@@ -1499,21 +1494,21 @@ function initLandingDiscography() {
                 return db.localeCompare(da);
             });
 
-            // 最新1件をFeatured、残りをGrid用に分割
             const featuredTrack = sorted[0];
             const others = sorted.slice(1);
+            const artistUrl = data.artistId
+                ? `https://open.spotify.com/artist/${data.artistId}/discography/all`
+                : '';
 
             hideLoading();
 
-            // Featured（最新1件）を表示
             if (featuredTrack) {
-                renderFeatured(featuredTrack, featuredEl);
+                renderLatestReleaseLP(featuredTrack, featuredEl);
                 featuredEl.style.display = 'block';
             }
 
-            // Grid（横スクロール）を表示
             if (others.length > 0) {
-                renderGrid(others, gridEl);
+                renderRailLP(others, gridEl, artistUrl);
                 gridEl.style.display = 'flex';
             }
         })
@@ -1524,8 +1519,8 @@ function initLandingDiscography() {
         });
 }
 
-// Featured（最新1件）を大きく表示
-function renderFeatured(track, targetEl) {
+// 最新1曲を大きく表示
+function renderLatestReleaseLP(track, targetEl) {
     if (!targetEl) return;
 
     const imageUrl = track?.album?.image || '';
@@ -1552,9 +1547,9 @@ function renderFeatured(track, targetEl) {
                 ` : ''}
                 <div class="discography-featured-actions">
                     ${previewUrl ? `
-                        <button class="btn-play-30s" data-track-id="${escapeHtml(trackId)}" data-preview-url="${escapeHtml(previewUrl)}" data-spotify-url="${spotifyUrl ? escapeHtml(spotifyUrl) : ''}">
-                            <span class="btn-play-icon">▶︎</span>
-                            <span class="btn-play-text">PLAY 30s</span>
+                        <button class="btn-preview" data-track-id="${escapeHtml(trackId)}" data-preview-url="${escapeHtml(previewUrl)}" data-spotify-url="${spotifyUrl ? escapeHtml(spotifyUrl) : ''}">
+                            <span class="btn-preview-icon">▶︎</span>
+                            <span class="btn-preview-text">PLAY 30s</span>
                         </button>
                     ` : ''}
                     ${spotifyUrl ? `
@@ -1567,15 +1562,17 @@ function renderFeatured(track, targetEl) {
         </div>
     `;
 
-    // 再生ボタンのイベントを設定
-    if (previewUrl) {
-        attachPlayHandler(targetEl.querySelector('.btn-play-30s'), trackId, previewUrl, spotifyUrl);
+    const previewBtn = targetEl.querySelector('.btn-preview');
+    if (previewBtn) {
+        attachPreviewHandler(previewBtn);
     }
 }
 
-// Grid（グリッド表示）を表示
-function renderGrid(tracks, gridEl) {
+// 残りの曲を横スクロールで表示
+function renderRailLP(tracks, gridEl, artistUrl) {
     if (!gridEl) return;
+
+    gridEl.classList.add('discography-rail');
 
     const cards = tracks.map((track) => {
         const imageUrl = track?.album?.image || '';
@@ -1587,125 +1584,145 @@ function renderGrid(tracks, gridEl) {
         const year = releaseDate ? releaseDate.split('-')[0] : '';
 
         return `
-            <div class="grid-card" data-track-id="${escapeHtml(trackId)}" ${spotifyUrl ? `data-spotify-url="${escapeHtml(spotifyUrl)}"` : ''}>
-                <div class="grid-card-image-wrapper">
-                    <img src="${imageUrl}" alt="${escapeHtml(trackName)}" class="grid-card-image" loading="lazy">
+            <div class="track-card" data-track-id="${escapeHtml(trackId)}" ${spotifyUrl ? `data-spotify-url="${escapeHtml(spotifyUrl)}"` : ''}>
+                <div class="track-card-image-wrapper">
+                    <img src="${imageUrl}" alt="${escapeHtml(trackName)}" class="track-card-image" loading="lazy">
                     ${previewUrl ? `
-                        <button class="grid-card-play-btn" data-track-id="${escapeHtml(trackId)}" data-preview-url="${escapeHtml(previewUrl)}" data-spotify-url="${spotifyUrl ? escapeHtml(spotifyUrl) : ''}">
-                            <span class="grid-card-play-icon">▶︎</span>
+                        <button class="btn-preview" data-track-id="${escapeHtml(trackId)}" data-preview-url="${escapeHtml(previewUrl)}" data-spotify-url="${spotifyUrl ? escapeHtml(spotifyUrl) : ''}">
+                            <span class="btn-preview-icon">▶︎</span>
+                            <span class="btn-preview-text">PLAY 30s</span>
                         </button>
                     ` : ''}
                 </div>
-                <div class="grid-card-content">
-                    <div class="grid-card-title">${escapeHtml(trackName)}</div>
-                    ${year ? `<div class="grid-card-year">${year}</div>` : ''}
+                <div class="track-card-body">
+                    <div class="track-card-title">${escapeHtml(trackName)}</div>
+                    ${year ? `<div class="track-card-year">${year}</div>` : ''}
                 </div>
             </div>
         `;
     }).join('');
 
-    gridEl.innerHTML = cards;
+    const moreCard = artistUrl ? `
+        <button class="rail-more" data-artist-url="${escapeHtml(artistUrl)}">
+            <span class="rail-more-text">MORE</span>
+        </button>
+    ` : '';
 
-    // 再生ボタンのイベントを設定
-    gridEl.querySelectorAll('.grid-card-play-btn').forEach((btn) => {
-        const trackId = btn.dataset.trackId;
-        const previewUrl = btn.dataset.previewUrl;
-        const spotifyUrl = btn.dataset.spotifyUrl || '';
-        attachPlayHandler(btn, trackId, previewUrl, spotifyUrl);
+    gridEl.innerHTML = `${cards}${moreCard}`;
+
+    gridEl.querySelectorAll('.btn-preview').forEach((btn) => {
+        attachPreviewHandler(btn);
     });
 
-    // カードクリック（preview_urlがない場合のみSpotifyへ）
-    gridEl.querySelectorAll('.grid-card').forEach((card) => {
-        const hasPreview = card.querySelector('.grid-card-play-btn');
-        if (hasPreview) return; // preview_urlがある場合は再生ボタンのみ
-        
+    gridEl.querySelectorAll('.track-card').forEach((card) => {
         const url = card.dataset.spotifyUrl;
         if (!url) return;
         card.addEventListener('click', () => {
             window.open(url, '_blank');
         });
     });
+
+    const moreBtn = gridEl.querySelector('.rail-more');
+    if (moreBtn) {
+        moreBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const url = moreBtn.dataset.artistUrl;
+            if (url) {
+                window.open(url, '_blank');
+            }
+        });
+    }
 }
 
-// 再生ボタンのハンドラーを設定
-function attachPlayHandler(buttonEl, trackId, previewUrl, spotifyUrl) {
-    if (!buttonEl || !previewUrl) return;
+// 30秒プレビューのクリック制御
+function attachPreviewHandler(buttonEl) {
+    if (!buttonEl) return;
 
     buttonEl.addEventListener('click', async (e) => {
+        e.preventDefault();
         e.stopPropagation();
-        
-        const card = buttonEl.closest('.grid-card, .rail-card, .discography-featured-content');
-        const isCurrentlyPlaying = currentPlayingTrackId === trackId;
 
-        if (isCurrentlyPlaying) {
-            // 同じ曲なら一時停止（トグル）
-            stopAllPlayback();
-        } else {
-            // 別の曲なら停止→再生
-            stopAllPlayback();
-            
-            try {
-                discographyAudio.src = previewUrl;
-                await discographyAudio.play();
-                
-                currentPlayingTrackId = trackId;
-                // トラック名を取得
-                const cardEl = buttonEl.closest('.grid-card, .rail-card, .discography-featured-content');
-                if (cardEl) {
-                    const titleEl = cardEl.querySelector('.grid-card-title, .rail-card-title, .discography-featured-title');
-                    currentPlayingTrackName = titleEl ? titleEl.textContent.trim() : 'Unknown Track';
-                } else {
-                    currentPlayingTrackName = 'Unknown Track';
-                }
-                
-                if (card) card.classList.add('is-playing');
-                updatePlayButton(buttonEl, true);
-                showAudioPlayer();
-            } catch (error) {
-                console.error('Audio play failed:', error);
-                // フォールバック: Spotifyへ遷移
-                if (spotifyUrl) {
-                    window.open(spotifyUrl, '_blank');
-                }
+        const previewUrl = buttonEl.dataset.previewUrl;
+        const spotifyUrl = buttonEl.dataset.spotifyUrl;
+        const trackId = buttonEl.dataset.trackId;
+        const card = buttonEl.closest('.track-card, .discography-featured-content');
+
+        if (!previewUrl) {
+            if (spotifyUrl) window.open(spotifyUrl, '_blank');
+            return;
+        }
+
+        const isSameTrack = currentTrackId === trackId && !previewAudio.paused;
+
+        if (isSameTrack) {
+            previewAudio.pause();
+            resetPreviewState();
+            return;
+        }
+
+        try {
+            previewAudio.pause();
+            previewAudio.currentTime = 0;
+            previewAudio.src = previewUrl;
+            await previewAudio.play();
+
+            currentTrackId = trackId;
+            if (card) {
+                const titleEl = card.querySelector('.track-card-title, .discography-featured-title');
+                currentTrackName = titleEl ? titleEl.textContent.trim() : 'Unknown Track';
+            } else {
+                currentTrackName = 'Unknown Track';
+            }
+
+            setPlayingState(buttonEl);
+            if (card) card.classList.add('is-playing');
+            showAudioPlayer();
+        } catch (error) {
+            console.error('Audio play failed:', error);
+            resetPreviewState();
+            if (spotifyUrl) {
+                window.open(spotifyUrl, '_blank');
             }
         }
     });
 }
 
-// すべての再生を停止
-function stopAllPlayback() {
-    if (discographyAudio) {
-        discographyAudio.pause();
-        discographyAudio.currentTime = 0;
-    }
-    
-    // UIを元に戻す
+// 再生状態をUIに反映
+function setPlayingState(activeButton) {
     document.querySelectorAll('.is-playing').forEach((el) => {
         el.classList.remove('is-playing');
     });
-    
-    document.querySelectorAll('.grid-card-play-btn, .rail-card-play-btn, .btn-play-30s').forEach((btn) => {
-        updatePlayButton(btn, false);
+    document.querySelectorAll('.btn-preview').forEach((btn) => {
+        updatePreviewButton(btn, btn === activeButton);
     });
-    
-    currentPlayingTrackId = null;
-    currentPlayingTrackName = null;
-    hideAudioPlayer();
-    
-    // プログレス更新を停止
-    if (audioPlayerUpdateInterval) {
-        clearInterval(audioPlayerUpdateInterval);
-        audioPlayerUpdateInterval = null;
-    }
 }
 
 // 再生ボタンの表示を更新
-function updatePlayButton(buttonEl, isPlaying) {
+function updatePreviewButton(buttonEl, isPlaying) {
     if (!buttonEl) return;
-    
-    const iconEl = buttonEl.querySelector('.grid-card-play-icon, .rail-card-play-icon, .btn-play-icon');
-    if (iconEl) {
-        iconEl.textContent = isPlaying ? '⏸︎' : '▶︎';
+    const iconEl = buttonEl.querySelector('.btn-preview-icon');
+    const textEl = buttonEl.querySelector('.btn-preview-text');
+    if (iconEl) iconEl.textContent = isPlaying ? '⏸︎' : '▶︎';
+    if (textEl) textEl.textContent = isPlaying ? 'PAUSE' : 'PLAY 30s';
+    buttonEl.classList.toggle('is-playing', isPlaying);
+}
+
+// すべての再生を停止しUIをリセット
+function resetPreviewState() {
+    previewAudio.pause();
+    previewAudio.currentTime = 0;
+
+    document.querySelectorAll('.is-playing').forEach((el) => el.classList.remove('is-playing'));
+    document.querySelectorAll('.btn-preview').forEach((btn) => updatePreviewButton(btn, false));
+
+    currentTrackId = null;
+    currentTrackName = null;
+    hideAudioPlayer();
+
+    if (audioPlayerUpdateInterval) {
+        clearInterval(audioPlayerUpdateInterval);
+        audioPlayerUpdateInterval = null;
     }
 }
 
@@ -1719,18 +1736,16 @@ function initAudioPlayer() {
     
     // 再生/一時停止ボタン
     playPauseBtn.addEventListener('click', () => {
-        if (!discographyAudio) return;
-        
-        if (discographyAudio.paused) {
-            discographyAudio.play().catch(err => console.error('Play failed:', err));
+        if (previewAudio.paused) {
+            previewAudio.play().catch(err => console.error('Play failed:', err));
         } else {
-            discographyAudio.pause();
+            previewAudio.pause();
         }
     });
     
     // 停止ボタン
     stopBtn.addEventListener('click', () => {
-        stopAllPlayback();
+        resetPreviewState();
     });
 }
 
@@ -1743,8 +1758,8 @@ function showAudioPlayer() {
     
     playerEl.style.display = 'block';
     
-    if (titleEl && currentPlayingTrackName) {
-        titleEl.textContent = currentPlayingTrackName;
+    if (titleEl && currentTrackName) {
+        titleEl.textContent = currentTrackName;
     }
     
     updateAudioPlayerUI();
@@ -1763,17 +1778,17 @@ function updateAudioPlayerUI() {
     const playPauseBtn = document.getElementById('audio-player-play-pause');
     const iconEl = playPauseBtn?.querySelector('.audio-player-icon');
     
-    if (!discographyAudio || !playPauseBtn || !iconEl) return;
+    if (!playPauseBtn || !iconEl) return;
     
-    iconEl.textContent = discographyAudio.paused ? '▶︎' : '⏸︎';
+    iconEl.textContent = previewAudio.paused ? '▶︎' : '⏸︎';
 }
 
 // オーディオプレイヤーの再生時間を更新
 function updateAudioPlayerDuration() {
     const durationEl = document.getElementById('audio-player-duration');
-    if (!durationEl || !discographyAudio) return;
+    if (!durationEl) return;
     
-    const duration = discographyAudio.duration || 30;
+    const duration = previewAudio.duration || 30;
     durationEl.textContent = formatTime(duration);
 }
 
@@ -1782,10 +1797,9 @@ function updateAudioPlayerProgress() {
     const currentTimeEl = document.getElementById('audio-player-current-time');
     const progressFillEl = document.getElementById('audio-player-progress-fill');
     
-    if (!discographyAudio) return;
+    const duration = previewAudio.duration || 30;
+    const currentTime = previewAudio.currentTime || 0;
     
-    const currentTime = discographyAudio.currentTime || 0;
-    const duration = discographyAudio.duration || 30;
     const progress = (currentTime / duration) * 100;
     
     if (currentTimeEl) {

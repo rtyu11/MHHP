@@ -1547,8 +1547,6 @@ body {
     display: block;
 }
 
-
-/* Discography More Button */
 .discography-more {
     display: inline-flex;
     align-items: center;
@@ -1703,7 +1701,6 @@ body {
     gap: 0.4rem;
 }
 
-
 .track-card-title {
     font-family: var(--font-main);
     font-size: 1.05rem;
@@ -1787,29 +1784,6 @@ body {
         align-items: center;
     }
 
-    .discography-rail,
-    .discography-grid {
-        gap: 16px;
-    }
-
-    .track-card {
-        flex: 0 0 240px;
-    }
-}
-
-@media (max-width: 640px) {
-    .discography-featured {
-        margin-bottom: 5rem;
-    }
-
-    .discography-featured-content {
-        gap: 2.5rem;
-    }
-
-    .discography-featured-title {
-        font-size: 2.2rem;
-    }
-
     .featured-play-overlay {
         opacity: 1;
         background: rgba(0, 0, 0, 0.3);
@@ -1842,14 +1816,11 @@ body {
 
     .discography-rail,
     .discography-grid {
-        gap: 14px;
-        margin-top: 3rem;
-        padding: 1.5rem 0;
+        gap: 16px;
     }
 
-    .track-card,
-    .rail-more {
-        flex-basis: clamp(200px, 72vw, 240px);
+    .track-card {
+        flex: 0 0 240px;
     }
 
     .track-card-overlay {
@@ -1860,6 +1831,32 @@ body {
     .track-card .play-icon {
         transform: scale(1);
         font-size: 2rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .discography-featured {
+        margin-bottom: 5rem;
+    }
+
+    .discography-featured-content {
+        gap: 2.5rem;
+    }
+
+    .discography-featured-title {
+        font-size: 2.2rem;
+    }
+
+    .discography-rail,
+    .discography-grid {
+        gap: 14px;
+        margin-top: 3rem;
+        padding: 1.5rem 0;
+    }
+
+    .track-card,
+    .rail-more {
+        flex-basis: clamp(200px, 72vw, 240px);
     }
 
     .track-card-title {
@@ -1894,7 +1891,6 @@ body {
         height: 32px;
     }
 }
-
 
 .discography-playlist-wrapper {
     margin-top: 4rem;
@@ -2012,7 +2008,6 @@ body {
     font-size: 0.75rem;
     line-height: 1;
 }
-
 
 /* --- Visual Break --- */
 .visual-break {

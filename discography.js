@@ -1,81 +1,42 @@
-// Discography Page - Spotify API Integration
-document.addEventListener('DOMContentLoaded', () => {
-    const loadingEl = document.getElementById('discography-loading');
-    const errorEl = document.getElementById('discography-error');
-    const latestEl = document.getElementById('discography-latest');
-    const gridEl = document.getElementById('discography-grid');
+(() => {
+    const hasDocument = typeof document !== 'undefined' && document;
+    if (!hasDocument) return;
 
-    async function fetchDiscography() {
+    const escapeHtml = (text) => {
+        const value = text ?? '';
+        const div = document.createElement('div');
+        div.textContent = String(value);
+        return div.innerHTML;
+    };
+
+    const getEl = (id) => {
+        if (!hasDocument) return null;
         try {
-            const response = await fetch('/api/spotify');
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            
-            if (!data.tracks || !Array.isArray(data.tracks) || data.tracks.length === 0) {
-                throw new Error('No tracks found');
-            }
-
-            // Sort tracks by release_date (newest first)
-            const sortedTracks = [...data.tracks].sort((a, b) => {
-                const dateA = a.album?.release_date || '';
-                const dateB = b.album?.release_date || '';
-                return dateB.localeCompare(dateA);
-            });
-
-            // Get latest release (first track)
-            const latestTrack = sortedTracks[0];
-            const otherTracks = sortedTracks.slice(1);
-
-            // Hide loading
-            if (loadingEl) loadingEl.style.display = 'none';
-
-            // Render latest release
-            if (latestTrack && latestEl) {
-                renderLatestRelease(latestTrack);
-                latestEl.style.display = 'block';
-            }
-
-            // Render grid
-            if (otherTracks.length > 0 && gridEl) {
-                renderGrid(otherTracks);
-                gridEl.style.display = 'grid';
-            }
-
-        } catch (error) {
-            console.error('Error fetching discography:', error);
-            
-            // Hide loading
-            if (loadingEl) loadingEl.style.display = 'none';
-            
-            // Show error
-            if (errorEl) {
-                errorEl.style.display = 'block';
-            }
+            return document.getElementById(id);
+        } catch (_) {
+            return null;
         }
-    }
+    };
 
-    function renderLatestRelease(track) {
-        if (!latestEl) return;
+    const safelySetDisplay = (el, display) => {
+        if (!el || !el.style) return;
+        el.style.display = display;
+    };
 
-        const imageUrl = track.album?.image || '';
-        const trackName = track.name || 'Unknown Track';
-        const releaseDate = track.album?.release_date || '';
-        const spotifyUrl = track.external_url || '';
+    const renderLatestRelease = (track, latestEl) => {
+        if (!latestEl || !track) return;
 
-        // Format release date (YYYY-MM-DD -> YYYY-MM-DD)
-        let formattedDate = '';
-        if (releaseDate) {
-            formattedDate = releaseDate.split('T')[0];
-        }
+        const album = track.album ?? {};
+        const imageUrl = album.image ?? '';
+        const trackName = track.name ?? 'Unknown Track';
+        const releaseDate = album.release_date ?? '';
+        const spotifyUrl = track.external_url ?? '';
+        const formattedDate = releaseDate ? releaseDate.split('T')[0] : '';
 
         latestEl.innerHTML = `
             <div class="discography-hero-content">
                 <div class="discography-hero-image-wrapper">
-                    <img src="${imageUrl}" alt="${trackName}" class="discography-hero-image" loading="lazy">
+                    <img src="${imageUrl}" alt="${escapeHtml(trackName)}" class="discography-hero-image" loading="lazy">
                 </div>
                 <div class="discography-hero-info">
                     <h2 class="discography-hero-title">${escapeHtml(trackName)}</h2>
@@ -94,27 +55,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
         `;
-    }
+    };
 
-    function renderGrid(tracks) {
-        if (!gridEl) return;
+    const renderGrid = (tracks, gridEl) => {
+        if (!gridEl || !Array.isArray(tracks)) return;
 
-        gridEl.innerHTML = tracks.map(track => {
-            const imageUrl = track.album?.image || '';
-            const trackName = track.name || 'Unknown Track';
-            const releaseDate = track.album?.release_date || '';
-            const spotifyUrl = track.external_url || '';
-
-            // Extract year from release date
-            let year = '';
-            if (releaseDate) {
-                year = releaseDate.split('-')[0];
-            }
+        const cards = tracks.map((track) => {
+            const safeTrack = track ?? {};
+            const album = safeTrack.album ?? {};
+            const imageUrl = album.image ?? '';
+            const trackName = safeTrack.name ?? 'Unknown Track';
+            const releaseDate = album.release_date ?? '';
+            const spotifyUrl = safeTrack.external_url ?? '';
+            const year = releaseDate ? releaseDate.split('-')[0] : '';
 
             return `
-                <div class="track-card" ${spotifyUrl ? `onclick="window.open('${spotifyUrl}', '_blank')"` : ''}>
+                <div class="track-card" ${spotifyUrl ? `data-spotify-url="${escapeHtml(spotifyUrl)}"` : ''}>
                     <div class="track-card-image-wrapper">
-                        <img src="${imageUrl}" alt="${trackName}" class="track-card-image" loading="lazy">
+                        <img src="${imageUrl}" alt="${escapeHtml(trackName)}" class="track-card-image" loading="lazy">
                         <div class="track-card-info">
                             <div class="track-card-title">${escapeHtml(trackName)}</div>
                             ${year ? `<div class="track-meta">${year}</div>` : ''}
@@ -125,15 +83,74 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
         }).join('');
+
+        gridEl.innerHTML = cards;
+
+        const cardsEls = gridEl.querySelectorAll ? gridEl.querySelectorAll('.track-card') : [];
+        cardsEls.forEach((card) => {
+            const url = card?.dataset?.spotifyUrl;
+            if (!url) return;
+            card.addEventListener('click', () => {
+                window.open(url, '_blank');
+            });
+        });
+    };
+
+    const fetchDiscography = async (els) => {
+        const { loadingEl, errorEl, latestEl, gridEl } = els;
+
+        try {
+            const response = await fetch('/api/spotify');
+            if (!response || !response.ok) {
+                throw new Error(`HTTP ${response ? response.status : 'unknown'}`);
+            }
+
+            const data = await response.json();
+            const tracks = Array.isArray(data?.tracks) ? data.tracks : [];
+            if (!tracks.length) {
+                throw new Error('No tracks');
+            }
+
+            const sortedTracks = [...tracks].sort((a, b) => {
+                const dateA = (a?.album?.release_date ?? '');
+                const dateB = (b?.album?.release_date ?? '');
+                return dateB.localeCompare(dateA);
+            });
+
+            const [latestTrack, ...otherTracks] = sortedTracks;
+
+            safelySetDisplay(loadingEl, 'none');
+
+            if (latestTrack && latestEl) {
+                renderLatestRelease(latestTrack, latestEl);
+                safelySetDisplay(latestEl, 'block');
+            }
+
+            if (otherTracks.length && gridEl) {
+                renderGrid(otherTracks, gridEl);
+                safelySetDisplay(gridEl, 'grid');
+            }
+        } catch (err) {
+            safelySetDisplay(loadingEl, 'none');
+            if (errorEl) safelySetDisplay(errorEl, 'block');
+        }
+    };
+
+    const onReady = () => {
+        const loadingEl = getEl('discography-loading');
+        const errorEl = getEl('discography-error');
+        const latestEl = getEl('discography-latest');
+        const gridEl = getEl('discography-grid');
+
+        const hasTargets = loadingEl || errorEl || latestEl || gridEl;
+        if (!hasTargets) return;
+
+        fetchDiscography({ loadingEl, errorEl, latestEl, gridEl });
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', onReady, { once: true });
+    } else {
+        onReady();
     }
-
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    // Initialize
-    fetchDiscography();
-});
-
+})();

@@ -1465,7 +1465,7 @@ function renderGridLP(tracks, gridEl) {
         const year = releaseDate ? releaseDate.split('-')[0] : '';
 
         return `
-            <div class="track-card" ${spotifyUrl ? `onclick="window.open('${spotifyUrl}', '_blank')"` : ''}>
+            <div class="track-card" ${spotifyUrl ? `data-spotify-url="${escapeHtml(spotifyUrl)}"` : ''}>
                 <div class="track-card-image-wrapper">
                     <img src="${imageUrl}" alt="${escapeHtml(trackName)}" class="track-card-image" loading="lazy">
                     <div class="track-card-info">
@@ -1480,6 +1480,14 @@ function renderGridLP(tracks, gridEl) {
     }).join('');
 
     gridEl.innerHTML = cards;
+
+    gridEl.querySelectorAll('.track-card').forEach((card) => {
+        const url = card.dataset.spotifyUrl;
+        if (!url) return;
+        card.addEventListener('click', () => {
+            window.open(url, '_blank');
+        });
+    });
 }
 
 function escapeHtml(text) {

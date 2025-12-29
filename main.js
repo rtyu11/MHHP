@@ -1460,6 +1460,22 @@ previewAudio.addEventListener('pause', () => {
     updatePreviewButtonsForCurrentTrack(false);
     updateMiniPlayerUI();
 });
+previewAudio.addEventListener('timeupdate', () => {
+    updateProgressBars();
+});
+
+function updateProgressBars() {
+    const progress = (previewAudio.currentTime / previewAudio.duration) * 100 || 0;
+    document.querySelectorAll('.btn-preview').forEach((btn) => {
+        if (btn.dataset.trackId === currentTrackId && !previewAudio.paused) {
+            const bar = btn.querySelector('.btn-preview-progress');
+            if (bar) bar.style.width = `${progress}%`;
+        } else {
+            const bar = btn.querySelector('.btn-preview-progress');
+            if (bar) bar.style.width = '0%';
+        }
+    });
+}
 
 function initLandingDiscography() {
     const featuredEl = document.getElementById('discography-featured');
@@ -1512,6 +1528,10 @@ function initLandingDiscography() {
                 renderRailLP(others, gridEl, artistId);
                 gridEl.style.display = 'flex';
             }
+
+            // プレビューリストをレンダリング（全曲対象）
+            const allTracks = featuredTrack ? [featuredTrack, ...others] : others;
+            renderPlaylist(allTracks, gridEl.parentElement);
         })
         .catch((err) => {
             console.error('Discography fetch failed', err);
@@ -1551,6 +1571,7 @@ function renderLatestReleaseLP(track, targetEl) {
                     <button class="btn-preview" data-track-id="${escapeHtml(trackId)}" data-preview-url="${escapeHtml(previewUrl || '')}" data-track-name="${escapeHtml(trackName)}" data-artist-name="${escapeHtml(artistNames)}" data-spotify-url="${spotifyUrl ? escapeHtml(spotifyUrl) : ''}">
                         <span class="btn-preview-icon">▶︎</span>
                         <span class="btn-preview-text">PLAY 30s</span>
+                        <span class="btn-preview-progress"></span>
                     </button>
                     ${spotifyUrl ? `
                         <a href="${spotifyUrl}" target="_blank" rel="noopener" class="btn-spotify-link">
@@ -1596,6 +1617,7 @@ function renderRailLP(tracks, gridEl, artistId) {
                         <button class="btn-preview" data-track-id="${escapeHtml(trackId)}" data-preview-url="${escapeHtml(previewUrl || '')}" data-track-name="${escapeHtml(trackName)}" data-artist-name="${escapeHtml(artistNames)}" data-spotify-url="${spotifyUrl ? escapeHtml(spotifyUrl) : ''}">
                             <span class="btn-preview-icon">▶︎</span>
                             <span class="btn-preview-text">PLAY 30s</span>
+                            <span class="btn-preview-progress"></span>
                         </button>
                         ${spotifyUrl ? `
                             <a href="${spotifyUrl}" target="_blank" rel="noopener noreferrer" class="btn-spotify-link">
@@ -1642,19 +1664,30 @@ function renderRailLP(tracks, gridEl, artistId) {
             gridEl.appendChild(moreLink);
         }
     }
+}
 
-    // カード下部の簡易再生リスト（プレビューがある曲のみ）
-    const playlistParent = gridEl.parentElement;
-    if (playlistParent) {
-        const existing = playlistParent.querySelector('.discography-playlist');
-        if (existing) existing.remove();
+// 簡易再生リストのレンダリング
+function renderPlaylist(tracks, containerEl) {
+    if (!containerEl) return;
 
-        const previewable = tracks.filter((t) => t?.preview_url);
-        if (previewable.length > 0) {
-            const playlistEl = document.createElement('div');
-            playlistEl.className = 'discography-playlist';
+    const existing = containerEl.querySelector('.discography-playlist-wrapper');
+    if (existing) existing.remove();
 
-            playlistEl.innerHTML = previewable.map((t) => {
+    const previewable = tracks.filter((t) => t?.preview_url);
+    if (previewable.length === 0) return;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'discography-playlist-wrapper';
+
+    const isEnglish = currentLang === 'en';
+    const title = isEnglish ? 'PREVIEW TRACKS' : 'プレビュー再生';
+
+    wrapper.innerHTML = `
+        <div class="discography-playlist-header">
+            <h3 class="discography-playlist-title">${title}</h3>
+        </div>
+        <div class="discography-playlist">
+            ${previewable.map((t) => {
                 const tId = t?.id || `pl-${Math.random()}`;
                 const tName = t?.name || 'Unknown Track';
                 const artists = (t?.artists || []).map((a) => a?.name).filter(Boolean).join(', ');
@@ -1662,20 +1695,27 @@ function renderRailLP(tracks, gridEl, artistId) {
                 const sUrl = t?.external_url || '';
                 return `
                     <button class="playlist-item" data-track-id="${escapeHtml(tId)}" data-preview-url="${escapeHtml(pUrl)}" data-track-name="${escapeHtml(tName)}" data-artist-name="${escapeHtml(artists)}" data-spotify-url="${sUrl ? escapeHtml(sUrl) : ''}">
-                        <span class="playlist-item__title">${escapeHtml(tName)}</span>
-                        <span class="playlist-item__artist">${escapeHtml(artists)}</span>
+                        <div class="playlist-item__content">
+                            <span class="playlist-item__title">${escapeHtml(tName)}</span>
+                            <span class="playlist-item__artist">${escapeHtml(artists)}</span>
+                        </div>
+                        <div class="playlist-item__action">
+                            <span class="playlist-item__icon">▶︎</span>
+                            <span class="btn-preview-progress"></span>
+                        </div>
                     </button>
                 `;
-            }).join('');
+            }).join('')}
+        </div>
+    `;
 
-            playlistParent.appendChild(playlistEl);
+    containerEl.appendChild(wrapper);
 
-            playlistEl.querySelectorAll('.playlist-item').forEach((btn) => {
-                attachPreviewHandler(btn);
-            });
-        }
-    }
+    wrapper.querySelectorAll('.playlist-item').forEach((btn) => {
+        attachPreviewHandler(btn);
+    });
 }
+
 
 // 30秒プレビューのクリック制御
 function attachPreviewHandler(buttonEl) {
@@ -1735,7 +1775,7 @@ function attachPreviewHandler(buttonEl) {
 
 // 再生状態をUIに反映
 function updatePreviewButtonsForCurrentTrack(isPlaying) {
-    document.querySelectorAll('.btn-preview').forEach((btn) => {
+    document.querySelectorAll('.btn-preview, .playlist-item').forEach((btn) => {
         const match = isPlaying && currentTrackId && btn.dataset.trackId === currentTrackId;
         updatePreviewButton(btn, match);
         const card = btn.closest('.track-card, .discography-featured-content');
@@ -1756,11 +1796,24 @@ function setPlayingState(activeButton) {
 // 再生ボタンの表示を更新
 function updatePreviewButton(buttonEl, isPlaying) {
     if (!buttonEl) return;
-    const iconEl = buttonEl.querySelector('.btn-preview-icon');
-    const textEl = buttonEl.querySelector('.btn-preview-text');
-    if (iconEl) iconEl.textContent = isPlaying ? '⏸︎' : '▶︎';
-    if (textEl) textEl.textContent = isPlaying ? 'PAUSE' : 'PLAY 30s';
+    const isPlaylistItem = buttonEl.classList.contains('playlist-item');
+
+    if (isPlaylistItem) {
+        const iconEl = buttonEl.querySelector('.playlist-item__icon');
+        if (iconEl) iconEl.textContent = isPlaying ? '⏸︎' : '▶︎';
+    } else {
+        const iconEl = buttonEl.querySelector('.btn-preview-icon');
+        const textEl = buttonEl.querySelector('.btn-preview-text');
+        if (iconEl) iconEl.textContent = isPlaying ? '⏸︎' : '▶︎';
+        if (textEl) textEl.textContent = isPlaying ? 'PAUSE' : 'PLAY 30s';
+    }
+
     buttonEl.classList.toggle('is-playing', isPlaying);
+
+    if (!isPlaying) {
+        const bar = buttonEl.querySelector('.btn-preview-progress');
+        if (bar) bar.style.width = '0%';
+    }
 }
 
 // すべての再生を停止しUIをリセット

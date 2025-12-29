@@ -1519,6 +1519,9 @@ function renderLatestReleaseLP(track, targetEl) {
             <div class="discography-featured-image-wrapper">
                 <div class="featured-badge">${isEnglish ? 'LATEST' : 'NEW'}</div>
                 <img src="${imageUrl}" alt="${escapeHtml(trackName)}" class="discography-featured-image" loading="lazy">
+                <div class="featured-play-overlay">
+                    <span class="play-icon-large">▶︎</span>
+                </div>
             </div>
             <div class="discography-featured-info">
                 <div class="featured-label">${isEnglish ? 'LATEST RELEASE' : '最新リリース'}</div>
@@ -1528,17 +1531,10 @@ function renderLatestReleaseLP(track, targetEl) {
                         <span>${formattedDate}</span>
                     </div>
                 ` : ''}
-                <div class="discography-featured-actions">
-                    <button class="btn-play-featured" data-track-id="${escapeHtml(trackId)}">
-                        <span class="btn-play-icon">▶︎</span>
-                        <span class="btn-play-text">${isEnglish ? 'PLAY NOW' : '再生する'}</span>
-                    </button>
-                </div>
             </div>
         </div>
     `;
 
-    const playBtn = targetEl.querySelector('.btn-play-featured');
     const content = targetEl.querySelector('.discography-featured-content');
 
     const handlePlay = (e) => {
@@ -1551,7 +1547,6 @@ function renderLatestReleaseLP(track, targetEl) {
         content.classList.add('is-playing');
     };
 
-    if (playBtn) playBtn.addEventListener('click', handlePlay);
     if (content) content.addEventListener('click', handlePlay);
 }
 
@@ -1642,7 +1637,7 @@ function showGlobalSpotifyPlayer(trackId) {
             currentEmbedTrackId = null;
 
             // すべてのis-playingを解除
-            document.querySelectorAll('.track-card.is-playing, .playlist-item.is-playing').forEach(el => {
+            document.querySelectorAll('.track-card.is-playing, .discography-featured-content.is-playing').forEach(el => {
                 el.classList.remove('is-playing');
             });
         });

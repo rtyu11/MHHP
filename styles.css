@@ -1408,9 +1408,6 @@ body {
 }
 
 .discography-featured-image-wrapper:hover .featured-play-overlay,
-.discography-featured-content.is-playing .featured-play-overlay {
-    opacity: 1;
-}
 
 .play-icon-large {
     font-size: 4rem;
@@ -1423,9 +1420,6 @@ body {
     transform: scale(1.1);
 }
 
-.discography-featured-content.is-playing .play-icon-large {
-    color: var(--accent);
-}
 
 .discography-featured-content {
     cursor: pointer;
@@ -1435,9 +1429,6 @@ body {
     transform: scale(1.03);
 }
 
-.discography-featured-content.is-playing .discography-featured-image-wrapper {
-    box-shadow: 0 0 0 2px var(--accent);
-}
 
 .discography-featured-info {
     display: flex;
@@ -1769,10 +1760,6 @@ body {
     background: rgba(255, 255, 255, 0.05);
 }
 
-.track-card.is-playing {
-    border-color: var(--accent);
-    background: rgba(212, 175, 55, 0.08);
-}
 
 .track-card-image-wrapper {
     position: relative;
@@ -1808,8 +1795,7 @@ body {
     transition: opacity 0.3s ease;
 }
 
-.track-card:hover .track-card-overlay,
-.track-card.is-playing .track-card-overlay {
+.track-card:hover .track-card-overlay {
     opacity: 1;
 }
 
@@ -1824,9 +1810,6 @@ body {
     transform: scale(1);
 }
 
-.track-card.is-playing .play-icon {
-    color: var(--accent);
-}
 
 .track-card-body {
     padding: 1.25rem;

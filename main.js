@@ -1711,6 +1711,11 @@ function showGlobalSpotifyPlayer(trackId) {
         playerEl.classList.remove('active');
         embedContainer.innerHTML = '';
         currentEmbedTrackId = null;
+        
+        // すべてのis-playingを解除
+        document.querySelectorAll('.track-card.is-playing, .discography-featured-content.is-playing').forEach(el => {
+            el.classList.remove('is-playing');
+        });
         return;
     }
 

@@ -745,23 +745,13 @@ function initLogoScroll() {
     });
 }
 
-// セクション表示/非表示の制御関数（グローバルスコープ）
+// セクションへのスクロール関数（グローバルスコープ）
 function showSection(sectionId) {
-    // すべてのセクションを取得
-    const allSections = document.querySelectorAll('section[id]');
     const targetSection = document.getElementById(sectionId);
     
     if (!targetSection) return;
     
-    // すべてのセクションを非表示
-    allSections.forEach(section => {
-        section.style.display = 'none';
-    });
-    
-    // 対象セクションを表示
-    targetSection.style.display = 'block';
-    
-    // スムーズスクロールで該当セクションへ移動
+    // スムーズスクロールで該当セクションへ移動（すべてのセクションは表示したまま）
     if (lenis) {
         lenis.scrollTo(targetSection, {
             duration: 1.5,
@@ -775,15 +765,6 @@ function showSection(sectionId) {
 
 // セクションナビゲーション初期化
 function initSectionNavigation() {
-    // 初期状態でセクションを表示（通常のアンカーリンク用）
-    const allSections = document.querySelectorAll('section[id]');
-    allSections.forEach(section => {
-        // 初期状態では表示（CSSのデフォルトを尊重）
-        if (section.style.display === 'none') {
-            section.style.display = '';
-        }
-    });
-    
     // 通常のアンカーリンク（#で始まる）も処理
     document.querySelectorAll('a[href^="#"]').forEach(link => {
         const href = link.getAttribute('href');

@@ -1579,7 +1579,28 @@ function renderRailLP(tracks, gridEl, artistId) {
         `;
     }).join('');
 
-    gridEl.innerHTML = `${cards}`;
+    // 全曲見るボタンをカードの最後に追加
+    const isEnglish = currentLang === 'en';
+    const viewAllButton = artistId ? `
+        <div class="track-card view-all-card">
+            <a href="https://open.spotify.com/artist/${artistId}/discography/all" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               class="view-all-button"
+               aria-label="${isEnglish ? 'View all tracks on Spotify' : 'Spotifyで全曲を見る'}">
+                <div class="view-all-icon">
+                    <i class="fa-brands fa-spotify"></i>
+                </div>
+                <div class="view-all-text">
+                    <span class="view-all-label">${isEnglish ? 'VIEW ALL' : '全曲見る'}</span>
+                    <span class="view-all-sub">${isEnglish ? 'on Spotify' : 'Spotifyで'}</span>
+                </div>
+                <div class="view-all-arrow">→</div>
+            </a>
+        </div>
+    ` : '';
+
+    gridEl.innerHTML = `${cards}${viewAllButton}`;
 
     gridEl.querySelectorAll('.track-card').forEach((card) => {
         card.addEventListener('click', (e) => {
@@ -1603,7 +1624,7 @@ function renderRailLP(tracks, gridEl, artistId) {
         const linksContainer = document.createElement('div');
         linksContainer.className = 'discography-streaming-links';
         
-        // 各音楽サービスへのリンク
+        // 各音楽サービスへのリンク（4つのサービス）
         const streamingServices = [
             {
                 name: 'Spotify',
@@ -1628,12 +1649,6 @@ function renderRailLP(tracks, gridEl, artistId) {
                 icon: 'fa-brands fa-amazon',
                 href: 'https://music.amazon.co.jp/search/masato%20hayashi',
                 ariaLabel: 'Amazon MusicでMasato Hayashiを聴く'
-            },
-            {
-                name: 'LINE MUSIC',
-                icon: 'fa-solid fa-music',
-                href: 'https://music.line.me/search?q=masato%20hayashi',
-                ariaLabel: 'LINE MUSICでMasato Hayashiを聴く'
             }
         ];
         

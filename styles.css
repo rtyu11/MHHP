@@ -1571,12 +1571,12 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 20px;
+    gap: 24px;
     margin: 3rem auto 0;
     padding: 0;
     flex-wrap: wrap;
     width: 100%;
-    max-width: 600px;
+    max-width: 500px;
 }
 
 .streaming-link {
@@ -1638,9 +1638,102 @@ body {
     color: #FF9900;
 }
 
-.streaming-link:hover .fa-music,
-.streaming-link:focus-visible .fa-music {
-    color: #00C300;
+/* 全曲見るボタン（カードの最後に配置） */
+.view-all-card {
+    flex: 0 0 260px;
+    scroll-snap-align: start;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.4s var(--ease-out);
+    position: relative;
+    cursor: pointer;
+}
+
+.view-all-card:hover {
+    border-color: rgba(30, 215, 96, 0.4);
+    background: rgba(30, 215, 96, 0.05);
+    transform: translateY(-8px);
+}
+
+.view-all-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 2rem 1.5rem;
+    text-decoration: none;
+    color: #fff;
+    transition: all 0.3s ease;
+    position: relative;
+    gap: 1.5rem;
+    min-height: 260px;
+}
+
+.view-all-icon {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(30, 215, 96, 0.15);
+    border: 2px solid rgba(30, 215, 96, 0.3);
+    border-radius: 50%;
+    font-size: 2rem;
+    color: #1DB954;
+    transition: all 0.3s ease;
+    margin-bottom: 0.5rem;
+}
+
+.view-all-card:hover .view-all-icon {
+    background: rgba(30, 215, 96, 0.25);
+    border-color: #1DB954;
+    transform: scale(1.1);
+}
+
+.view-all-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: center;
+}
+
+.view-all-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: #fff;
+    transition: color 0.3s ease;
+}
+
+.view-all-sub {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 0.05em;
+    transition: color 0.3s ease;
+}
+
+.view-all-card:hover .view-all-label {
+    color: #1DB954;
+}
+
+.view-all-card:hover .view-all-sub {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.view-all-arrow {
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.4);
+    transition: all 0.3s ease;
+    margin-top: 0.5rem;
+}
+
+.view-all-card:hover .view-all-arrow {
+    color: #1DB954;
+    transform: translateX(4px);
 }
 
 /* Rail - 横スクロール表示 */
@@ -1872,8 +1965,20 @@ body {
         gap: 16px;
     }
 
-    .track-card {
+    .track-card,
+    .view-all-card {
         flex: 0 0 240px;
+    }
+
+    .view-all-button {
+        padding: 1.8rem 1.2rem;
+        gap: 1.3rem;
+    }
+
+    .view-all-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.9rem;
     }
 
     .track-card-overlay {
@@ -1912,8 +2017,29 @@ body {
     }
 
     .track-card,
-    .rail-more {
+    .rail-more,
+    .view-all-card {
         flex-basis: clamp(200px, 72vw, 240px);
+    }
+
+    .view-all-button {
+        padding: 1.5rem 1rem;
+        gap: 1.2rem;
+        min-height: 240px;
+    }
+
+    .view-all-icon {
+        width: 56px;
+        height: 56px;
+        font-size: 1.8rem;
+    }
+
+    .view-all-label {
+        font-size: 1rem;
+    }
+
+    .view-all-sub {
+        font-size: 0.8rem;
     }
 
     .track-card-title {

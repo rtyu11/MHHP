@@ -1430,11 +1430,11 @@ let currentPlayingTrackId = null;
 
 function initLandingDiscography() {
     const featuredEl = document.getElementById('discography-featured');
-    const railEl = document.getElementById('discography-rail');
+    const gridEl = document.getElementById('discography-grid');
     const loadingEl = document.getElementById('discography-loading-lp');
     const errorEl = document.getElementById('discography-error-lp');
 
-    if (!featuredEl || !railEl) return;
+    if (!featuredEl || !gridEl) return;
 
     // Audioインスタンスを初期化（1個のみ）
     if (!discographyAudio) {
@@ -1470,7 +1470,7 @@ function initLandingDiscography() {
                 return db.localeCompare(da);
             });
 
-            // 最新1件をFeatured、残りをRail用に分割
+            // 最新1件をFeatured、残りをGrid用に分割
             const featuredTrack = sorted[0];
             const others = sorted.slice(1);
 
@@ -1482,10 +1482,10 @@ function initLandingDiscography() {
                 featuredEl.style.display = 'block';
             }
 
-            // Rail（横スクロール）を表示
+            // Grid（グリッド表示）を表示
             if (others.length > 0) {
-                renderRail(others, railEl);
-                railEl.style.display = 'flex';
+                renderGrid(others, gridEl);
+                gridEl.style.display = 'grid';
             }
         })
         .catch((err) => {
@@ -1544,9 +1544,9 @@ function renderFeatured(track, targetEl) {
     }
 }
 
-// Rail（横スクロール）を表示
-function renderRail(tracks, railEl) {
-    if (!railEl) return;
+// Grid（グリッド表示）を表示
+function renderGrid(tracks, gridEl) {
+    if (!gridEl) return;
 
     const cards = tracks.map((track) => {
         const imageUrl = track?.album?.image || '';
@@ -1554,31 +1554,31 @@ function renderRail(tracks, railEl) {
         const releaseDate = track?.album?.release_date || '';
         const spotifyUrl = track?.external_url || '';
         const previewUrl = track?.preview_url || null;
-        const trackId = track?.id || `rail-${Date.now()}-${Math.random()}`;
+        const trackId = track?.id || `grid-${Date.now()}-${Math.random()}`;
         const year = releaseDate ? releaseDate.split('-')[0] : '';
 
         return `
-            <div class="rail-card" data-track-id="${escapeHtml(trackId)}" ${spotifyUrl ? `data-spotify-url="${escapeHtml(spotifyUrl)}"` : ''}>
-                <div class="rail-card-image-wrapper">
-                    <img src="${imageUrl}" alt="${escapeHtml(trackName)}" class="rail-card-image" loading="lazy">
+            <div class="grid-card" data-track-id="${escapeHtml(trackId)}" ${spotifyUrl ? `data-spotify-url="${escapeHtml(spotifyUrl)}"` : ''}>
+                <div class="grid-card-image-wrapper">
+                    <img src="${imageUrl}" alt="${escapeHtml(trackName)}" class="grid-card-image" loading="lazy">
                     ${previewUrl ? `
-                        <button class="rail-card-play-btn" data-track-id="${escapeHtml(trackId)}" data-preview-url="${escapeHtml(previewUrl)}" data-spotify-url="${spotifyUrl ? escapeHtml(spotifyUrl) : ''}">
-                            <span class="rail-card-play-icon">▶︎</span>
+                        <button class="grid-card-play-btn" data-track-id="${escapeHtml(trackId)}" data-preview-url="${escapeHtml(previewUrl)}" data-spotify-url="${spotifyUrl ? escapeHtml(spotifyUrl) : ''}">
+                            <span class="grid-card-play-icon">▶︎</span>
                         </button>
                     ` : ''}
                 </div>
-                <div class="rail-card-content">
-                    <div class="rail-card-title">${escapeHtml(trackName)}</div>
-                    ${year ? `<div class="rail-card-year">${year}</div>` : ''}
+                <div class="grid-card-content">
+                    <div class="grid-card-title">${escapeHtml(trackName)}</div>
+                    ${year ? `<div class="grid-card-year">${year}</div>` : ''}
                 </div>
             </div>
         `;
     }).join('');
 
-    railEl.innerHTML = cards;
+    gridEl.innerHTML = cards;
 
     // 再生ボタンのイベントを設定
-    railEl.querySelectorAll('.rail-card-play-btn').forEach((btn) => {
+    gridEl.querySelectorAll('.grid-card-play-btn').forEach((btn) => {
         const trackId = btn.dataset.trackId;
         const previewUrl = btn.dataset.previewUrl;
         const spotifyUrl = btn.dataset.spotifyUrl || '';
@@ -1586,8 +1586,8 @@ function renderRail(tracks, railEl) {
     });
 
     // カードクリック（preview_urlがない場合のみSpotifyへ）
-    railEl.querySelectorAll('.rail-card').forEach((card) => {
-        const hasPreview = card.querySelector('.rail-card-play-btn');
+    gridEl.querySelectorAll('.grid-card').forEach((card) => {
+        const hasPreview = card.querySelector('.grid-card-play-btn');
         if (hasPreview) return; // preview_urlがある場合は再生ボタンのみ
         
         const url = card.dataset.spotifyUrl;
@@ -1605,7 +1605,7 @@ function attachPlayHandler(buttonEl, trackId, previewUrl, spotifyUrl) {
     buttonEl.addEventListener('click', async (e) => {
         e.stopPropagation();
         
-        const card = buttonEl.closest('.rail-card, .discography-featured-content');
+        const card = buttonEl.closest('.grid-card, .rail-card, .discography-featured-content');
         const isCurrentlyPlaying = currentPlayingTrackId === trackId;
 
         if (isCurrentlyPlaying) {
@@ -1645,7 +1645,7 @@ function stopAllPlayback() {
         el.classList.remove('is-playing');
     });
     
-    document.querySelectorAll('.rail-card-play-btn, .btn-play-30s').forEach((btn) => {
+    document.querySelectorAll('.grid-card-play-btn, .rail-card-play-btn, .btn-play-30s').forEach((btn) => {
         updatePlayButton(btn, false);
     });
     
@@ -1656,7 +1656,7 @@ function stopAllPlayback() {
 function updatePlayButton(buttonEl, isPlaying) {
     if (!buttonEl) return;
     
-    const iconEl = buttonEl.querySelector('.rail-card-play-icon, .btn-play-icon');
+    const iconEl = buttonEl.querySelector('.grid-card-play-icon, .rail-card-play-icon, .btn-play-icon');
     if (iconEl) {
         iconEl.textContent = isPlaying ? '⏸︎' : '▶︎';
     }

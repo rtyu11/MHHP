@@ -1460,42 +1460,20 @@ body {
     color: var(--accent);
 }
 
-/* Horizontal Rail - 横スクロール */
-.discography-rail {
-    display: flex;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    gap: 32px;
-    padding: 2rem 0;
-    margin: 0;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+/* Grid - グリッド表示（数曲同時表示） */
+.discography-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 24px;
+    margin-top: 4rem;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0;
 }
 
-.discography-rail::-webkit-scrollbar {
-    height: 4px;
-}
-
-.discography-rail::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.discography-rail::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 2px;
-}
-
-.discography-rail::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-.rail-card {
+.grid-card {
     position: relative;
-    flex: 0 0 auto;
-    width: 300px;
-    scroll-snap-align: start;
     border: 1px solid rgba(255, 255, 255, 0.08);
     background: rgba(0, 0, 0, 0.15);
     border-radius: 12px;
@@ -1504,16 +1482,16 @@ body {
     cursor: pointer;
 }
 
-.rail-card:hover {
+.grid-card:hover {
     transform: translateY(-2px);
     border-color: rgba(255, 255, 255, 0.12);
 }
 
-.rail-card.is-playing {
+.grid-card.is-playing {
     border-color: var(--accent);
 }
 
-.rail-card-image-wrapper {
+.grid-card-image-wrapper {
     position: relative;
     width: 100%;
     aspect-ratio: 1;
@@ -1521,7 +1499,7 @@ body {
     background: rgba(255, 255, 255, 0.03);
 }
 
-.rail-card-image {
+.grid-card-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -1529,63 +1507,64 @@ body {
     transition: transform 0.5s var(--ease-out);
 }
 
-.rail-card:hover .rail-card-image {
+.grid-card:hover .grid-card-image {
     transform: scale(1.02);
 }
 
-.rail-card-play-btn {
+.grid-card-play-btn {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 56px;
-    height: 56px;
-    background: rgba(0, 0, 0, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    width: 48px;
+    height: 48px;
+    background: rgba(0, 0, 0, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s var(--ease-out);
-    opacity: 0;
-    pointer-events: none;
-}
-
-.rail-card:hover .rail-card-play-btn,
-.rail-card.is-playing .rail-card-play-btn {
-    opacity: 1;
+    opacity: 0.9;
     pointer-events: auto;
+    z-index: 10;
 }
 
-.rail-card-play-btn:hover {
-    background: rgba(0, 0, 0, 0.9);
+.grid-card:hover .grid-card-play-btn,
+.grid-card.is-playing .grid-card-play-btn {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.85);
+}
+
+.grid-card-play-btn:hover {
+    background: rgba(212, 175, 55, 0.3);
     border-color: var(--accent);
     transform: translate(-50%, -50%) scale(1.1);
 }
 
-.rail-card.is-playing .rail-card-play-btn {
-    background: rgba(212, 175, 55, 0.2);
+.grid-card.is-playing .grid-card-play-btn {
+    background: rgba(212, 175, 55, 0.4);
     border-color: var(--accent);
 }
 
-.rail-card-play-icon {
+.grid-card-play-icon {
     color: #fff;
-    font-size: 1.2rem;
+    font-size: 1rem;
     line-height: 1;
     margin-left: 2px;
 }
 
-.rail-card-content {
-    padding: 1.25rem;
+.grid-card-content {
+    padding: 1rem;
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 0.3rem;
 }
 
-.rail-card-title {
+.grid-card-title {
     font-family: var(--font-main);
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: 400;
     color: #fff;
     margin: 0;
@@ -1596,9 +1575,9 @@ body {
     white-space: nowrap;
 }
 
-.rail-card-year {
+.grid-card-year {
     font-family: var(--font-tech);
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: rgba(255, 255, 255, 0.5);
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -1612,12 +1591,9 @@ body {
         gap: 4rem;
     }
 
-    .discography-rail {
-        gap: 28px;
-    }
-
-    .rail-card {
-        width: 280px;
+    .discography-grid {
+        gap: 20px;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     }
 }
 
@@ -1640,12 +1616,9 @@ body {
         align-items: center;
     }
 
-    .discography-rail {
-        gap: 24px;
-    }
-
-    .rail-card {
-        width: 280px;
+    .discography-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 18px;
     }
 }
 
@@ -1662,16 +1635,13 @@ body {
         font-size: 2.2rem;
     }
 
-    .discography-rail {
-        gap: 20px;
-        padding: 1.5rem 0;
+    .discography-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 16px;
+        margin-top: 3rem;
     }
 
-    .rail-card {
-        width: 80vw;
-    }
-
-    .rail-card-title {
+    .grid-card-title {
         white-space: normal;
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -1681,8 +1651,17 @@ body {
         line-height: 1.4;
     }
 
-    .rail-card-content {
-        padding: 1rem;
+    .grid-card-content {
+        padding: 0.875rem;
+    }
+
+    .grid-card-play-btn {
+        width: 44px;
+        height: 44px;
+    }
+
+    .grid-card-play-icon {
+        font-size: 0.9rem;
     }
 }
 

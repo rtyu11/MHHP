@@ -1462,6 +1462,42 @@ body {
     color: var(--accent);
 }
 
+.mini-player {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 64px;
+    background: rgba(10, 10, 10, 0.95);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    z-index: 1000;
+}
+
+.mini-player.hidden {
+    display: none;
+}
+
+.mini-player__title {
+    font-size: 14px;
+    color: #fff;
+}
+
+.mini-player__artist {
+    font-size: 12px;
+    color: #aaa;
+}
+
+.mini-player__toggle {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 20px;
+}
+
 /* Rail - 横スクロール表示 */
 .discography-rail,
 .discography-grid {

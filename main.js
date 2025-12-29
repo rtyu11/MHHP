@@ -1517,38 +1517,42 @@ function renderLatestReleaseLP(track, targetEl) {
     targetEl.innerHTML = `
         <div class="discography-featured-content" data-track-id="${escapeHtml(trackId)}">
             <div class="discography-featured-image-wrapper">
-                <span class="latest-badge">${isEnglish ? 'LATEST' : '最新'}</span>
+                <div class="featured-badge">${isEnglish ? 'LATEST' : 'NEW'}</div>
                 <img src="${imageUrl}" alt="${escapeHtml(trackName)}" class="discography-featured-image" loading="lazy">
             </div>
             <div class="discography-featured-info">
+                <div class="featured-label">${isEnglish ? 'LATEST RELEASE' : '最新リリース'}</div>
                 <h2 class="discography-featured-title">${escapeHtml(trackName)}</h2>
                 ${formattedDate ? `
                     <div class="discography-featured-release">
-                        <span class="discography-featured-release-label">RELEASE</span>
                         <span>${formattedDate}</span>
                     </div>
                 ` : ''}
                 <div class="discography-featured-actions">
-                    <button class="btn-play-embed" data-track-id="${escapeHtml(trackId)}">
+                    <button class="btn-play-featured" data-track-id="${escapeHtml(trackId)}">
                         <span class="btn-play-icon">▶︎</span>
-                        <span class="btn-play-text">PLAY</span>
+                        <span class="btn-play-text">${isEnglish ? 'PLAY NOW' : '再生する'}</span>
                     </button>
                 </div>
             </div>
         </div>
-        <div class="spotify-embed-container" id="embed-featured"></div>
     `;
 
-    const playBtn = targetEl.querySelector('.btn-play-embed');
-    const embedContainer = targetEl.querySelector('.spotify-embed-container');
+    const playBtn = targetEl.querySelector('.btn-play-featured');
+    const content = targetEl.querySelector('.discography-featured-content');
 
-    if (playBtn) {
-        playBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleSpotifyEmbed(trackId, embedContainer, true);
-        });
-    }
+    const handlePlay = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        showGlobalSpotifyPlayer(trackId);
+        
+        // アクティブ状態の更新
+        document.querySelectorAll('.track-card.is-playing').forEach(c => c.classList.remove('is-playing'));
+        content.classList.add('is-playing');
+    };
+
+    if (playBtn) playBtn.addEventListener('click', handlePlay);
+    if (content) content.addEventListener('click', handlePlay);
 }
 
 // 残りの曲を横スクロールで表示
@@ -1587,7 +1591,7 @@ function renderRailLP(tracks, gridEl, artistId) {
             e.preventDefault();
             e.stopPropagation();
             const trackId = card.dataset.trackId;
-            showGlobalSpotifyPlayer(trackId, true);
+            showGlobalSpotifyPlayer(trackId);
 
             // アクティブ状態の更新
             gridEl.querySelectorAll('.track-card').forEach(c => c.classList.remove('is-playing'));
@@ -1618,39 +1622,8 @@ function renderRailLP(tracks, gridEl, artistId) {
 }
 
 
-// Spotify Embedをトグル表示（autoplay対応）
-function toggleSpotifyEmbed(trackId, containerEl, autoplay = false) {
-    if (!containerEl) return;
-
-    const existingIframe = containerEl.querySelector('iframe');
-
-    if (existingIframe && currentEmbedTrackId === trackId) {
-        // 同じ曲なら閉じる
-        containerEl.innerHTML = '';
-        containerEl.classList.remove('active');
-        currentEmbedTrackId = null;
-        return;
-    }
-
-    // 新しいプレーヤーを表示（自動再生パラメータ付き）
-    currentEmbedTrackId = trackId;
-    const autoplayParam = autoplay ? '&autoplay=1' : '';
-    containerEl.innerHTML = `
-        <iframe 
-            src="https://open.spotify.com/embed/track/${trackId}?utm_source=generator&theme=0${autoplayParam}" 
-            width="100%" 
-            height="152" 
-            frameBorder="0" 
-            allowfullscreen="" 
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-            loading="lazy">
-        </iframe>
-    `;
-    containerEl.classList.add('active');
-}
-
-// グローバルなSpotifyプレーヤーを表示（フッター固定・autoplay対応）
-function showGlobalSpotifyPlayer(trackId, autoplay = false) {
+// グローバルなSpotifyプレーヤーを表示（フッター固定）
+function showGlobalSpotifyPlayer(trackId) {
     let playerEl = document.getElementById('spotify-global-player');
 
     if (!playerEl) {
@@ -1669,7 +1642,7 @@ function showGlobalSpotifyPlayer(trackId, autoplay = false) {
             currentEmbedTrackId = null;
 
             // すべてのis-playingを解除
-            document.querySelectorAll('.track-card.is-playing').forEach(el => {
+            document.querySelectorAll('.track-card.is-playing, .playlist-item.is-playing').forEach(el => {
                 el.classList.remove('is-playing');
             });
         });
@@ -1686,10 +1659,9 @@ function showGlobalSpotifyPlayer(trackId, autoplay = false) {
     }
 
     currentEmbedTrackId = trackId;
-    const autoplayParam = autoplay ? '&autoplay=1' : '';
     embedContainer.innerHTML = `
         <iframe 
-            src="https://open.spotify.com/embed/track/${trackId}?utm_source=generator&theme=0${autoplayParam}" 
+            src="https://open.spotify.com/embed/track/${trackId}?utm_source=generator&theme=0" 
             width="100%" 
             height="80" 
             frameBorder="0" 

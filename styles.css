@@ -1366,21 +1366,19 @@ body {
     border-radius: 12px;
 }
 
-.latest-badge {
+.featured-badge {
     position: absolute;
     top: 16px;
     left: 16px;
-    padding: 6px 14px;
+    padding: 6px 16px;
     background: var(--accent);
     color: #000;
     font-family: var(--font-tech);
     font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.15em;
-    text-transform: uppercase;
-    border-radius: 4px;
     z-index: 10;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border-radius: 2px;
 }
 
 .discography-featured-image {
@@ -1390,12 +1388,33 @@ body {
     object-fit: cover;
     background: rgba(255, 255, 255, 0.03);
     display: block;
+    transition: transform 0.6s var(--ease-out);
+}
+
+.discography-featured-content {
+    cursor: pointer;
+}
+
+.discography-featured-content:hover .discography-featured-image {
+    transform: scale(1.03);
+}
+
+.discography-featured-content.is-playing .discography-featured-image-wrapper {
+    box-shadow: 0 0 0 2px var(--accent);
 }
 
 .discography-featured-info {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.5rem;
+}
+
+.featured-label {
+    font-family: var(--font-tech);
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
 }
 
 .discography-featured-title {
@@ -1412,15 +1431,8 @@ body {
 .discography-featured-release {
     font-family: var(--font-tech);
     font-size: 0.85rem;
-    color: var(--accent);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    margin-top: 0;
-}
-
-.discography-featured-release-label {
-    opacity: 0.7;
-    margin-right: 0.5rem;
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 0.1em;
 }
 
 .discography-featured-actions {
@@ -1430,17 +1442,18 @@ body {
     margin-top: 0.5rem;
 }
 
-/* Play Button - Stylish */
-.btn-play-embed {
+/* Featured Play Button - Stylish */
+.btn-play-featured {
     display: inline-flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 1rem 2rem;
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: #fff;
+    padding: 1rem 2.5rem;
+    background: var(--accent);
+    border: none;
+    color: #000;
     font-family: var(--font-tech);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 600;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     cursor: pointer;
@@ -1449,34 +1462,14 @@ body {
     width: fit-content;
 }
 
-.btn-play-embed:hover {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #000;
+.btn-play-featured:hover {
+    background: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(212, 175, 55, 0.3);
 }
 
-.btn-play-icon {
-    font-size: 1rem;
-}
-
-/* Spotify Embed Container */
-.spotify-embed-container {
-    max-width: 1200px;
-    margin: 2rem auto 0;
-    overflow: hidden;
-    max-height: 0;
-    opacity: 0;
-    transition: all 0.4s var(--ease-out);
-}
-
-.spotify-embed-container.active {
-    max-height: 200px;
-    opacity: 1;
-    margin-top: 3rem;
-}
-
-.spotify-embed-container iframe {
-    border-radius: 12px;
+.btn-play-featured .btn-play-icon {
+    font-size: 0.9rem;
 }
 
 /* Global Spotify Player - Fixed Footer */
@@ -1770,13 +1763,9 @@ body {
         align-items: center;
     }
 
-    .btn-play-embed {
+    .btn-play-featured {
         width: 100%;
         justify-content: center;
-    }
-
-    .spotify-embed-container.active {
-        margin-top: 2rem;
     }
 
     .spotify-global-player {

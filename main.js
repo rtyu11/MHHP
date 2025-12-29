@@ -1548,12 +1548,10 @@ function renderLatestReleaseLP(track, targetEl) {
                     </div>
                 ` : ''}
                 <div class="discography-featured-actions">
-                    ${previewUrl ? `
-                        <button class="btn-preview" data-track-id="${escapeHtml(trackId)}" data-preview-url="${escapeHtml(previewUrl)}" data-track-name="${escapeHtml(trackName)}" data-artist-name="${escapeHtml(artistNames)}" data-spotify-url="${spotifyUrl ? escapeHtml(spotifyUrl) : ''}">
-                            <span class="btn-preview-icon">▶︎</span>
-                            <span class="btn-preview-text">PLAY 30s</span>
-                        </button>
-                    ` : ''}
+                    <button class="btn-preview" data-track-id="${escapeHtml(trackId)}" data-preview-url="${escapeHtml(previewUrl || '')}" data-track-name="${escapeHtml(trackName)}" data-artist-name="${escapeHtml(artistNames)}" data-spotify-url="${spotifyUrl ? escapeHtml(spotifyUrl) : ''}">
+                        <span class="btn-preview-icon">▶︎</span>
+                        <span class="btn-preview-text">PLAY 30s</span>
+                    </button>
                     ${spotifyUrl ? `
                         <a href="${spotifyUrl}" target="_blank" rel="noopener" class="btn-spotify-link">
                             OPEN IN SPOTIFY
@@ -1595,12 +1593,10 @@ function renderRailLP(tracks, gridEl, artistId) {
                     <div class="track-card-title">${escapeHtml(trackName)}</div>
                     ${year ? `<div class="track-card-year">${year}</div>` : ''}
                     <div class="track-card-actions">
-                        ${previewUrl ? `
-                            <button class="btn-preview" data-track-id="${escapeHtml(trackId)}" data-preview-url="${escapeHtml(previewUrl)}" data-track-name="${escapeHtml(trackName)}" data-artist-name="${escapeHtml(artistNames)}" data-spotify-url="${spotifyUrl ? escapeHtml(spotifyUrl) : ''}">
-                                <span class="btn-preview-icon">▶︎</span>
-                                <span class="btn-preview-text">PLAY 30s</span>
-                            </button>
-                        ` : ''}
+                        <button class="btn-preview" data-track-id="${escapeHtml(trackId)}" data-preview-url="${escapeHtml(previewUrl || '')}" data-track-name="${escapeHtml(trackName)}" data-artist-name="${escapeHtml(artistNames)}" data-spotify-url="${spotifyUrl ? escapeHtml(spotifyUrl) : ''}">
+                            <span class="btn-preview-icon">▶︎</span>
+                            <span class="btn-preview-text">PLAY 30s</span>
+                        </button>
                         ${spotifyUrl ? `
                             <a href="${spotifyUrl}" target="_blank" rel="noopener noreferrer" class="btn-spotify-link">
                                 OPEN IN SPOTIFY

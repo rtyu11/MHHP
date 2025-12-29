@@ -168,6 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initLogoScroll();
     initLanguageSwitcher();
     initVideoOptimization(); // 動画最適化を追加
+    initSectionNavigation(); // セクションナビゲーション初期化
     fetchData();
     initLandingDiscography();
     setupForm();
@@ -744,6 +745,65 @@ function initLogoScroll() {
     });
 }
 
+// セクション表示/非表示の制御関数（グローバルスコープ）
+function showSection(sectionId) {
+    // すべてのセクションを取得
+    const allSections = document.querySelectorAll('section[id]');
+    const targetSection = document.getElementById(sectionId);
+    
+    if (!targetSection) return;
+    
+    // すべてのセクションを非表示
+    allSections.forEach(section => {
+        section.style.display = 'none';
+    });
+    
+    // 対象セクションを表示
+    targetSection.style.display = 'block';
+    
+    // スムーズスクロールで該当セクションへ移動
+    if (lenis) {
+        lenis.scrollTo(targetSection, {
+            duration: 1.5,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            offset: 0
+        });
+    } else {
+        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+// セクションナビゲーション初期化
+function initSectionNavigation() {
+    // 初期状態でセクションを表示（通常のアンカーリンク用）
+    const allSections = document.querySelectorAll('section[id]');
+    allSections.forEach(section => {
+        // 初期状態では表示（CSSのデフォルトを尊重）
+        if (section.style.display === 'none') {
+            section.style.display = '';
+        }
+    });
+    
+    // 通常のアンカーリンク（#で始まる）も処理
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === '#' || href === '#!') return; // 空のアンカーはスキップ
+        
+        const sectionId = href.substring(1); // #を除去
+        const targetSection = document.getElementById(sectionId);
+        
+        if (targetSection) {
+            link.addEventListener('click', (e) => {
+                // data-section属性がない場合のみ処理（data-sectionはinitHamburgerMenuで処理）
+                if (!link.hasAttribute('data-section')) {
+                    e.preventDefault();
+                    showSection(sectionId);
+                }
+            });
+        }
+    });
+}
+
 function initHamburgerMenu() {
     const hamburger = document.getElementById('hamburger-menu');
     const navMenu = document.getElementById('nav-menu');
@@ -795,6 +855,16 @@ function initHamburgerMenu() {
     const menuLinks = navMenu.querySelectorAll('.nav-menu-links a');
     menuLinks.forEach(link => {
         const handleLinkClick = (e) => {
+            // data-section属性がある場合はページ遷移を防ぐ
+            const sectionId = link.getAttribute('data-section');
+            if (sectionId) {
+                e.preventDefault();
+                e.stopPropagation();
+                showSection(sectionId);
+                closeMenu();
+                return;
+            }
+            
             let isExternal = link.target === '_blank';
             try {
                 const linkUrl = new URL(link.href, window.location.href);
@@ -810,7 +880,7 @@ function initHamburgerMenu() {
             }
         };
         link.addEventListener('click', handleLinkClick);
-        link.addEventListener('touchend', handleLinkClick, { passive: true });
+        link.addEventListener('touchend', handleLinkClick, { passive: false });
     });
 
     // オーバーレイをクリックしたら閉じる

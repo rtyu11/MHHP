@@ -2111,6 +2111,36 @@ body.hovered .cursor-circle {
         gap: 0.6rem;
         margin-bottom: 1.2rem;
     }
+}
+
+/* スマホ表示（max-width: 768px）でのハンバーガーメニューの余白調整 */
+@media (max-width: 768px) {
+    .nav-menu-links {
+        gap: 0.5rem;
+        padding: 0 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .nav-menu-links a {
+        padding: 0.8rem 1rem;
+        min-height: 40px;
+    }
+
+    .nav-menu-social {
+        gap: 0.5rem;
+        padding: 1rem;
+    }
+
+    .nav-menu-social .social-link {
+        padding: 0.5rem 1rem !important;
+        min-height: 40px;
+    }
+
+    .nav-menu-language {
+        padding: 1rem 1rem 0.8rem;
+        gap: 0.4rem;
+        margin-bottom: 0.8rem;
+    }
 
     .lang-switch-btn {
         padding: 0.75rem 1rem;

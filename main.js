@@ -1626,6 +1626,7 @@ function renderRailLP(tracks, gridEl, artistId) {
         });
     });
 
+    // 末尾のSpotifyリンクボタン（スクロール外に配置して跳ね返りを防ぐ）
     if (artistId) {
         const isEnglish = currentLang === 'en';
         const moreLink = document.createElement('a');
@@ -1635,7 +1636,15 @@ function renderRailLP(tracks, gridEl, artistId) {
         moreLink.rel = 'noopener noreferrer';
         moreLink.setAttribute('aria-label', 'Spotifyで全曲を見る');
         moreLink.textContent = isEnglish ? 'View all on Spotify' : 'Spotifyで全曲を見る';
-        gridEl.appendChild(moreLink);
+
+        const parent = gridEl.parentElement;
+        // 既存のボタンを削除してから配置
+        if (parent) {
+            parent.querySelectorAll('.discography-more').forEach((el) => el.remove());
+            parent.appendChild(moreLink);
+        } else {
+            gridEl.appendChild(moreLink);
+        }
     }
 
     // カード下部の簡易再生リスト（プレビューがある曲のみ）

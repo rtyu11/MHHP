@@ -1499,9 +1499,7 @@ function initLandingDiscography() {
 
             const featuredTrack = sorted[0];
             const others = sorted.slice(1);
-            const artistUrl = data.artistId
-                ? `https://open.spotify.com/artist/${data.artistId}/discography/all`
-                : '';
+            const artistId = data.artistId || '';
 
             hideLoading();
 
@@ -1511,7 +1509,7 @@ function initLandingDiscography() {
             }
 
             if (others.length > 0) {
-                renderRailLP(others, gridEl, artistUrl);
+                renderRailLP(others, gridEl, artistId);
                 gridEl.style.display = 'flex';
             }
         })
@@ -1573,7 +1571,7 @@ function renderLatestReleaseLP(track, targetEl) {
 }
 
 // 残りの曲を横スクロールで表示
-function renderRailLP(tracks, gridEl, artistUrl) {
+function renderRailLP(tracks, gridEl, artistId) {
     if (!gridEl) return;
 
     gridEl.classList.add('discography-rail');
@@ -1607,13 +1605,7 @@ function renderRailLP(tracks, gridEl, artistUrl) {
         `;
     }).join('');
 
-    const moreCard = artistUrl ? `
-        <button class="rail-more" data-artist-url="${escapeHtml(artistUrl)}">
-            <span class="rail-more-text">MORE</span>
-        </button>
-    ` : '';
-
-    gridEl.innerHTML = `${cards}${moreCard}`;
+    gridEl.innerHTML = `${cards}`;
 
     gridEl.querySelectorAll('.btn-preview').forEach((btn) => {
         attachPreviewHandler(btn);
@@ -1627,16 +1619,16 @@ function renderRailLP(tracks, gridEl, artistUrl) {
         });
     });
 
-    const moreBtn = gridEl.querySelector('.rail-more');
-    if (moreBtn) {
-        moreBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const url = moreBtn.dataset.artistUrl;
-            if (url) {
-                window.open(url, '_blank');
-            }
-        });
+    if (artistId) {
+        const isEnglish = currentLang === 'en';
+        const moreLink = document.createElement('a');
+        moreLink.className = 'discography-more';
+        moreLink.href = `https://open.spotify.com/artist/${artistId}/discography/all`;
+        moreLink.target = '_blank';
+        moreLink.rel = 'noopener noreferrer';
+        moreLink.setAttribute('aria-label', 'Spotifyで全曲を見る');
+        moreLink.textContent = isEnglish ? 'View all on Spotify' : 'Spotifyで全曲を見る';
+        gridEl.appendChild(moreLink);
     }
 }
 

@@ -841,9 +841,27 @@ function initHamburgerMenu() {
             if (sectionId) {
                 e.preventDefault();
                 e.stopPropagation();
-                showSection(sectionId);
                 closeMenu();
+                // メニューを閉じてからスクロール（少し遅延を入れる）
+                setTimeout(() => {
+                    showSection(sectionId);
+                }, 300);
                 return;
+            }
+            
+            // hrefが#で始まる場合も処理
+            const href = link.getAttribute('href');
+            if (href && href.startsWith('#')) {
+                const anchorSectionId = href.substring(1);
+                if (anchorSectionId && anchorSectionId !== '!' && anchorSectionId !== '') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeMenu();
+                    setTimeout(() => {
+                        showSection(anchorSectionId);
+                    }, 300);
+                    return;
+                }
             }
             
             let isExternal = link.target === '_blank';
@@ -1427,6 +1445,8 @@ function renderTicker(items) {
 // Audio管理（グローバル1個のみ）
 let discographyAudio = null;
 let currentPlayingTrackId = null;
+let currentPlayingTrackName = null;
+let audioPlayerUpdateInterval = null;
 
 function initLandingDiscography() {
     const featuredEl = document.getElementById('discography-featured');
@@ -1443,7 +1463,16 @@ function initLandingDiscography() {
             // 再生終了時にUIを元に戻す
             stopAllPlayback();
         });
+        discographyAudio.addEventListener('loadedmetadata', () => {
+            updateAudioPlayerDuration();
+        });
+        discographyAudio.addEventListener('timeupdate', () => {
+            updateAudioPlayerProgress();
+        });
     }
+
+    // プレイヤーUIを初期化
+    initAudioPlayer();
 
     const hideLoading = () => {
         if (loadingEl) loadingEl.style.display = 'none';
@@ -1482,10 +1511,10 @@ function initLandingDiscography() {
                 featuredEl.style.display = 'block';
             }
 
-            // Grid（グリッド表示）を表示
+            // Grid（横スクロール）を表示
             if (others.length > 0) {
                 renderGrid(others, gridEl);
-                gridEl.style.display = 'grid';
+                gridEl.style.display = 'flex';
             }
         })
         .catch((err) => {
@@ -1620,8 +1649,18 @@ function attachPlayHandler(buttonEl, trackId, previewUrl, spotifyUrl) {
                 await discographyAudio.play();
                 
                 currentPlayingTrackId = trackId;
+                // トラック名を取得
+                const cardEl = buttonEl.closest('.grid-card, .rail-card, .discography-featured-content');
+                if (cardEl) {
+                    const titleEl = cardEl.querySelector('.grid-card-title, .rail-card-title, .discography-featured-title');
+                    currentPlayingTrackName = titleEl ? titleEl.textContent.trim() : 'Unknown Track';
+                } else {
+                    currentPlayingTrackName = 'Unknown Track';
+                }
+                
                 if (card) card.classList.add('is-playing');
                 updatePlayButton(buttonEl, true);
+                showAudioPlayer();
             } catch (error) {
                 console.error('Audio play failed:', error);
                 // フォールバック: Spotifyへ遷移
@@ -1650,6 +1689,14 @@ function stopAllPlayback() {
     });
     
     currentPlayingTrackId = null;
+    currentPlayingTrackName = null;
+    hideAudioPlayer();
+    
+    // プログレス更新を停止
+    if (audioPlayerUpdateInterval) {
+        clearInterval(audioPlayerUpdateInterval);
+        audioPlayerUpdateInterval = null;
+    }
 }
 
 // 再生ボタンの表示を更新
@@ -1660,6 +1707,103 @@ function updatePlayButton(buttonEl, isPlaying) {
     if (iconEl) {
         iconEl.textContent = isPlaying ? '⏸︎' : '▶︎';
     }
+}
+
+// オーディオプレイヤーの初期化
+function initAudioPlayer() {
+    const playerEl = document.getElementById('audio-player');
+    const playPauseBtn = document.getElementById('audio-player-play-pause');
+    const stopBtn = document.getElementById('audio-player-stop');
+    
+    if (!playerEl || !playPauseBtn || !stopBtn) return;
+    
+    // 再生/一時停止ボタン
+    playPauseBtn.addEventListener('click', () => {
+        if (!discographyAudio) return;
+        
+        if (discographyAudio.paused) {
+            discographyAudio.play().catch(err => console.error('Play failed:', err));
+        } else {
+            discographyAudio.pause();
+        }
+    });
+    
+    // 停止ボタン
+    stopBtn.addEventListener('click', () => {
+        stopAllPlayback();
+    });
+}
+
+// オーディオプレイヤーを表示
+function showAudioPlayer() {
+    const playerEl = document.getElementById('audio-player');
+    const titleEl = document.getElementById('audio-player-title');
+    
+    if (!playerEl) return;
+    
+    playerEl.style.display = 'block';
+    
+    if (titleEl && currentPlayingTrackName) {
+        titleEl.textContent = currentPlayingTrackName;
+    }
+    
+    updateAudioPlayerUI();
+}
+
+// オーディオプレイヤーを非表示
+function hideAudioPlayer() {
+    const playerEl = document.getElementById('audio-player');
+    if (playerEl) {
+        playerEl.style.display = 'none';
+    }
+}
+
+// オーディオプレイヤーのUIを更新
+function updateAudioPlayerUI() {
+    const playPauseBtn = document.getElementById('audio-player-play-pause');
+    const iconEl = playPauseBtn?.querySelector('.audio-player-icon');
+    
+    if (!discographyAudio || !playPauseBtn || !iconEl) return;
+    
+    iconEl.textContent = discographyAudio.paused ? '▶︎' : '⏸︎';
+}
+
+// オーディオプレイヤーの再生時間を更新
+function updateAudioPlayerDuration() {
+    const durationEl = document.getElementById('audio-player-duration');
+    if (!durationEl || !discographyAudio) return;
+    
+    const duration = discographyAudio.duration || 30;
+    durationEl.textContent = formatTime(duration);
+}
+
+// オーディオプレイヤーのプログレスを更新
+function updateAudioPlayerProgress() {
+    const currentTimeEl = document.getElementById('audio-player-current-time');
+    const progressFillEl = document.getElementById('audio-player-progress-fill');
+    
+    if (!discographyAudio) return;
+    
+    const currentTime = discographyAudio.currentTime || 0;
+    const duration = discographyAudio.duration || 30;
+    const progress = (currentTime / duration) * 100;
+    
+    if (currentTimeEl) {
+        currentTimeEl.textContent = formatTime(currentTime);
+    }
+    
+    if (progressFillEl) {
+        progressFillEl.style.width = `${progress}%`;
+    }
+    
+    updateAudioPlayerUI();
+}
+
+// 時間をフォーマット（秒 → MM:SS）
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
 function escapeHtml(text) {

@@ -1585,32 +1585,39 @@ body {
     position: relative;
     flex: 0 0 280px;
     scroll-snap-align: start;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.35));
-    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
     overflow: hidden;
-    transition: transform 0.3s var(--ease-out), border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+    transition: all 0.4s var(--ease-out);
     cursor: pointer;
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
 }
 
 .track-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(255, 255, 255, 0.16);
-    box-shadow: 0 26px 50px rgba(0, 0, 0, 0.42);
+    transform: translateY(-6px);
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .track-card.is-playing {
     border-color: var(--accent);
-    box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.3), 0 26px 50px rgba(0, 0, 0, 0.46);
+    background: rgba(212, 175, 55, 0.05);
 }
 
-.track-card-image-wrapper {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 1;
-    overflow: hidden;
-    background: rgba(255, 255, 255, 0.04);
+.track-card.no-preview {
+    cursor: default;
+    opacity: 0.7;
+}
+
+.track-card-image-wrapper .btn-preview-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background: var(--accent);
+    z-index: 10;
+    transition: width 0.1s linear;
 }
 
 .track-card-image {
@@ -1618,32 +1625,53 @@ body {
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform 0.6s var(--ease-out);
+    transition: transform 0.8s var(--ease-out);
 }
 
 .track-card:hover .track-card-image {
-    transform: scale(1.03);
+    transform: scale(1.05);
 }
 
-.track-card-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 0.65rem;
-    margin-top: 0.6rem;
-}
-
-.track-card .btn-preview {
-    position: static;
-    justify-content: center;
+.track-card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(2px);
+}
+
+.track-card:hover .track-card-overlay,
+.track-card.is-playing .track-card-overlay {
+    opacity: 1;
+}
+
+.track-card .play-icon {
+    font-size: 2.5rem;
+    color: #fff;
+    transform: scale(0.8);
+    transition: transform 0.3s var(--ease-out);
+}
+
+.track-card:hover .play-icon {
+    transform: scale(1);
+}
+
+.track-card.is-playing .play-icon {
+    color: var(--accent);
 }
 
 .track-card-body {
-    padding: 1.1rem 1.1rem 1.25rem;
+    padding: 1.25rem;
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
-    min-height: 150px;
+    gap: 0.4rem;
 }
 
 .track-card-title {

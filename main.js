@@ -1466,7 +1466,7 @@ previewAudio.addEventListener('timeupdate', () => {
 
 function updateProgressBars() {
     const progress = (previewAudio.currentTime / previewAudio.duration) * 100 || 0;
-    document.querySelectorAll('.btn-preview').forEach((btn) => {
+    document.querySelectorAll('.btn-preview, .track-card, .playlist-item').forEach((btn) => {
         if (btn.dataset.trackId === currentTrackId && !previewAudio.paused) {
             const bar = btn.querySelector('.btn-preview-progress');
             if (bar) bar.style.width = `${progress}%`;
@@ -1568,16 +1568,11 @@ function renderLatestReleaseLP(track, targetEl) {
                     </div>
                 ` : ''}
                 <div class="discography-featured-actions">
-                    <button class="btn-preview" data-track-id="${escapeHtml(trackId)}" data-preview-url="${escapeHtml(previewUrl || '')}" data-track-name="${escapeHtml(trackName)}" data-artist-name="${escapeHtml(artistNames)}" data-spotify-url="${spotifyUrl ? escapeHtml(spotifyUrl) : ''}">
+                    <button class="btn-preview" data-track-id="${escapeHtml(trackId)}" data-preview-url="${escapeHtml(previewUrl || '')}" data-track-name="${escapeHtml(trackName)}" data-artist-name="${escapeHtml(artistNames)}">
                         <span class="btn-preview-icon">▶︎</span>
-                        <span class="btn-preview-text">PLAY 30s</span>
+                        <span class="btn-preview-text">PLAY PREVIEW</span>
                         <span class="btn-preview-progress"></span>
                     </button>
-                    ${spotifyUrl ? `
-                        <a href="${spotifyUrl}" target="_blank" rel="noopener" class="btn-spotify-link">
-                            OPEN IN SPOTIFY
-                        </a>
-                    ` : ''}
                 </div>
             </div>
         </div>
@@ -1606,25 +1601,17 @@ function renderRailLP(tracks, gridEl, artistId) {
         const year = releaseDate ? releaseDate.split('-')[0] : '';
 
         return `
-            <div class="track-card" data-track-id="${escapeHtml(trackId)}" ${spotifyUrl ? `data-spotify-url="${escapeHtml(spotifyUrl)}"` : ''}>
+            <div class="track-card ${!previewUrl ? 'no-preview' : ''}" data-track-id="${escapeHtml(trackId)}" data-preview-url="${escapeHtml(previewUrl || '')}" data-track-name="${escapeHtml(trackName)}" data-artist-name="${escapeHtml(artistNames)}">
                 <div class="track-card-image-wrapper">
                     <img src="${imageUrl}" alt="${escapeHtml(trackName)}" class="track-card-image" loading="lazy">
+                    <div class="track-card-overlay">
+                        <span class="play-icon">▶︎</span>
+                    </div>
+                    <span class="btn-preview-progress"></span>
                 </div>
                 <div class="track-card-body">
                     <div class="track-card-title">${escapeHtml(trackName)}</div>
                     ${year ? `<div class="track-card-year">${year}</div>` : ''}
-                    <div class="track-card-actions">
-                        <button class="btn-preview" data-track-id="${escapeHtml(trackId)}" data-preview-url="${escapeHtml(previewUrl || '')}" data-track-name="${escapeHtml(trackName)}" data-artist-name="${escapeHtml(artistNames)}" data-spotify-url="${spotifyUrl ? escapeHtml(spotifyUrl) : ''}">
-                            <span class="btn-preview-icon">▶︎</span>
-                            <span class="btn-preview-text">PLAY 30s</span>
-                            <span class="btn-preview-progress"></span>
-                        </button>
-                        ${spotifyUrl ? `
-                            <a href="${spotifyUrl}" target="_blank" rel="noopener noreferrer" class="btn-spotify-link">
-                                OPEN IN SPOTIFY
-                            </a>
-                        ` : ''}
-                    </div>
                 </div>
             </div>
         `;
@@ -1632,15 +1619,13 @@ function renderRailLP(tracks, gridEl, artistId) {
 
     gridEl.innerHTML = `${cards}`;
 
-    gridEl.querySelectorAll('.btn-preview').forEach((btn) => {
-        attachPreviewHandler(btn);
-    });
-
     gridEl.querySelectorAll('.track-card').forEach((card) => {
-        const url = card.dataset.spotifyUrl;
-        if (!url) return;
-        card.addEventListener('click', () => {
-            window.open(url, '_blank');
+        if (card.classList.contains('no-preview')) return;
+        
+        card.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handlePreviewClick(card);
         });
     });
 
@@ -1724,58 +1709,54 @@ function attachPreviewHandler(buttonEl) {
     buttonEl.addEventListener('click', async (e) => {
         e.preventDefault();
         e.stopPropagation();
-
-        const previewUrl = buttonEl.dataset.previewUrl;
-        const spotifyUrl = buttonEl.dataset.spotifyUrl;
-        const trackId = buttonEl.dataset.trackId;
-        const card = buttonEl.closest('.track-card, .discography-featured-content');
-        const trackName = buttonEl.dataset.trackName
-            || (card?.querySelector('.track-card-title, .discography-featured-title')?.textContent?.trim())
-            || 'Unknown Track';
-        const artistName = buttonEl.dataset.artistName || '';
-
-        if (!previewUrl) {
-            if (spotifyUrl) window.open(spotifyUrl, '_blank');
-            return;
-        }
-
-        const isSameTrack = currentTrackId === trackId && !previewAudio.paused;
-
-        if (isSameTrack) {
-            previewAudio.pause();
-            previewAudio.currentTime = 0;
-            updatePreviewButtonsForCurrentTrack(false);
-            updateMiniPlayerUI();
-            return;
-        }
-
-        try {
-            previewAudio.pause();
-            previewAudio.currentTime = 0;
-            previewAudio.src = previewUrl;
-
-            currentTrackId = trackId;
-            currentTrackName = trackName || 'Unknown Track';
-            currentArtistName = artistName || '';
-
-            await previewAudio.play();
-
-            setPlayingState(buttonEl);
-            if (card) card.classList.add('is-playing');
-            showAudioPlayer(currentTrackName, currentArtistName);
-        } catch (error) {
-            console.error('Audio play failed:', error);
-            resetPreviewState();
-            if (spotifyUrl) {
-                window.open(spotifyUrl, '_blank');
-            }
-        }
+        await handlePreviewClick(buttonEl);
     });
+}
+
+async function handlePreviewClick(element) {
+    const previewUrl = element.dataset.previewUrl;
+    const trackId = element.dataset.trackId;
+    const card = element.closest('.track-card, .discography-featured-content');
+    const trackName = element.dataset.trackName
+        || (card?.querySelector('.track-card-title, .discography-featured-title')?.textContent?.trim())
+        || 'Unknown Track';
+    const artistName = element.dataset.artistName || '';
+
+    if (!previewUrl) return;
+
+    const isSameTrack = currentTrackId === trackId && !previewAudio.paused;
+
+    if (isSameTrack) {
+        previewAudio.pause();
+        previewAudio.currentTime = 0;
+        updatePreviewButtonsForCurrentTrack(false);
+        updateMiniPlayerUI();
+        return;
+    }
+
+    try {
+        previewAudio.pause();
+        previewAudio.currentTime = 0;
+        previewAudio.src = previewUrl;
+
+        currentTrackId = trackId;
+        currentTrackName = trackName || 'Unknown Track';
+        currentArtistName = artistName || '';
+
+        await previewAudio.play();
+
+        setPlayingState(element);
+        if (card) card.classList.add('is-playing');
+        showAudioPlayer(currentTrackName, currentArtistName);
+    } catch (error) {
+        console.error('Audio play failed:', error);
+        resetPreviewState();
+    }
 }
 
 // 再生状態をUIに反映
 function updatePreviewButtonsForCurrentTrack(isPlaying) {
-    document.querySelectorAll('.btn-preview, .playlist-item').forEach((btn) => {
+    document.querySelectorAll('.btn-preview, .playlist-item, .track-card').forEach((btn) => {
         const match = isPlaying && currentTrackId && btn.dataset.trackId === currentTrackId;
         updatePreviewButton(btn, match);
         const card = btn.closest('.track-card, .discography-featured-content');
@@ -1797,15 +1778,19 @@ function setPlayingState(activeButton) {
 function updatePreviewButton(buttonEl, isPlaying) {
     if (!buttonEl) return;
     const isPlaylistItem = buttonEl.classList.contains('playlist-item');
+    const isTrackCard = buttonEl.classList.contains('track-card');
 
-    if (isPlaylistItem) {
+    if (isTrackCard) {
+        const iconEl = buttonEl.querySelector('.play-icon');
+        if (iconEl) iconEl.textContent = isPlaying ? '⏸︎' : '▶︎';
+    } else if (isPlaylistItem) {
         const iconEl = buttonEl.querySelector('.playlist-item__icon');
         if (iconEl) iconEl.textContent = isPlaying ? '⏸︎' : '▶︎';
     } else {
         const iconEl = buttonEl.querySelector('.btn-preview-icon');
         const textEl = buttonEl.querySelector('.btn-preview-text');
         if (iconEl) iconEl.textContent = isPlaying ? '⏸︎' : '▶︎';
-        if (textEl) textEl.textContent = isPlaying ? 'PAUSE' : 'PLAY 30s';
+        if (textEl) textEl.textContent = isPlaying ? 'PAUSE' : 'PLAY PREVIEW';
     }
 
     buttonEl.classList.toggle('is-playing', isPlaying);

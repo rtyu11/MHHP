@@ -1566,6 +1566,83 @@ body {
     outline: none;
 }
 
+/* 音楽サービスリンクアイコンコンテナ */
+.discography-streaming-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin: 3rem auto 0;
+    padding: 0;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 600px;
+}
+
+.streaming-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(0, 0, 0, 0.32);
+    border-radius: 50%;
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: all 0.3s ease;
+    font-size: 1.4rem;
+    position: relative;
+}
+
+.streaming-link i {
+    transition: transform 0.3s ease;
+}
+
+.streaming-link:hover,
+.streaming-link:focus-visible {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    outline: none;
+}
+
+.streaming-link:hover i,
+.streaming-link:focus-visible i {
+    transform: scale(1.1);
+}
+
+/* 各サービスのブランドカラー（ホバー時） */
+.streaming-link:hover.fa-spotify,
+.streaming-link:focus-visible.fa-spotify {
+    background: rgba(30, 215, 96, 0.2);
+    border-color: #1DB954;
+    color: #1DB954;
+}
+
+.streaming-link:hover .fa-apple,
+.streaming-link:focus-visible .fa-apple {
+    color: #FA2D48;
+}
+
+.streaming-link:hover .fa-youtube,
+.streaming-link:focus-visible .fa-youtube {
+    color: #FF0000;
+}
+
+.streaming-link:hover .fa-amazon,
+.streaming-link:focus-visible .fa-amazon {
+    color: #FF9900;
+}
+
+.streaming-link:hover .fa-music,
+.streaming-link:focus-visible .fa-music {
+    color: #00C300;
+}
+
 /* Rail - 横スクロール表示 */
 .discography-rail,
 .discography-grid {
@@ -1808,6 +1885,10 @@ body {
         transform: scale(1);
         font-size: 2rem;
     }
+
+    .discography-streaming-links {
+        gap: 18px;
+    }
 }
 
 @media (max-width: 640px) {
@@ -1847,6 +1928,17 @@ body {
 
     .track-card-body {
         padding: 1rem;
+    }
+
+    .discography-streaming-links {
+        gap: 16px;
+        margin-top: 2.5rem;
+    }
+
+    .streaming-link {
+        width: 44px;
+        height: 44px;
+        font-size: 1.2rem;
     }
 }
 

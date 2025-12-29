@@ -1594,25 +1594,61 @@ function renderRailLP(tracks, gridEl, artistId) {
         });
     });
 
-    // 末尾のSpotifyリンクボタン（スクロール外に配置して跳ね返りを防ぐ）
-    if (artistId) {
-        const isEnglish = currentLang === 'en';
-        const moreLink = document.createElement('a');
-        moreLink.className = 'discography-more';
-        moreLink.href = `https://open.spotify.com/artist/${artistId}/discography/all`;
-        moreLink.target = '_blank';
-        moreLink.rel = 'noopener noreferrer';
-        moreLink.setAttribute('aria-label', 'Spotifyで全曲を見る');
-        moreLink.textContent = isEnglish ? 'View all on Spotify' : 'Spotifyで全曲を見る';
-
-        const parent = gridEl.parentElement;
-        // 既存のボタンを削除してから配置
-        if (parent) {
-            parent.querySelectorAll('.discography-more').forEach((el) => el.remove());
-            parent.appendChild(moreLink);
-        } else {
-            gridEl.appendChild(moreLink);
-        }
+    // 末尾の音楽サービスリンクアイコン（スクロール外に配置して跳ね返りを防ぐ）
+    const parent = gridEl.parentElement;
+    if (parent) {
+        // 既存のリンクコンテナを削除
+        parent.querySelectorAll('.discography-streaming-links').forEach((el) => el.remove());
+        
+        const linksContainer = document.createElement('div');
+        linksContainer.className = 'discography-streaming-links';
+        
+        // 各音楽サービスへのリンク
+        const streamingServices = [
+            {
+                name: 'Spotify',
+                icon: 'fa-brands fa-spotify',
+                href: artistId ? `https://open.spotify.com/artist/${artistId}` : 'https://open.spotify.com/search/masato%20hayashi',
+                ariaLabel: 'SpotifyでMasato Hayashiを聴く'
+            },
+            {
+                name: 'Apple Music',
+                icon: 'fa-brands fa-apple',
+                href: 'https://music.apple.com/jp/search?term=masato%20hayashi',
+                ariaLabel: 'Apple MusicでMasato Hayashiを聴く'
+            },
+            {
+                name: 'YouTube Music',
+                icon: 'fa-brands fa-youtube',
+                href: 'https://music.youtube.com/search?q=masato%20hayashi',
+                ariaLabel: 'YouTube MusicでMasato Hayashiを聴く'
+            },
+            {
+                name: 'Amazon Music',
+                icon: 'fa-brands fa-amazon',
+                href: 'https://music.amazon.co.jp/search/masato%20hayashi',
+                ariaLabel: 'Amazon MusicでMasato Hayashiを聴く'
+            },
+            {
+                name: 'LINE MUSIC',
+                icon: 'fa-solid fa-music',
+                href: 'https://music.line.me/search?q=masato%20hayashi',
+                ariaLabel: 'LINE MUSICでMasato Hayashiを聴く'
+            }
+        ];
+        
+        streamingServices.forEach((service) => {
+            const link = document.createElement('a');
+            link.className = 'streaming-link';
+            link.href = service.href;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.setAttribute('aria-label', service.ariaLabel);
+            link.innerHTML = `<i class="${service.icon}"></i>`;
+            linksContainer.appendChild(link);
+        });
+        
+        parent.appendChild(linksContainer);
     }
 }
 

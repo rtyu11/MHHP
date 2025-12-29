@@ -1425,12 +1425,14 @@ function renderTicker(items) {
 
 // -------- Discography (Landing) --------
 function initLandingDiscography() {
-    const latestEl = document.getElementById('discography-latest-lp');
+    const featuredEl = document.getElementById('discography-featured');
     const gridEl = document.getElementById('discography-grid-lp');
+    const loadMoreWrapper = document.getElementById('discography-loadmore-wrapper');
+    const loadMoreBtn = document.getElementById('discography-loadmore-btn');
     const loadingEl = document.getElementById('discography-loading-lp');
     const errorEl = document.getElementById('discography-error-lp');
 
-    if (!latestEl || !gridEl) return;
+    if (!featuredEl || !gridEl) return;
 
     const hideLoading = () => {
         if (loadingEl) loadingEl.style.display = 'none';
@@ -1450,24 +1452,31 @@ function initLandingDiscography() {
                 throw new Error('no tracks');
             }
 
+            // release_date降順でソート
             const sorted = [...data.tracks].sort((a, b) => {
                 const da = a?.album?.release_date || '';
                 const db = b?.album?.release_date || '';
                 return db.localeCompare(da);
             });
 
-            const latest = sorted[0];
+            // 最新1件をFeatured、残りをGrid用に分割
+            const featured = sorted[0];
             const rest = sorted.slice(1);
 
             hideLoading();
 
-            if (latest) {
-                renderLatestReleaseLP(latest, latestEl);
-                latestEl.style.display = 'block';
+            // Featured（最新1件）を表示
+            if (featured) {
+                renderFeatured(featured, featuredEl);
+                featuredEl.style.display = 'block';
             }
 
+            // Grid（初期12件）を表示
             if (rest.length > 0) {
-                renderGridLP(rest, gridEl);
+                const initialTracks = rest.slice(0, 12);
+                const remainingTracks = rest.slice(12);
+                
+                renderGridLP(initialTracks, gridEl, remainingTracks, loadMoreWrapper, loadMoreBtn);
                 gridEl.style.display = 'grid';
             }
         })
@@ -1478,7 +1487,8 @@ function initLandingDiscography() {
         });
 }
 
-function renderLatestReleaseLP(track, targetEl) {
+// Featured（最新1件）を大きく表示
+function renderFeatured(track, targetEl) {
     if (!targetEl) return;
 
     const imageUrl = track?.album?.image || '';
@@ -1489,22 +1499,22 @@ function renderLatestReleaseLP(track, targetEl) {
     const formattedDate = releaseDate ? releaseDate.split('T')[0] : '';
 
     targetEl.innerHTML = `
-        <div class="discography-hero-content">
-            <div class="discography-hero-image-wrapper">
-                <img src="${imageUrl}" alt="${escapeHtml(trackName)}" class="discography-hero-image" loading="lazy">
+        <div class="discography-featured-content">
+            <div class="discography-featured-image-wrapper">
+                <img src="${imageUrl}" alt="${escapeHtml(trackName)}" class="discography-featured-image" loading="lazy">
             </div>
-            <div class="discography-hero-info">
-                <h2 class="discography-hero-title">${escapeHtml(trackName)}</h2>
+            <div class="discography-featured-info">
+                <h2 class="discography-featured-title">${escapeHtml(trackName)}</h2>
                 ${formattedDate ? `
-                    <div class="discography-hero-release">
-                        <span class="discography-hero-release-label">RELEASE</span>
+                    <div class="discography-featured-release">
+                        <span class="discography-featured-release-label">RELEASE</span>
                         <span>${formattedDate}</span>
                     </div>
                 ` : ''}
                 ${spotifyUrl ? `
                     <a href="${spotifyUrl}" target="_blank" rel="noopener" class="btn-spotify">
                         <i class="fa-brands fa-spotify"></i>
-                        <span>Open in Spotify</span>
+                        <span>OPEN IN SPOTIFY</span>
                     </a>
                 ` : ''}
             </div>
@@ -1512,10 +1522,12 @@ function renderLatestReleaseLP(track, targetEl) {
     `;
 }
 
-function renderGridLP(tracks, gridEl) {
+// Grid（12件ずつ表示、Load More機能付き）
+function renderGridLP(tracks, gridEl, remainingTracks = [], loadMoreWrapper = null, loadMoreBtn = null) {
     if (!gridEl) return;
 
-    const cards = tracks.map((track) => {
+    // カードを生成する関数
+    const createCard = (track) => {
         const imageUrl = track?.album?.image || '';
         const trackName = track?.name || 'Unknown Track';
         const releaseDate = track?.album?.release_date || '';
@@ -1526,19 +1538,20 @@ function renderGridLP(tracks, gridEl) {
             <div class="track-card" ${spotifyUrl ? `data-spotify-url="${escapeHtml(spotifyUrl)}"` : ''}>
                 <div class="track-card-image-wrapper">
                     <img src="${imageUrl}" alt="${escapeHtml(trackName)}" class="track-card-image" loading="lazy">
-                    <div class="track-card-info">
-                        <div class="track-card-title">${escapeHtml(trackName)}</div>
-                        ${year ? `<div class="track-meta">${year}</div>` : ''}
-                    </div>
                 </div>
-                <div class="track-card-name">${escapeHtml(trackName)}</div>
-                ${year ? `<div class="track-card-year">${year}</div>` : ''}
+                <div class="track-card-content">
+                    <div class="track-card-title">${escapeHtml(trackName)}</div>
+                    ${year ? `<div class="track-card-year">${year}</div>` : ''}
+                </div>
             </div>
         `;
-    }).join('');
+    };
 
+    // 初期表示分をレンダリング
+    const cards = tracks.map(createCard).join('');
     gridEl.innerHTML = cards;
 
+    // クリックイベントを設定
     gridEl.querySelectorAll('.track-card').forEach((card) => {
         const url = card.dataset.spotifyUrl;
         if (!url) return;
@@ -1546,6 +1559,67 @@ function renderGridLP(tracks, gridEl) {
             window.open(url, '_blank');
         });
     });
+
+    // Load More機能
+    if (remainingTracks.length > 0 && loadMoreWrapper && loadMoreBtn) {
+        loadMoreWrapper.style.display = 'flex';
+        
+        // 既存のイベントリスナーを削除して再設定
+        const newBtn = loadMoreBtn.cloneNode(true);
+        loadMoreBtn.parentNode.replaceChild(newBtn, loadMoreBtn);
+        const currentBtn = newBtn;
+        
+        if (!currentBtn.dataset.initialized) {
+            let currentIndex = 0;
+            
+            currentBtn.addEventListener('click', () => {
+                const nextBatch = remainingTracks.slice(currentIndex, currentIndex + 12);
+                if (nextBatch.length === 0) {
+                    loadMoreWrapper.style.display = 'none';
+                    return;
+                }
+                
+                // 新しいカードを追加
+                nextBatch.forEach(track => {
+                    const cardHtml = createCard(track);
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = cardHtml;
+                    const card = tempDiv.firstElementChild;
+                    
+                    // クリックイベントを設定
+                    const url = card.dataset.spotifyUrl;
+                    if (url) {
+                        card.addEventListener('click', () => {
+                            window.open(url, '_blank');
+                        });
+                    }
+                    
+                    // アニメーション付きで追加
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    gridEl.appendChild(card);
+                    
+                    gsap.to(card, {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.4,
+                        ease: 'power2.out'
+                    });
+                });
+                
+                currentIndex += 12;
+                
+                // 残りがなくなったらボタンを非表示
+                if (currentIndex >= remainingTracks.length) {
+                    loadMoreWrapper.style.display = 'none';
+                }
+            });
+            
+            currentBtn.dataset.initialized = 'true';
+        }
+    } else if (loadMoreWrapper) {
+        loadMoreWrapper.style.display = 'none';
+    }
 }
 
 function escapeHtml(text) {

@@ -53,24 +53,20 @@
     
     /* keep-togetherクラスは改行を防ぐ（ただし画面幅を超える場合は許可） */
     .keep-together {
-        white-space: nowrap !important;
         word-break: keep-all !important;
-        overflow-wrap: normal !important;
+        overflow-wrap: break-word !important;
         line-break: auto !important;
+        max-width: 100%;
         display: inline-block;
         vertical-align: baseline;
-        max-width: calc(100vw - 2rem);
-        box-sizing: border-box;
     }
     
-    /* アーティスト紹介文内のkeep-togetherは改行を防ぐ */
+    /* アーティスト紹介文内のkeep-togetherは画面幅を超えないように */
     .artist-bio p .keep-together {
-        white-space: nowrap !important;
+        max-width: 100%;
+        overflow-wrap: break-word !important;
         word-break: keep-all !important;
-        overflow-wrap: normal !important;
-        display: inline-block;
-        max-width: calc(100% - 0.5em);
-        box-sizing: border-box;
+        white-space: normal !important;
     }
 }
 
@@ -1159,22 +1155,15 @@ body {
 .artist-bio {
     max-width: 780px;
     margin: 0 auto;
-    padding: 0 clamp(20px, 5vw, 48px);
+    padding: 0 clamp(16px, 4vw, 40px);
     position: relative;
     width: 100%;
     box-sizing: border-box;
     overflow-x: hidden;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
 }
 
 .artist-bio-content {
     position: relative;
-    width: 100%;
-    box-sizing: border-box;
-    overflow-x: hidden;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
 }
 
 .artist-bio p {
@@ -1201,18 +1190,16 @@ body {
     overflow-wrap: normal !important;
     line-break: auto !important;
     display: inline-block;
-    max-width: calc(100% - 0.5em);
+    max-width: 100%;
     box-sizing: border-box;
-    vertical-align: baseline;
 }
 
-/* 最初の段落を太めで目立たせる */
+/* 最初の段落も同じスタイルに統一 */
 .artist-bio p:first-child {
     font-size: 1rem;
-    font-weight: 600;
-    color: #e8e8e8;
+    font-weight: 400;
+    color: #ccc;
     line-height: 1.9;
-    letter-spacing: 0.03em;
 }
 
 /* 折りたたみ部分のスタイル（モバイル用） */
@@ -3029,11 +3016,9 @@ body.hovered .cursor-circle {
 
     .artist-bio {
         max-width: 100%;
-        padding: 0 1.25rem;
+        padding: 0 1rem;
         overflow-x: hidden;
         box-sizing: border-box;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
     }
     
     .artist-bio p {
@@ -3041,24 +3026,15 @@ body.hovered .cursor-circle {
         word-break: break-word;
         max-width: 100%;
         box-sizing: border-box;
-        word-wrap: break-word;
     }
     
     /* モバイル版ではkeep-togetherが画面幅を超えないように */
     .artist-bio p .keep-together {
-        white-space: nowrap !important;
-        word-break: keep-all !important;
-        overflow-wrap: normal !important;
-        display: inline-block;
-        max-width: calc(100% - 0.5em);
-        box-sizing: border-box;
-        position: relative;
-    }
-    
-    /* ネストされたkeep-togetherも同様に処理 */
-    .artist-bio p .keep-together .keep-together {
         max-width: 100%;
-        white-space: nowrap !important;
+        overflow-wrap: break-word !important;
+        word-break: keep-all !important;
+        white-space: normal !important;
+        display: inline;
     }
 
     .artist-bio p {
@@ -3070,9 +3046,8 @@ body.hovered .cursor-circle {
 
     .artist-bio p:first-child {
         font-size: 1rem;
-        font-weight: 600;
-        color: #e8e8e8;
-        letter-spacing: 0.03em;
+        font-weight: 400;
+        color: #ccc;
     }
     
     .artist-bio-collapsed p {

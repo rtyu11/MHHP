@@ -2261,10 +2261,12 @@ function renderLatestReleaseLP(album, targetEl) {
                 e.preventDefault();
                 e.stopPropagation();
                 if (trackId) {
+                    // すべてのトラックリストアイテムからis-activeを削除
+                    removeAllActiveStates();
+                    
                     showGlobalSpotifyPlayer(trackId);
                     
-                    // アクティブ状態の更新
-                    trackItems.forEach(t => t.classList.remove('is-active'));
+                    // クリックされたアイテムにis-activeを追加
                     item.classList.add('is-active');
                 }
             });
@@ -2279,10 +2281,12 @@ function renderLatestReleaseLP(album, targetEl) {
             e.preventDefault();
             e.stopPropagation();
             if (trackId) {
+                // すべてのトラックリストアイテムからis-activeを削除
+                removeAllActiveStates();
+                
                 showGlobalSpotifyPlayer(trackId);
                 
-                // アクティブ状態の更新
-                trackItems.forEach(t => t.classList.remove('is-active'));
+                // クリックされたアイテムにis-activeを追加
                 item.classList.add('is-active');
             }
         });
@@ -2413,10 +2417,12 @@ function renderRailLP(albums, gridEl, artistId) {
                     e.preventDefault();
                     e.stopPropagation();
                     if (trackId) {
+                        // すべてのトラックリストアイテムからis-activeを削除
+                        removeAllActiveStates();
+                        
                         showGlobalSpotifyPlayer(trackId);
                         
-                        // アクティブ状態の更新
-                        trackItems.forEach(t => t.classList.remove('is-active'));
+                        // クリックされたアイテムにis-activeを追加
                         item.classList.add('is-active');
                     }
                 });
@@ -2431,10 +2437,12 @@ function renderRailLP(albums, gridEl, artistId) {
                 e.preventDefault();
                 e.stopPropagation();
                 if (trackId) {
+                    // すべてのトラックリストアイテムからis-activeを削除
+                    removeAllActiveStates();
+                    
                     showGlobalSpotifyPlayer(trackId);
                     
-                    // アクティブ状態の更新
-                    trackItems.forEach(t => t.classList.remove('is-active'));
+                    // クリックされたアイテムにis-activeを追加
                     item.classList.add('is-active');
                 }
             });

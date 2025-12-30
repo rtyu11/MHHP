@@ -189,10 +189,15 @@
                                         <p data-i18n="artist.bio.7">すべてにおいて"Masato Hayashi"でしか成し得ない存在感を放ち、今もっとも飛躍が期待されるアーティストの一人として注目を集めている。</p>
                                     </div>
                                 </div>
-                                <div class="artist-bio-fade"></div>
-                                <button class="artist-bio-toggle" aria-label="全文を表示" aria-expanded="false">
-                                    <span class="toggle-text">もっと読む</span>
-                                    <span class="toggle-icon">↓</span>
+                                <div class="artist-bio-fade" role="button" tabindex="0" aria-label="全文を表示" aria-expanded="false">
+                                    <div class="fade-hint">
+                                        <span class="fade-hint-text">続きを読む</span>
+                                        <span class="fade-hint-icon">↓</span>
+                                    </div>
+                                </div>
+                                <button class="artist-bio-toggle" aria-label="全文を非表示" aria-expanded="false" style="display: none;">
+                                    <span class="toggle-text">閉じる</span>
+                                    <span class="toggle-icon">↑</span>
                                 </button>
                             </div>
                         </div>

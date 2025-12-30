@@ -1177,6 +1177,11 @@ body {
     margin-top: 0;
 }
 
+.artist-bio-collapsed p {
+    font-weight: 400 !important;
+    color: #ccc;
+}
+
 .artist-bio.is-expanded .artist-bio-collapsed {
     max-height: 2000px;
     opacity: 1;
@@ -1186,19 +1191,23 @@ body {
 /* フェードアウト効果 */
 .artist-bio-fade {
     position: absolute;
-    bottom: 60px;
+    bottom: 0;
     left: clamp(16px, 4vw, 40px);
     right: clamp(16px, 4vw, 40px);
-    height: 80px;
+    height: 120px;
     background: linear-gradient(to bottom, 
         rgba(5, 5, 5, 0) 0%,
-        rgba(5, 5, 5, 0.7) 30%,
-        rgba(5, 5, 5, 0.95) 70%,
+        rgba(5, 5, 5, 0.6) 40%,
+        rgba(5, 5, 5, 0.9) 80%,
         rgba(5, 5, 5, 1) 100%);
-    pointer-events: none;
+    cursor: pointer;
     opacity: 1;
     transition: opacity 0.5s ease-out;
     z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 20px;
 }
 
 .artist-bio.is-expanded .artist-bio-fade {
@@ -1206,7 +1215,53 @@ body {
     pointer-events: none;
 }
 
-/* トグルボタン */
+.artist-bio.is-expanded .fade-hint {
+    display: none;
+}
+
+/* フェード部分のヒント */
+.fade-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.8);
+    font-family: var(--font-jp);
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.artist-bio-fade:hover .fade-hint {
+    color: rgba(255, 255, 255, 1);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.fade-hint-icon {
+    display: inline-block;
+    font-size: 1rem;
+    animation: bounce-hint 2s ease-in-out infinite;
+}
+
+@keyframes bounce-hint {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(4px);
+    }
+}
+
+/* トグルボタン（閉じるボタン） */
 .artist-bio-toggle {
     display: flex;
     align-items: center;
@@ -1230,6 +1285,10 @@ body {
     -webkit-backdrop-filter: blur(10px);
 }
 
+.artist-bio.is-expanded .artist-bio-toggle {
+    display: flex;
+}
+
 .artist-bio-toggle:hover {
     border-color: rgba(255, 255, 255, 0.4);
     background: rgba(255, 255, 255, 0.05);
@@ -1244,10 +1303,6 @@ body {
     display: inline-block;
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     font-size: 1.1rem;
-}
-
-.artist-bio.is-expanded .artist-bio-toggle .toggle-icon {
-    transform: rotate(180deg);
 }
 
 
@@ -2903,10 +2958,16 @@ body.hovered .cursor-circle {
     }
     
     .artist-bio-fade {
-        bottom: 50px;
+        bottom: 0;
         left: clamp(16px, 4vw, 40px);
         right: clamp(16px, 4vw, 40px);
-        height: 60px;
+        height: 100px;
+        padding-bottom: 15px;
+    }
+    
+    .fade-hint {
+        font-size: 0.8rem;
+        padding: 6px 12px;
     }
     
     .artist-bio-toggle {

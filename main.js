@@ -2013,6 +2013,92 @@ function renderNews(items) {
             }
         }, { passive: false });
 
+        // スマホ版のタッチスクロール処理（最上部/最下部でページスクロールに移行）
+        let touchStartY = 0;
+        let touchStartScrollTop = 0;
+        let lastTouchY = 0;
+        let isScrollingContainer = false;
+
+        scrollContainer.addEventListener('touchstart', (e) => {
+            if (!scrollContainer.classList.contains('is-expanded')) {
+                return;
+            }
+            
+            touchStartY = e.touches[0].clientY;
+            lastTouchY = touchStartY;
+            touchStartScrollTop = scrollContainer.scrollTop;
+            isScrollingContainer = false;
+        }, { passive: true });
+
+        scrollContainer.addEventListener('touchmove', (e) => {
+            if (!scrollContainer.classList.contains('is-expanded')) {
+                return;
+            }
+
+            const touchY = e.touches[0].clientY;
+            const deltaY = lastTouchY - touchY;
+            const scrollTop = scrollContainer.scrollTop;
+            const scrollHeight = scrollContainer.scrollHeight;
+            const clientHeight = scrollContainer.clientHeight;
+            const maxScroll = Math.max(0, scrollHeight - clientHeight);
+
+            // スクロール可能かチェック（少し余裕を持たせる）
+            const threshold = 2; // 2pxの余裕
+            const isAtTop = scrollTop <= threshold;
+            const isAtBottom = scrollTop >= maxScroll - threshold;
+            const canScrollDown = scrollTop < maxScroll - threshold;
+            const canScrollUp = scrollTop > threshold;
+
+            // 下方向にスクロールしようとしている場合（deltaY < 0は下方向）
+            if (deltaY < 0) {
+                // 最下部に達している場合は、ページスクロールに移行（イベントを伝播）
+                if (isAtBottom) {
+                    isScrollingContainer = false;
+                    // イベントを伝播させてページスクロールを許可
+                    return;
+                }
+                // スクロール可能な場合は、コンテナ内でスクロール
+                if (canScrollDown) {
+                    e.preventDefault();
+                    isScrollingContainer = true;
+                    const newScrollTop = Math.max(0, Math.min(maxScroll, scrollTop - deltaY));
+                    scrollContainer.scrollTop = newScrollTop;
+                } else {
+                    // スクロールできない場合は、ページスクロールに移行
+                    isScrollingContainer = false;
+                }
+            }
+            // 上方向にスクロールしようとしている場合（deltaY > 0は上方向）
+            else if (deltaY > 0) {
+                // 最上部に達している場合は、ページスクロールに移行（イベントを伝播）
+                if (isAtTop) {
+                    isScrollingContainer = false;
+                    // イベントを伝播させてページスクロールを許可
+                    return;
+                }
+                // スクロール可能な場合は、コンテナ内でスクロール
+                if (canScrollUp) {
+                    e.preventDefault();
+                    isScrollingContainer = true;
+                    const newScrollTop = Math.max(0, Math.min(maxScroll, scrollTop - deltaY));
+                    scrollContainer.scrollTop = newScrollTop;
+                } else {
+                    // スクロールできない場合は、ページスクロールに移行
+                    isScrollingContainer = false;
+                }
+            }
+
+            // スクロール位置を更新
+            lastTouchY = touchY;
+        }, { passive: false });
+
+        scrollContainer.addEventListener('touchend', (e) => {
+            if (!scrollContainer.classList.contains('is-expanded')) {
+                return;
+            }
+            isScrollingContainer = false;
+        }, { passive: true });
+
         // 「もっと見る」ボタンのイベント（重複防止）
         // 既存のイベントリスナーを削除
         const newMoreBtn = moreBtn.cloneNode(true);

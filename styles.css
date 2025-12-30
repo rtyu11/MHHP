@@ -852,7 +852,7 @@ body {
     font-family: var(--font-main);
     font-size: 12vw;
     /* ディセンダー（y等）が切れないように行高と下余白を確保 */
-    line-height: 0.92;
+    line-height: 1.1;
     padding-bottom: 0.14em;
     margin: 0;
     letter-spacing: -0.02em;
@@ -870,6 +870,7 @@ body {
     display: inline-block; /* transform時の字面欠けを防ぐ */
     padding-bottom: 0.14em; /* yの下が切れないように */
     will-change: transform, opacity;
+    margin-bottom: 0.3em; /* MasatoとHayashiの間隔を開ける */
 
     /* Gold Gradient（文字が透明にならないよう、span側に適用） */
     background: linear-gradient(to bottom right, #fbf5b7 10%, #bf953f 40%, #b38728 60%, #aa771c 90%);
@@ -883,9 +884,9 @@ body {
     display: flex;
     justify-content: space-between;
     width: 100%;
-    max-width: 600px;
+    max-width: 800px;
     margin: 2rem auto 0;
-    font-family: var(--font-tech);
+    font-family: var(--font-main);
     font-size: 0.8rem;
     letter-spacing: 0.2em;
     opacity: 0;
@@ -893,6 +894,7 @@ body {
     color: #ddd;
     /* 文字が背景に溶け込まないように、確実に見えるようにする */
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 0, 0, 0.7);
+    gap: 2rem;
 }
 
 /* --- Marquee --- */
@@ -2828,15 +2830,25 @@ body.hovered .cursor-circle {
     }
 
     .hero-title {
-        font-size: 16vw;
+        font-size: 20vw;
         width: 100%;
         margin: 0 auto;
         padding: 0;
         /* 文字が切れないようにoverflowをvisibleに */
         overflow: visible;
         /* モバイルでもディセンダー（y等）を確保 */
-        line-height: 0.92;
+        line-height: 1.15;
         padding-bottom: 0.14em;
+    }
+
+    .hero-title .char-wrap {
+        margin-bottom: 0.5em; /* スマホでのMasatoとHayashiの間隔をさらに開ける */
+    }
+
+    .hero-subtitle {
+        max-width: 90%;
+        gap: 1rem;
+        font-size: 0.75rem;
     }
 
     .hero-overlay {

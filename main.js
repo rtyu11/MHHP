@@ -2385,9 +2385,24 @@ function renderRailLP(albums, gridEl, artistId) {
                         }
                     });
                     
-                    // このカードのジャケット画像だけを拡大（トラックリストは拡大しない）
+                    // このカードのジャケット画像だけを拡大（トラックリストは拡大しないが表示はする）
                     card.classList.add('is-zoomed');
-                    // トラックリストは拡大しないので、is-expandedは追加しない
+                    card.classList.add('is-expanded');
+                    if (tracksList) {
+                        tracksList.style.display = 'block';
+                        // レイアウトを確定させるために少し待機
+                        setTimeout(() => {
+                            gsap.fromTo(tracksList, 
+                                { height: 0, opacity: 0 },
+                                { 
+                                    height: 'auto',
+                                    opacity: 1,
+                                    duration: 0.4,
+                                    ease: 'power2.out'
+                                }
+                            );
+                        }, 10);
+                    }
                 }
             });
         }

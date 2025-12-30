@@ -923,6 +923,8 @@ body {
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
     position: relative;
     z-index: 10;
+    width: 100%;
+    max-width: 100%;
 }
 
 .marquee-track {
@@ -2910,6 +2912,8 @@ body.hovered .cursor-circle {
         display: flex;
         align-items: center;
         overflow: hidden;
+        width: 100%;
+        max-width: 100%;
     }
 
     .marquee-item {

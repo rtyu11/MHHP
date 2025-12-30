@@ -1459,8 +1459,9 @@ function renderTicker(items) {
     // Creating minimal sets to ensure smooth loop. 
     // Usually 4 sets is enough for standard screen widths vs item count.
     // If items are few, we need more sets. If many, fewer.
-    // Let's safe bet on 6 sets to handle large screens (ultrawide) and small item counts.
-    const LOOP_SETS = 6;
+    // スマホでは画面幅が狭いため、より多くのセットが必要
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    const LOOP_SETS = isMobile ? 12 : 6; // スマホでは12セット、PCでは6セット
 
     // Re-create elements inside the loop to ensure listeners work for every clone
     for (let i = 0; i < LOOP_SETS; i++) {
@@ -1494,7 +1495,7 @@ function renderTicker(items) {
 
     // Start Animation
     // Re-implement the GSAP animation here
-    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    // isMobile は上で既に定義済み
     const marqueeDuration = isMobile ? 25 : 35; // Slower, more elegant speed
 
     // Kill existing tweaks if any

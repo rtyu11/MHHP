@@ -1928,13 +1928,23 @@ body.news-modal-open .news-item.is-active::after {
 }
 
 .album-card.is-expanded {
-    border-color: var(--accent);
-    background: rgba(212, 175, 55, 0.05);
+    border-color: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
 }
 
 .album-card.is-expanded .album-tracks-list {
     height: auto;
     opacity: 1;
+}
+
+.album-card.is-expanded .album-card-image-wrapper {
+    transform: translateY(-12px);
+    transition: transform 0.4s var(--ease-out);
+}
+
+.album-card.is-expanded .album-card-image {
+    transform: scale(1.15);
+    transition: transform 0.4s var(--ease-out);
 }
 
 .album-card-image-wrapper {
@@ -2021,15 +2031,36 @@ body.news-modal-open .news-item.is-active::after {
 .album-tracks-list .track-list-item {
     padding: 0.6rem 0.8rem;
     font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 
 .album-tracks-list .track-number {
     min-width: 20px;
     font-size: 0.7rem;
+    flex-shrink: 0;
+}
+
+.album-tracks-list .track-name-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
 }
 
 .album-tracks-list .track-name {
     font-size: 0.9rem;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.album-tracks-list .track-play-button {
+    flex-shrink: 0;
 }
 
 .album-tracks-list .track-play-button {
@@ -2559,6 +2590,15 @@ body.news-modal-open .news-item.is-active::after {
 
     .album-tracks-list .track-list-item {
         padding: 0.5rem 0.6rem;
+        font-size: 0.85rem;
+        gap: 0.5rem;
+    }
+
+    .album-tracks-list .track-name-wrapper {
+        gap: 0.5rem;
+    }
+
+    .album-tracks-list .track-name {
         font-size: 0.85rem;
     }
 

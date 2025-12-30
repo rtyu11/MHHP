@@ -2322,10 +2322,12 @@ function renderRailLP(albums, gridEl, artistId) {
                         return `
                             <div class="track-list-item" data-track-id="${escapeHtml(track.id)}">
                                 <span class="track-number">${track.track_number || index + 1}</span>
-                                <span class="track-name">${escapeHtml(track.name)}</span>
-                                <button class="track-play-button" aria-label="${isEnglish ? 'Play track' : '再生'}">
-                                    <span class="music-icon">♪</span>
-                                </button>
+                                <div class="track-name-wrapper">
+                                    <span class="track-name">${escapeHtml(track.name)}</span>
+                                    <button class="track-play-button" aria-label="${isEnglish ? 'Play track' : '再生'}">
+                                        <span class="music-icon">♪</span>
+                                    </button>
+                                </div>
                             </div>
                         `;
                     }).join('')}

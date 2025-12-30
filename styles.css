@@ -1764,6 +1764,7 @@ body.news-modal-open .news-item.is-active::after {
 
 .discography-featured-tracks .track-list-item {
     display: flex;
+    flex-direction: row;
     align-items: center;
     gap: 1.25rem;
     padding: 1rem 1.25rem;
@@ -1814,6 +1815,7 @@ body.news-modal-open .news-item.is-active::after {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    min-width: 0;
 }
 
 .track-name {
@@ -1845,6 +1847,7 @@ body.news-modal-open .news-item.is-active::after {
     padding: 0;
     margin: 0;
     flex-shrink: 0;
+    margin-left: auto;
 }
 
 .discography-featured-tracks .track-play-button:hover {
@@ -1930,7 +1933,7 @@ body.news-modal-open .news-item.is-active::after {
 .album-card.is-expanded {
     border-color: rgba(255, 255, 255, 0.08);
     background: rgba(255, 255, 255, 0.02);
-    transform: scale(1.05);
+    transform: scale(1.12);
     z-index: 10;
 }
 

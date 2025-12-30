@@ -436,7 +436,21 @@ function updateLanguage(lang) {
             } else if (el.tagName === 'OPTION') {
                 el.textContent = value;
             } else {
-                el.textContent = value;
+                // アーティスト紹介文の場合は改行防止クラスを保持
+                if (key && key.startsWith('artist.bio.')) {
+                    let htmlValue = value;
+                    // 改行防止が必要な文字列を検索して置換（日本語版）
+                    htmlValue = htmlValue.replace(/& DJ TATSUKI/g, '<span class="keep-together">& DJ TATSUKI</span>');
+                    htmlValue = htmlValue.replace(/& JP THE WAVY/g, '<span class="keep-together">& JP THE WAVY</span>');
+                    htmlValue = htmlValue.replace(/J-HIPHOPの聖地/g, '<span class="keep-together">J-HIPHOPの聖地</span>');
+                    // 英語版も同様に処理
+                    htmlValue = htmlValue.replace(/& DJ TATSUKI/g, '<span class="keep-together">& DJ TATSUKI</span>');
+                    htmlValue = htmlValue.replace(/& JP THE WAVY/g, '<span class="keep-together">& JP THE WAVY</span>');
+                    htmlValue = htmlValue.replace(/J-HIPHOP/g, '<span class="keep-together">J-HIPHOP</span>');
+                    el.innerHTML = htmlValue;
+                } else {
+                    el.textContent = value;
+                }
             }
         }
     });

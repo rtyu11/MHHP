@@ -1925,6 +1925,7 @@ body.news-modal-open .news-item.is-active::after {
     transform: translateY(-8px);
     border-color: rgba(255, 255, 255, 0.2);
     background: rgba(255, 255, 255, 0.05);
+    z-index: 10;
 }
 
 .album-card.is-expanded {
@@ -1947,50 +1948,46 @@ body.news-modal-open .news-item.is-active::after {
     transition: transform 0.4s var(--ease-out);
 }
 
-/* ジャケット拡大状態 */
-.album-card.is-zoomed {
-    z-index: 10;
-    position: relative;
-}
-
-.album-card.is-zoomed .album-card-image-wrapper {
-    transform: scale(1.25);
-    transition: transform 0.4s var(--ease-out);
-    z-index: 11;
-}
-
-.album-card.is-zoomed .album-card-image {
-    transform: scale(1.0);
-    transition: transform 0.4s var(--ease-out);
-}
-
 .album-card-image-wrapper {
     position: relative;
     width: 100%;
     aspect-ratio: 1;
-    overflow: hidden;
+    overflow: visible;
     background: rgba(0, 0, 0, 0.2);
+    z-index: 1;
 }
-
 
 .album-card-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform 0.8s var(--ease-out);
+    transition: transform 0.4s var(--ease-out);
+    transform-origin: center top;
+}
+
+/* ホバー時に画像を拡大（タイトルにかぶらないように上方向に拡大） */
+.album-card:hover .album-card-image-wrapper {
+    transform: scale(1.3);
+    transition: transform 0.4s var(--ease-out);
+    z-index: 11;
 }
 
 .album-card:hover .album-card-image {
-    transform: scale(1.08);
+    transform: scale(1.0);
+    transition: transform 0.4s var(--ease-out);
 }
 
-
 .album-card-body {
+    position: relative;
+    z-index: 3;
     padding: 1.25rem;
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
 }
 
 .album-card-title {

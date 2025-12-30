@@ -1916,6 +1916,49 @@ function renderNews(items) {
         // スクロールコンテナを「もっと見る」ボタンの前に挿入
         moreWrapper.parentNode.insertBefore(scrollContainer, moreWrapper);
 
+        // スクロールコンテナ内でのマウスホイールイベントを処理（Lenisの干渉を防ぐ）
+        scrollContainer.addEventListener('wheel', (e) => {
+            // スクロールコンテナが展開されている場合のみ処理
+            if (!scrollContainer.classList.contains('is-expanded')) {
+                return;
+            }
+            
+            // スクロールコンテナの境界内かチェック
+            const rect = scrollContainer.getBoundingClientRect();
+            const isInside = e.clientY >= rect.top && e.clientY <= rect.bottom &&
+                            e.clientX >= rect.left && e.clientX <= rect.right;
+            
+            if (isInside) {
+                const scrollTop = scrollContainer.scrollTop;
+                const scrollHeight = scrollContainer.scrollHeight;
+                const clientHeight = scrollContainer.clientHeight;
+                const maxScroll = scrollHeight - clientHeight;
+                
+                // スクロール可能かチェック
+                const canScrollDown = scrollTop < maxScroll - 1; // 1pxの余裕を持たせる
+                const canScrollUp = scrollTop > 1; // 1pxの余裕を持たせる
+                
+                // 下方向にスクロール可能な場合
+                if (e.deltaY > 0 && canScrollDown) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    scrollContainer.scrollTop += e.deltaY;
+                    return;
+                }
+                
+                // 上方向にスクロール可能な場合
+                if (e.deltaY < 0 && canScrollUp) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    scrollContainer.scrollTop += e.deltaY;
+                    return;
+                }
+                
+                // スクロールコンテナの端に達している場合は、親のスクロールに伝播させる
+                // （何もしない = イベントをそのまま伝播）
+            }
+        }, { passive: false });
+
         // 「もっと見る」ボタンのイベント（重複防止）
         // 既存のイベントリスナーを削除
         const newMoreBtn = moreBtn.cloneNode(true);

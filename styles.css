@@ -1416,7 +1416,7 @@ body {
     margin-bottom: 0.5rem;
     text-decoration: none;
     color: #fff;
-    transition: opacity 0.3s;
+    transition: opacity 0.3s, padding-left 0.3s var(--ease-out);
     align-items: baseline;
     position: relative;
     /* スクロール時の誤タッチを防ぐ */
@@ -1436,6 +1436,15 @@ body {
     background: linear-gradient(to right, transparent, rgba(212, 175, 55, 0.3), transparent);
     opacity: 0;
     transition: opacity 0.3s;
+}
+
+/* モーダルが開いているとき、アクティブな記事を横にずらす */
+body.news-modal-open .news-item.is-active {
+    padding-left: 2rem;
+}
+
+body.news-modal-open .news-item.is-active::after {
+    opacity: 1;
 }
 
 .news-item-hidden {

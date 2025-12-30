@@ -1645,15 +1645,31 @@ function renderNews(items) {
 
     // Modal Open/Close Logic
     if (modal && !modal.dataset.initialized) {
-        const openModal = () => {
+        let activeNewsItem = null;
+        
+        const openModal = (clickedItem) => {
             modal.classList.add('is-open');
             modal.setAttribute('aria-hidden', 'false');
             document.body.style.overflow = 'hidden';
+            document.body.classList.add('news-modal-open');
+            
+            // クリックされた記事にクラスを追加
+            if (clickedItem) {
+                activeNewsItem = clickedItem;
+                clickedItem.classList.add('is-active');
+            }
         };
         const closeModal = () => {
             modal.classList.remove('is-open');
             modal.setAttribute('aria-hidden', 'true');
             document.body.style.overflow = '';
+            document.body.classList.remove('news-modal-open');
+            
+            // アクティブな記事からクラスを削除
+            if (activeNewsItem) {
+                activeNewsItem.classList.remove('is-active');
+                activeNewsItem = null;
+            }
         };
         modal.addEventListener('click', (e) => {
             if (e.target && e.target.dataset && e.target.dataset.close) closeModal();
@@ -1857,7 +1873,7 @@ function renderNews(items) {
                     modalLink.style.display = 'none';
                 }
                 
-                modal.open();
+                modal.open(a); // クリックされた記事を渡す
                 
                 // 処理完了後にフラグをリセット（少し遅延を入れる）
                 setTimeout(() => {

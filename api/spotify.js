@@ -31,38 +31,75 @@ export default async function handler(req, res) {
   
       const { access_token } = await tokenResp.json();
   
-      // 2) アーティストのTop Tracksを取得（市場はJP固定）
-      const tracksResp = await fetch(
-        `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=JP`,
-        {
+      // 2) アーティストのアルバムを取得（シングルとアルバムのみ、市場はJP固定）
+      let allAlbums = [];
+      let nextUrl = `https://api.spotify.com/v1/artists/${artistId}/albums?include_groups=album,single&market=JP&limit=50`;
+      
+      // ページネーションで全アルバムを取得
+      while (nextUrl) {
+        const albumsResp = await fetch(nextUrl, {
           headers: { Authorization: `Bearer ${access_token}` },
+        });
+        
+        if (!albumsResp.ok) {
+          const t = await albumsResp.text();
+          return res.status(500).json({ error: "Albums request failed", detail: t });
         }
-      );
-  
-      if (!tracksResp.ok) {
-        const t = await tracksResp.text();
-        return res.status(500).json({ error: "Tracks request failed", detail: t });
+        
+        const albumsData = await albumsResp.json();
+        allAlbums = allAlbums.concat(albumsData.items || []);
+        nextUrl = albumsData.next;
       }
   
-      const data = await tracksResp.json();
+      // 3) 各アルバムのトラックリストを取得
+      const albumsWithTracks = await Promise.all(
+        allAlbums.map(async (album) => {
+          let allTracks = [];
+          let tracksNextUrl = `https://api.spotify.com/v1/albums/${album.id}/tracks?market=JP&limit=50`;
+          
+          // ページネーションで全トラックを取得
+          while (tracksNextUrl) {
+            const tracksResp = await fetch(tracksNextUrl, {
+              headers: { Authorization: `Bearer ${access_token}` },
+            });
+            
+            if (!tracksResp.ok) {
+              console.warn(`Failed to fetch tracks for album ${album.id}`);
+              break;
+            }
+            
+            const tracksData = await tracksResp.json();
+            allTracks = allTracks.concat(tracksData.items || []);
+            tracksNextUrl = tracksData.next;
+          }
+          
+          return {
+            id: album.id,
+            name: album.name,
+            album_type: album.album_type, // 'album' or 'single'
+            image: album.images?.[0]?.url || null,
+            release_date: album.release_date || null,
+            external_url: album.external_urls?.spotify || null,
+            tracks: allTracks.map((track) => ({
+              id: track.id,
+              name: track.name,
+              duration_ms: track.duration_ms,
+              track_number: track.track_number,
+              external_url: track.external_urls?.spotify || null,
+            })),
+          };
+        })
+      );
   
-      // 3) フロントで使いやすい形に整形して返す
-      const tracks = (data.tracks || []).map((tr) => ({
-        id: tr.id,
-        name: tr.name,
-        preview_url: tr.preview_url,
-        duration_ms: tr.duration_ms,
-        album: {
-          name: tr.album?.name,
-          image: tr.album?.images?.[0]?.url || null,
-          release_date: tr.album?.release_date || null,
-        },
-        artists: (tr.artists || []).map((a) => ({ id: a.id, name: a.name })),
-        external_url: tr.external_urls?.spotify || null,
-      }));
+      // 4) release_date降順でソート
+      albumsWithTracks.sort((a, b) => {
+        const da = a.release_date || '';
+        const db = b.release_date || '';
+        return db.localeCompare(da);
+      });
   
       res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600"); // 5分キャッシュ
-      return res.status(200).json({ artistId, tracks });
+      return res.status(200).json({ artistId, albums: albumsWithTracks });
     } catch (e) {
       return res.status(500).json({ error: "Unexpected error", detail: String(e) });
     }

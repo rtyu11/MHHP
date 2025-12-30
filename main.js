@@ -2173,30 +2173,24 @@ function initLandingDiscography() {
             return res.json();
         })
         .then((data) => {
-            if (!data?.tracks || !Array.isArray(data.tracks) || data.tracks.length === 0) {
-                throw new Error('no tracks');
+            if (!data?.albums || !Array.isArray(data.albums) || data.albums.length === 0) {
+                throw new Error('no albums');
             }
 
-            // release_date降順でソート
-            const sorted = [...data.tracks].sort((a, b) => {
-                const da = a?.album?.release_date || '';
-                const db = b?.album?.release_date || '';
-                return db.localeCompare(da);
-            });
-
-            const featuredTrack = sorted[0];
-            const others = sorted.slice(1);
+            const albums = data.albums;
+            const latestAlbum = albums[0];
+            const otherAlbums = albums.slice(1);
             const artistId = data.artistId || '';
 
             hideLoading();
 
-            if (featuredTrack) {
-                renderLatestReleaseLP(featuredTrack, featuredEl);
+            if (latestAlbum) {
+                renderLatestReleaseLP(latestAlbum, featuredEl);
                 featuredEl.style.display = 'block';
             }
 
-            if (others.length > 0) {
-                renderRailLP(others, gridEl, artistId);
+            if (otherAlbums.length > 0) {
+                renderRailLP(otherAlbums, gridEl, artistId);
                 gridEl.style.display = 'flex';
             }
         })
@@ -2207,79 +2201,128 @@ function initLandingDiscography() {
         });
 }
 
-// 最新1曲を大きく表示
-function renderLatestReleaseLP(track, targetEl) {
+// 最新アルバム/シングルを大きく表示（常にトラックリストを表示）
+function renderLatestReleaseLP(album, targetEl) {
     if (!targetEl) return;
 
-    const imageUrl = track?.album?.image || '';
-    const trackName = track?.name || 'Unknown Track';
-    const artistNames = (track?.artists || []).map((a) => a?.name).filter(Boolean).join(', ');
-    const releaseDate = track?.album?.release_date || '';
-    const trackId = track?.id || `featured-${Date.now()}`;
+    const imageUrl = album?.image || '';
+    const albumName = album?.name || 'Unknown Album';
+    const albumType = album?.album_type || 'album';
+    const releaseDate = album?.release_date || '';
+    const albumId = album?.id || `featured-${Date.now()}`;
+    const tracks = album?.tracks || [];
 
     const formattedDate = releaseDate ? releaseDate.split('T')[0] : '';
     const isEnglish = currentLang === 'en';
+    const typeLabel = albumType === 'single' ? (isEnglish ? 'SINGLE' : 'シングル') : (isEnglish ? 'ALBUM' : 'アルバム');
+
+    // トラックリストを生成
+    const tracksList = tracks.map((track, index) => {
+        const duration = track.duration_ms ? formatDuration(track.duration_ms) : '';
+        return `
+            <div class="track-list-item" data-track-id="${escapeHtml(track.id)}">
+                <span class="track-number">${track.track_number || index + 1}</span>
+                <span class="track-name">${escapeHtml(track.name)}</span>
+                ${duration ? `<span class="track-duration">${duration}</span>` : ''}
+            </div>
+        `;
+    }).join('');
 
     targetEl.innerHTML = `
-        <div class="discography-featured-content" data-track-id="${escapeHtml(trackId)}">
+        <div class="discography-featured-content" data-album-id="${escapeHtml(albumId)}">
             <div class="discography-featured-image-wrapper">
                 <div class="featured-badge">${isEnglish ? 'LATEST' : 'NEW'}</div>
-                <img src="${imageUrl}" alt="${escapeHtml(trackName)}" class="discography-featured-image" loading="lazy">
-                <div class="featured-play-overlay">
-                    <span class="play-icon-large">▶︎</span>
-                </div>
+                <div class="album-type-badge">${typeLabel}</div>
+                <img src="${imageUrl}" alt="${escapeHtml(albumName)}" class="discography-featured-image" loading="lazy">
             </div>
             <div class="discography-featured-info">
                 <div class="featured-label">${isEnglish ? 'LATEST RELEASE' : '最新リリース'}</div>
-                <h2 class="discography-featured-title">${escapeHtml(trackName)}</h2>
+                <h2 class="discography-featured-title">${escapeHtml(albumName)}</h2>
                 ${formattedDate ? `
                     <div class="discography-featured-release">
                         <span>${formattedDate}</span>
                     </div>
                 ` : ''}
             </div>
+            ${tracks.length > 0 ? `
+                <div class="discography-featured-tracks">
+                    <div class="tracks-list-header">
+                        <span class="tracks-count">${tracks.length} ${isEnglish ? 'TRACKS' : '曲'}</span>
+                    </div>
+                    <div class="tracks-list">
+                        ${tracksList}
+                    </div>
+                </div>
+            ` : ''}
         </div>
     `;
 
-    const content = targetEl.querySelector('.discography-featured-content');
-
-    const handlePlay = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        showGlobalSpotifyPlayer(trackId);
-        
-        // アクティブ状態の更新
-        document.querySelectorAll('.track-card.is-playing').forEach(c => c.classList.remove('is-playing'));
-        content.classList.add('is-playing');
-    };
-
-    if (content) content.addEventListener('click', handlePlay);
+    // トラックリストアイテムのクリックイベント
+    const trackItems = targetEl.querySelectorAll('.track-list-item');
+    trackItems.forEach((item) => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const trackId = item.dataset.trackId;
+            if (trackId) {
+                showGlobalSpotifyPlayer(trackId);
+                
+                // アクティブ状態の更新
+                trackItems.forEach(t => t.classList.remove('is-active'));
+                item.classList.add('is-active');
+            }
+        });
+    });
 }
 
-// 残りの曲を横スクロールで表示
-function renderRailLP(tracks, gridEl, artistId) {
+// 時間フォーマット関数
+function formatDuration(ms) {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// 残りのアルバム/シングルを横スクロールで表示
+function renderRailLP(albums, gridEl, artistId) {
     if (!gridEl) return;
 
     gridEl.classList.add('discography-rail');
 
-    const cards = tracks.map((track) => {
-        const imageUrl = track?.album?.image || '';
-        const trackName = track?.name || 'Unknown Track';
-        const releaseDate = track?.album?.release_date || '';
-        const trackId = track?.id || `grid-${Date.now()}-${Math.random()}`;
+    const cards = albums.map((album) => {
+        const imageUrl = album?.image || '';
+        const albumName = album?.name || 'Unknown Album';
+        const albumType = album?.album_type || 'album';
+        const releaseDate = album?.release_date || '';
+        const albumId = album?.id || `grid-${Date.now()}-${Math.random()}`;
         const year = releaseDate ? releaseDate.split('-')[0] : '';
+        const isEnglish = currentLang === 'en';
+        const typeLabel = albumType === 'single' ? (isEnglish ? 'SINGLE' : 'シングル') : (isEnglish ? 'ALBUM' : 'アルバム');
 
         return `
-            <div class="track-card" data-track-id="${escapeHtml(trackId)}">
-                <div class="track-card-image-wrapper">
-                    <img src="${imageUrl}" alt="${escapeHtml(trackName)}" class="track-card-image" loading="lazy">
-                    <div class="track-card-overlay">
+            <div class="album-card" data-album-id="${escapeHtml(albumId)}">
+                <div class="album-card-image-wrapper">
+                    <div class="album-type-badge-small">${typeLabel}</div>
+                    <img src="${imageUrl}" alt="${escapeHtml(albumName)}" class="album-card-image" loading="lazy">
+                    <div class="album-card-overlay">
                         <span class="play-icon">▶︎</span>
                     </div>
                 </div>
-                <div class="track-card-body">
-                    <div class="track-card-title">${escapeHtml(trackName)}</div>
-                    ${year ? `<div class="track-card-year">${year}</div>` : ''}
+                <div class="album-card-body">
+                    <div class="album-card-title">${escapeHtml(albumName)}</div>
+                    ${year ? `<div class="album-card-year">${year}</div>` : ''}
+                </div>
+                <div class="album-tracks-list">
+                    ${(album.tracks || []).map((track, index) => {
+                        const duration = track.duration_ms ? formatDuration(track.duration_ms) : '';
+                        return `
+                            <div class="track-list-item" data-track-id="${escapeHtml(track.id)}">
+                                <span class="track-number">${track.track_number || index + 1}</span>
+                                <span class="track-name">${escapeHtml(track.name)}</span>
+                                ${duration ? `<span class="track-duration">${duration}</span>` : ''}
+                            </div>
+                        `;
+                    }).join('')}
                 </div>
             </div>
         `;
@@ -2317,17 +2360,87 @@ function renderRailLP(tracks, gridEl, artistId) {
         });
     }
 
-    // track-cardのクリックイベント（view-all-cardは除外）
-    gridEl.querySelectorAll('.track-card:not(.view-all-card)').forEach((card) => {
-        card.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const trackId = card.dataset.trackId;
-            showGlobalSpotifyPlayer(trackId);
-
-            // アクティブ状態の更新
-            gridEl.querySelectorAll('.track-card').forEach(c => c.classList.remove('is-playing'));
-            card.classList.add('is-playing');
+    // album-cardのクリックイベント（view-all-cardは除外）
+    gridEl.querySelectorAll('.album-card').forEach((card) => {
+        const imageWrapper = card.querySelector('.album-card-image-wrapper');
+        const tracksList = card.querySelector('.album-tracks-list');
+        const trackItems = card.querySelectorAll('.track-list-item');
+        
+        // ジャケット画像のクリックでトラックリストを開閉
+        if (imageWrapper) {
+            imageWrapper.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // 他のカードのトラックリストを閉じる
+                gridEl.querySelectorAll('.album-card').forEach(c => {
+                    if (c !== card) {
+                        c.classList.remove('is-expanded');
+                        const otherTracksList = c.querySelector('.album-tracks-list');
+                        if (otherTracksList) {
+                            gsap.to(otherTracksList, {
+                                height: 0,
+                                opacity: 0,
+                                duration: 0.3,
+                                ease: 'power2.in',
+                                onComplete: () => {
+                                    otherTracksList.style.display = 'none';
+                                }
+                            });
+                        }
+                    }
+                });
+                
+                // このカードのトラックリストを開閉
+                const isExpanded = card.classList.contains('is-expanded');
+                if (isExpanded) {
+                    card.classList.remove('is-expanded');
+                    if (tracksList) {
+                        gsap.to(tracksList, {
+                            height: 0,
+                            opacity: 0,
+                            duration: 0.3,
+                            ease: 'power2.in',
+                            onComplete: () => {
+                                tracksList.style.display = 'none';
+                            }
+                        });
+                    }
+                } else {
+                    card.classList.add('is-expanded');
+                    if (tracksList) {
+                        tracksList.style.display = 'block';
+                        // レイアウトを確定させるために少し待機
+                        setTimeout(() => {
+                            gsap.fromTo(tracksList, 
+                                { height: 0, opacity: 0 },
+                                { 
+                                    height: 'auto',
+                                    opacity: 1,
+                                    duration: 0.4,
+                                    ease: 'power2.out'
+                                }
+                            );
+                        }, 10);
+                    }
+                }
+            });
+        }
+        
+        // トラックリストアイテムのクリックイベント
+        trackItems.forEach((item) => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const trackId = item.dataset.trackId;
+                if (trackId) {
+                    showGlobalSpotifyPlayer(trackId);
+                    
+                    // アクティブ状態の更新
+                    trackItems.forEach(t => t.classList.remove('is-active'));
+                    item.classList.add('is-active');
+                }
+            });
         });
     });
 

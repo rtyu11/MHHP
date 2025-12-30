@@ -2316,6 +2316,7 @@ function renderRailLP(albums, gridEl, artistId) {
             <div class="album-card" data-album-id="${escapeHtml(albumId)}">
                 <div class="album-card-image-wrapper">
                     <img src="${imageUrl}" alt="${escapeHtml(albumName)}" class="album-card-image" loading="lazy">
+                    <div class="album-card-music-icon">♪</div>
                 </div>
                 <div class="album-card-body">
                     <div class="album-card-title">${escapeHtml(albumName)}</div>
@@ -2350,11 +2351,6 @@ function renderRailLP(albums, gridEl, artistId) {
                 <div class="view-all-icon">
                     <i class="fa-brands fa-spotify"></i>
                 </div>
-                <div class="view-all-text">
-                    <span class="view-all-label">${isEnglish ? 'VIEW ALL' : '全曲見る'}</span>
-                    <span class="view-all-sub">${isEnglish ? 'on Spotify' : 'Spotifyで'}</span>
-                </div>
-                <div class="view-all-arrow">→</div>
             </a>
         </div>
     ` : '';

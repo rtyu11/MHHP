@@ -2302,10 +2302,12 @@ function renderLatestReleaseLP(album, targetEl) {
                     // すべてのトラックリストアイテムからis-activeを削除
                     removeAllActiveStates();
                     
-                    showGlobalSpotifyPlayer(trackId);
-                    
-                    // クリックされたアイテムにis-activeを追加
-                    item.classList.add('is-active');
+                    // プレーヤーを開いた場合のみis-activeを追加（閉じた場合は追加しない）
+                    const playerOpened = showGlobalSpotifyPlayer(trackId);
+                    if (playerOpened) {
+                        // クリックされたアイテムにis-activeを追加
+                        item.classList.add('is-active');
+                    }
                 }
             });
         }
@@ -2322,10 +2324,12 @@ function renderLatestReleaseLP(album, targetEl) {
                 // すべてのトラックリストアイテムからis-activeを削除
                 removeAllActiveStates();
                 
-                showGlobalSpotifyPlayer(trackId);
-                
-                // クリックされたアイテムにis-activeを追加
-                item.classList.add('is-active');
+                // プレーヤーを開いた場合のみis-activeを追加（閉じた場合は追加しない）
+                const playerOpened = showGlobalSpotifyPlayer(trackId);
+                if (playerOpened) {
+                    // クリックされたアイテムにis-activeを追加
+                    item.classList.add('is-active');
+                }
             }
         });
     });
@@ -2501,10 +2505,12 @@ function renderRailLP(albums, gridEl, artistId) {
                         // すべてのトラックリストアイテムからis-activeを削除
                         removeAllActiveStates();
                         
-                        showGlobalSpotifyPlayer(trackId);
-                        
-                        // クリックされたアイテムにis-activeを追加
-                        item.classList.add('is-active');
+                        // プレーヤーを開いた場合のみis-activeを追加（閉じた場合は追加しない）
+                        const playerOpened = showGlobalSpotifyPlayer(trackId);
+                        if (playerOpened) {
+                            // クリックされたアイテムにis-activeを追加
+                            item.classList.add('is-active');
+                        }
                     }
                 });
             }
@@ -2521,10 +2527,12 @@ function renderRailLP(albums, gridEl, artistId) {
                     // すべてのトラックリストアイテムからis-activeを削除
                     removeAllActiveStates();
                     
-                    showGlobalSpotifyPlayer(trackId);
-                    
-                    // クリックされたアイテムにis-activeを追加
-                    item.classList.add('is-active');
+                    // プレーヤーを開いた場合のみis-activeを追加（閉じた場合は追加しない）
+                    const playerOpened = showGlobalSpotifyPlayer(trackId);
+                    if (playerOpened) {
+                        // クリックされたアイテムにis-activeを追加
+                        item.classList.add('is-active');
+                    }
                 }
             });
         });
@@ -2591,6 +2599,7 @@ function removeAllActiveStates() {
 }
 
 // グローバルなSpotifyプレーヤーを表示（フッター固定）
+// 戻り値: true = プレーヤーを開いた, false = プレーヤーを閉じた
 function showGlobalSpotifyPlayer(trackId) {
     let playerEl = document.getElementById('spotify-global-player');
 
@@ -2676,7 +2685,7 @@ function showGlobalSpotifyPlayer(trackId) {
         
         // すべてのis-activeを解除
         removeAllActiveStates();
-        return;
+        return false; // プレーヤーを閉じた
     }
 
     currentEmbedTrackId = trackId;
@@ -2692,6 +2701,7 @@ function showGlobalSpotifyPlayer(trackId) {
         </iframe>
     `;
     playerEl.classList.add('active');
+    return true; // プレーヤーを開いた
 }
 
 function escapeHtml(text) {

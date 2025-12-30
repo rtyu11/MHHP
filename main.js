@@ -1343,57 +1343,111 @@ function renderNews(items) {
         // Store original item data for modal
         a.dataset.newsItem = JSON.stringify(item);
 
-        // スクロール検知用の変数
-        let touchStartY = 0;
-        let touchStartX = 0;
-        let touchMoved = false;
-        const SCROLL_THRESHOLD = 10; // 10px以上移動したらスクロールと判定
+        // タッチ状態管理用のオブジェクト（各要素ごとに独立）
+        const touchState = {
+            startY: 0,
+            startX: 0,
+            startTime: 0,
+            moved: false,
+            cancelled: false
+        };
+
+        const SCROLL_THRESHOLD = 15; // 15px以上移動したらスクロールと判定（少し緩和）
+        const MAX_TAP_TIME = 300; // 300ms以内のタッチはタップと判定
+        const MAX_TAP_DISTANCE = 10; // 10px以内の移動はタップと判定
 
         // タッチ開始
         a.addEventListener('touchstart', (e) => {
-            touchStartY = e.touches[0].clientY;
-            touchStartX = e.touches[0].clientX;
-            touchMoved = false;
+            const touch = e.touches[0];
+            touchState.startY = touch.clientY;
+            touchState.startX = touch.clientX;
+            touchState.startTime = Date.now();
+            touchState.moved = false;
+            touchState.cancelled = false;
         }, { passive: true });
 
         // タッチ移動（スクロール検知）
         a.addEventListener('touchmove', (e) => {
-            if (!touchMoved) {
-                const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
-                const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
-                // 縦方向の移動が横方向より大きく、かつ閾値を超えたらスクロールと判定
-                if (deltaY > SCROLL_THRESHOLD && deltaY > deltaX) {
-                    touchMoved = true;
+            if (touchState.cancelled) return;
+            
+            const touch = e.touches[0];
+            const deltaY = Math.abs(touch.clientY - touchState.startY);
+            const deltaX = Math.abs(touch.clientX - touchState.startX);
+            const distance = Math.sqrt(deltaY * deltaY + deltaX * deltaX);
+            
+            // 移動距離が閾値を超えたらスクロールと判定
+            if (distance > SCROLL_THRESHOLD) {
+                // 縦方向の移動が横方向より大きい場合のみスクロールと判定
+                if (deltaY > deltaX * 1.5) {
+                    touchState.moved = true;
                 }
             }
         }, { passive: true });
 
         // タッチ終了（クリック判定）
         a.addEventListener('touchend', (e) => {
-            if (touchMoved) {
-                // スクロール中だった場合はクリックを無視
-                e.preventDefault();
-                touchMoved = false;
+            if (touchState.cancelled) {
+                touchState.cancelled = false;
                 return;
             }
-            // スクロールでない場合はクリックとして処理
-            const clickEvent = new MouseEvent('click', {
-                bubbles: true,
-                cancelable: true,
-                view: window
-            });
-            a.dispatchEvent(clickEvent);
+
+            const touchTime = Date.now() - touchState.startTime;
+            const touch = e.changedTouches[0];
+            const deltaY = Math.abs(touch.clientY - touchState.startY);
+            const deltaX = Math.abs(touch.clientX - touchState.startX);
+            const distance = Math.sqrt(deltaY * deltaY + deltaX * deltaX);
+
+            // スクロール判定：移動距離が閾値を超えている、または時間が長すぎる
+            const isScroll = touchState.moved || 
+                            distance > SCROLL_THRESHOLD || 
+                            touchTime > MAX_TAP_TIME ||
+                            (deltaY > MAX_TAP_DISTANCE && deltaY > deltaX * 1.5);
+
+            if (isScroll) {
+                // スクロールの場合は何もしない
+                touchState.moved = false;
+                return;
+            }
+
+            // タップと判定：短時間で短距離のタッチ
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // 少し遅延を入れて確実にクリックイベントを発火
+            setTimeout(() => {
+                if (!touchState.cancelled) {
+                    const clickEvent = new MouseEvent('click', {
+                        bubbles: true,
+                        cancelable: true,
+                        view: window,
+                        detail: 1
+                    });
+                    a.dispatchEvent(clickEvent);
+                }
+            }, 50);
         }, { passive: false });
 
+        // タッチキャンセル
+        a.addEventListener('touchcancel', () => {
+            touchState.cancelled = true;
+            touchState.moved = false;
+        }, { passive: true });
+
         // Modal Click Event
+        let isProcessing = false;
         a.addEventListener('click', (e) => {
-            // タッチイベントからのクリックの場合は既に処理済み
-            if (e.type === 'click' && touchMoved) {
+            // 処理中の重複実行を防ぐ
+            if (isProcessing) {
                 e.preventDefault();
                 return;
             }
+
             e.preventDefault();
+            e.stopPropagation();
+            
             if (modal && modal.open) {
+                isProcessing = true;
+                
                 const storedItem = JSON.parse(a.dataset.newsItem);
                 modalDate.textContent = formattedDate || '';
                 modalTitle.textContent = getLocalizedTitle(storedItem);
@@ -1410,7 +1464,13 @@ function renderNews(items) {
                     modalLink.href = '#';
                     modalLink.style.display = 'none';
                 }
+                
                 modal.open();
+                
+                // 処理完了後にフラグをリセット（少し遅延を入れる）
+                setTimeout(() => {
+                    isProcessing = false;
+                }, 300);
             }
         });
         return a;

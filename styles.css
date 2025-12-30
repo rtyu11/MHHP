@@ -1191,7 +1191,9 @@ body {
     position: relative;
     /* スクロール時の誤タッチを防ぐ */
     touch-action: pan-y;
-    -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color: rgba(212, 175, 55, 0.1);
+    /* タッチフィードバックを改善 */
+    -webkit-touch-callout: none;
 }
 
 .news-item::after {

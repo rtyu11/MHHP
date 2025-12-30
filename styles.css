@@ -51,12 +51,22 @@
         white-space: normal !important;
     }
     
-    /* keep-togetherクラスは改行を防ぐ */
+    /* keep-togetherクラスは改行を防ぐ（ただし画面幅を超える場合は許可） */
     .keep-together {
-        white-space: nowrap !important;
         word-break: keep-all !important;
-        overflow-wrap: normal !important;
+        overflow-wrap: break-word !important;
         line-break: auto !important;
+        max-width: 100%;
+        display: inline-block;
+        vertical-align: baseline;
+    }
+    
+    /* アーティスト紹介文内のkeep-togetherは画面幅を超えないように */
+    .artist-bio p .keep-together {
+        max-width: 100%;
+        overflow-wrap: break-word !important;
+        word-break: keep-all !important;
+        white-space: normal !important;
     }
 }
 
@@ -1147,6 +1157,9 @@ body {
     margin: 0 auto;
     padding: 0 clamp(16px, 4vw, 40px);
     position: relative;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 .artist-bio-content {
@@ -1177,6 +1190,8 @@ body {
     overflow-wrap: normal !important;
     line-break: auto !important;
     display: inline-block;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 /* 最初の段落も同じスタイルに統一 */
@@ -3001,6 +3016,25 @@ body.hovered .cursor-circle {
 
     .artist-bio {
         max-width: 100%;
+        padding: 0 1rem;
+        overflow-x: hidden;
+        box-sizing: border-box;
+    }
+    
+    .artist-bio p {
+        overflow-wrap: break-word;
+        word-break: break-word;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    
+    /* モバイル版ではkeep-togetherが画面幅を超えないように */
+    .artist-bio p .keep-together {
+        max-width: 100%;
+        overflow-wrap: break-word !important;
+        word-break: keep-all !important;
+        white-space: normal !important;
+        display: inline;
     }
 
     .artist-bio p {

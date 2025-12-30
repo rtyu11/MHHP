@@ -2650,8 +2650,9 @@ canvas#distortionCanvas {
 
 .footer-left {
     display: flex;
-    align-items: flex-end;
-    gap: 2rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
 }
 
 .footer-links {
@@ -2690,18 +2691,17 @@ canvas#distortionCanvas {
 /* アイコン拡大 */
 
 .privacy-link {
-    color: #666;
+    color: #888;
     text-decoration: none;
     font-family: var(--font-tech);
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     letter-spacing: 0.1em;
     transition: color 0.3s ease;
-    opacity: 0.6;
+    opacity: 1;
 }
 
 .privacy-link:hover {
-    color: #999;
-    opacity: 0.8;
+    color: #aaa;
 }
 
 .footer-copy {
@@ -3017,8 +3017,9 @@ body.hovered .cursor-circle {
 
     .footer-left {
         display: flex;
-        align-items: flex-end;
-        gap: 1rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.8rem;
         flex: 1;
         min-width: 0;
     }
@@ -3057,15 +3058,14 @@ body.hovered .cursor-circle {
     }
 
     .privacy-link {
-        font-size: 0.65rem;
-        color: #555;
-        opacity: 0.5;
-        margin-left: 0.5rem;
+        font-size: 0.7rem;
+        color: #888;
+        opacity: 1;
+        margin-left: 0;
         white-space: nowrap;
         display: inline-block;
         line-height: 1;
         padding-bottom: 0;
-        align-self: flex-end;
         margin-bottom: 0;
     }
 

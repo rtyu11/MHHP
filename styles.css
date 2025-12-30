@@ -1416,7 +1416,7 @@ body {
     margin-bottom: 0.5rem;
     text-decoration: none;
     color: #fff;
-    transition: padding 0.3s var(--ease-out), opacity 0.3s;
+    transition: opacity 0.3s;
     align-items: baseline;
     position: relative;
     /* スクロール時の誤タッチを防ぐ */
@@ -1436,19 +1436,6 @@ body {
     background: linear-gradient(to right, transparent, rgba(212, 175, 55, 0.3), transparent);
     opacity: 0;
     transition: opacity 0.3s;
-}
-
-.news-item:hover::after {
-    opacity: 1;
-}
-
-.news-item:hover {
-    padding-left: 2rem;
-    opacity: 1;
-}
-
-.news-list:hover .news-item:not(:hover):not(.news-item-hidden) {
-    opacity: 0.3;
 }
 
 .news-item-hidden {

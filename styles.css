@@ -932,6 +932,11 @@ body {
     font-weight: 500;
 }
 
+.hero-subtitle .year-highlight {
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
 /* --- Marquee --- */
 .marquee-section {
     padding: 1.2rem 0;
@@ -3188,6 +3193,11 @@ body.hovered .cursor-circle {
         white-space: nowrap;
         font-size: 0.65rem;
         font-weight: 500;
+    }
+
+    .hero-subtitle .year-highlight {
+        font-size: 1.1em;
+        font-weight: 600;
     }
 
     .hero-overlay {

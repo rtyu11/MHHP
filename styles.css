@@ -51,22 +51,26 @@
         white-space: normal !important;
     }
     
-    /* keep-togetherクラスは改行を防ぐ（ただし画面幅を超える場合は許可） */
+    /* keep-togetherクラスは改行を防ぐ */
     .keep-together {
+        white-space: nowrap !important;
         word-break: keep-all !important;
-        overflow-wrap: break-word !important;
+        overflow-wrap: normal !important;
         line-break: auto !important;
-        max-width: 100%;
         display: inline-block;
         vertical-align: baseline;
+        max-width: 100%;
+        box-sizing: border-box;
     }
     
-    /* アーティスト紹介文内のkeep-togetherは画面幅を超えないように */
+    /* アーティスト紹介文内のkeep-togetherは改行を防ぐ */
     .artist-bio p .keep-together {
-        max-width: 100%;
-        overflow-wrap: break-word !important;
+        white-space: nowrap !important;
         word-break: keep-all !important;
-        white-space: normal !important;
+        overflow-wrap: normal !important;
+        display: inline-block;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 }
 
@@ -3030,11 +3034,12 @@ body.hovered .cursor-circle {
     
     /* モバイル版ではkeep-togetherが画面幅を超えないように */
     .artist-bio p .keep-together {
-        max-width: 100%;
-        overflow-wrap: break-word !important;
+        white-space: nowrap !important;
         word-break: keep-all !important;
-        white-space: normal !important;
-        display: inline;
+        overflow-wrap: normal !important;
+        display: inline-block;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .artist-bio p {

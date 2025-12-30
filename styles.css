@@ -2820,8 +2820,9 @@ body.hovered .cursor-circle {
     }
 
     .hero {
-        height: 100dvh;
-        /* Android向けの動的ビューポート高さ */
+        height: calc(100dvh - 3.5rem);
+        /* マーキーセクションの高さを考慮して一画面に収める */
+        min-height: calc(100vh - 3.5rem);
         width: 100%;
         left: 0;
         right: 0;
@@ -2884,10 +2885,17 @@ body.hovered .cursor-circle {
 
     /* マーキーセクション（Android最適化） */
     .marquee-section {
-        padding: 1rem 0;
+        padding: 0.8rem 0;
         /* ハードウェアアクセラレーション */
         transform: translateZ(0);
         will-change: transform;
+        min-height: 3.5rem;
+        max-height: 3.5rem;
+        /* 固定高さでHEROセクションと合わせて100vhに収める */
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
     }
 
     .marquee-item {

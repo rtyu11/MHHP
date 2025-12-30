@@ -579,6 +579,15 @@ function updateLanguage(lang) {
         const modalLinkText = getNestedValue(t, 'news.modalLink') || (lang === 'ja' ? 'こちら →' : 'Here →');
         newsModalLink.textContent = modalLinkText;
     }
+    
+    // Explicitly update discography subtitle to ensure it's updated
+    const discographySubtitle = document.querySelector('[data-i18n="discography.subtitle"]');
+    if (discographySubtitle) {
+        const subtitleValue = getNestedValue(t, 'discography.subtitle');
+        if (subtitleValue !== undefined) {
+            discographySubtitle.textContent = subtitleValue;
+        }
+    }
 }
 
 function updateNewsItemsLanguage(lang) {

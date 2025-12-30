@@ -2335,15 +2335,15 @@ function renderRailLP(albums, gridEl, artistId) {
 
     gridEl.innerHTML = cards;
 
-        // album-cardのクリックイベント
-        gridEl.querySelectorAll('.album-card').forEach((card) => {
-            const imageWrapper = card.querySelector('.album-card-image-wrapper');
-            const tracksList = card.querySelector('.album-tracks-list');
-            const trackItems = card.querySelectorAll('.track-list-item');
-            const cardBody = card.querySelector('.album-card-body');
-            
-            // ジャケット画像またはカード本体のクリックでトラックリストを開閉
-            const handleCardClick = (e) => {
+    // album-cardのクリックイベント
+    gridEl.querySelectorAll('.album-card').forEach((card) => {
+        const imageWrapper = card.querySelector('.album-card-image-wrapper');
+        const tracksList = card.querySelector('.album-tracks-list');
+        const trackItems = card.querySelectorAll('.track-list-item');
+        
+        // ジャケット画像のクリックでトラックリストを開閉
+        if (imageWrapper) {
+            imageWrapper.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 
@@ -2399,17 +2399,8 @@ function renderRailLP(albums, gridEl, artistId) {
                         }, 10);
                     }
                 }
-            };
-            
-            // ジャケット画像のクリックでトラックリストを開閉
-            if (imageWrapper) {
-                imageWrapper.addEventListener('click', handleCardClick);
-            }
-            
-            // カード本体（タイトル部分など）のクリックでトラックリストを開閉
-            if (cardBody) {
-                cardBody.addEventListener('click', handleCardClick);
-            }
+            });
+        }
         
         // トラックリストアイテムのクリックイベント
         trackItems.forEach((item) => {

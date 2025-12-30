@@ -842,6 +842,9 @@ function initArtistBioToggle() {
     
     if (!artistBio) return;
     
+    // 初期状態を確実に折りたたみ状態にする
+    artistBio.classList.remove('is-expanded');
+    
     // フェードエリアの位置を保存（折りたたみ時にスクロール位置を戻すため）
     let fadeAreaTop = null;
     
@@ -954,7 +957,7 @@ function updateArtistBioToggleText() {
     const isExpanded = artistBio?.classList.contains('is-expanded');
     
     if (fadeArea && fadeHintText) {
-        fadeHintText.textContent = currentLang === 'ja' ? '続きを読む' : 'Read More';
+        fadeHintText.textContent = 'MORE';
         fadeArea.setAttribute('aria-label', currentLang === 'ja' ? '全文を表示' : 'Show full text');
     }
     

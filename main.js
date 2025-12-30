@@ -443,6 +443,8 @@ function updateLanguage(lang) {
                     htmlValue = htmlValue.replace(/& DJ TATSUKI/g, '<span class="keep-together">& DJ TATSUKI</span>');
                     htmlValue = htmlValue.replace(/& JP THE WAVY/g, '<span class="keep-together">& JP THE WAVY</span>');
                     htmlValue = htmlValue.replace(/J-HIPHOPの聖地/g, '<span class="keep-together">J-HIPHOPの聖地</span>');
+                    // 「Good Die Young feat. RYKEY & Pablo Blasta」の部分を改行防止
+                    htmlValue = htmlValue.replace(/「Good Die Young feat\. RYKEY & Pablo Blasta」/g, '<span class="keep-together">「Good Die Young feat. RYKEY & Pablo Blasta」</span>');
                     // 英語版も同様に処理
                     htmlValue = htmlValue.replace(/& DJ TATSUKI/g, '<span class="keep-together">& DJ TATSUKI</span>');
                     htmlValue = htmlValue.replace(/& JP THE WAVY/g, '<span class="keep-together">& JP THE WAVY</span>');

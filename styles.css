@@ -2678,8 +2678,8 @@ canvas#distortionCanvas {
     transition: all 0.3s ease;
     position: absolute;
     padding: 0.5rem 1rem;
-    background: rgba(212, 175, 55, 0.1);
-    border: 1px solid rgba(212, 175, 55, 0.3);
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(0, 0, 0, 0.5);
     border-radius: 4px;
     backdrop-filter: blur(10px);
 }
@@ -2691,6 +2691,7 @@ canvas#distortionCanvas {
 .footer-links a:nth-child(2) {
     left: 50%;
     transform: translateX(-50%);
+    margin-left: -20px;
 }
 
 .footer-links a:last-child {
@@ -2706,14 +2707,15 @@ canvas#distortionCanvas {
 
 .footer-links a:hover {
     color: var(--accent, #d4af37);
-    background: rgba(212, 175, 55, 0.15);
-    border-color: rgba(212, 175, 55, 0.5);
+    background: rgba(0, 0, 0, 0.4);
+    border-color: rgba(0, 0, 0, 0.6);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .footer-links a:nth-child(2):hover {
     transform: translateX(-50%) translateY(-2px);
+    margin-left: -20px;
 }
 
 /* ホバーで拡大 */
@@ -3082,8 +3084,8 @@ body.hovered .cursor-circle {
         min-width: 40px;
         height: 40px;
         color: var(--accent, #d4af37);
-        background: rgba(212, 175, 55, 0.1);
-        border: 1px solid rgba(212, 175, 55, 0.3);
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(0, 0, 0, 0.5);
         border-radius: 4px;
         backdrop-filter: blur(10px);
     }
@@ -3095,6 +3097,7 @@ body.hovered .cursor-circle {
     .footer-links a:nth-child(2) {
         left: 50%;
         transform: translateX(-50%);
+        margin-left: -15px;
     }
 
     .footer-links a:last-child {
@@ -3114,14 +3117,15 @@ body.hovered .cursor-circle {
     }
 
     .footer-links a:hover {
-        background: rgba(212, 175, 55, 0.15);
-        border-color: rgba(212, 175, 55, 0.5);
+        background: rgba(0, 0, 0, 0.4);
+        border-color: rgba(0, 0, 0, 0.6);
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     }
 
     .footer-links a:nth-child(2):hover {
         transform: translateX(-50%) translateY(-2px);
+        margin-left: -15px;
     }
 
     .footer-links a:hover i {

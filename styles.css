@@ -1438,6 +1438,22 @@ body {
     transition: opacity 0.3s;
 }
 
+/* PC版のみホバーアニメーション */
+@media (min-width: 901px) {
+    .news-item:hover::after {
+        opacity: 1;
+    }
+
+    .news-item:hover {
+        padding-left: 2rem;
+        opacity: 1;
+    }
+
+    .news-list:hover .news-item:not(:hover):not(.news-item-hidden) {
+        opacity: 0.3;
+    }
+}
+
 /* モーダルが開いているとき、アクティブな記事を横にずらす */
 body.news-modal-open .news-item.is-active {
     padding-left: 2rem;
@@ -2873,7 +2889,7 @@ canvas#distortionCanvas {
     border-radius: 50%;
     position: fixed;
     pointer-events: none;
-    z-index: 11000;
+    z-index: 100000;
     transform: translate(-50%, -50%);
 }
 
@@ -2884,7 +2900,7 @@ canvas#distortionCanvas {
     border-radius: 50%;
     position: fixed;
     pointer-events: none;
-    z-index: 11000;
+    z-index: 100000;
     transform: translate(-50%, -50%);
     transition: width 0.3s, height 0.3s, background 0.3s;
 }

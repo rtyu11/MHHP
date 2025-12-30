@@ -163,34 +163,12 @@ document.addEventListener("DOMContentLoaded", () => {
             scroller: '#smooth-content',
         });
 
-        // requestAnimationFrame で lenis.raf を回す（最適化版）
-        let rafId = null;
-        let lastTime = 0;
-        const rafInterval = 1000 / 60; // 60fps
-        
+        // requestAnimationFrame で lenis.raf を回す
         function raf(time) {
-            // フレームレート制限でパフォーマンス向上
-            if (time - lastTime >= rafInterval) {
-                lenis.raf(time);
-                lastTime = time;
-            }
-            rafId = requestAnimationFrame(raf);
+            lenis.raf(time);
+            requestAnimationFrame(raf);
         }
-        rafId = requestAnimationFrame(raf);
-        
-        // ページ非表示時にrafを停止
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                if (rafId) {
-                    cancelAnimationFrame(rafId);
-                    rafId = null;
-                }
-            } else {
-                if (!rafId) {
-                    rafId = requestAnimationFrame(raf);
-                }
-            }
-        });
+        requestAnimationFrame(raf);
 
         // ScrollTrigger の refresh を Lenis の scroll イベント後に実行
         ScrollTrigger.addEventListener('refresh', () => {
@@ -215,75 +193,54 @@ document.addEventListener("DOMContentLoaded", () => {
         if ('requestIdleCallback' in window) {
             requestIdleCallback(() => {
                 // アイドル時に最適化処理を実行
-                // ScrollTriggerの不要なインスタンスをクリーンアップ
-                ScrollTrigger.refresh();
-            });
-        }
-        
-        // 低メモリデバイス向けの最適化
-        if (navigator.deviceMemory && navigator.deviceMemory < 4) {
-            // 低メモリデバイスではアニメーションを軽量化
-            ScrollTrigger.config({
-                autoRefreshEvents: 'visibilitychange,resize',
-                refreshPriority: -1
             });
         }
     }
 
-    // モバイル向けに ScrollTrigger.refresh() を適切に呼ぶ（デバウンス強化）
+    // モバイル向けに ScrollTrigger.refresh() を適切に呼ぶ
     let resizeTimeout;
-    let isResizing = false;
     const handleResize = () => {
-        if (isResizing) return;
-        isResizing = true;
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
             ScrollTrigger.refresh();
-            isResizing = false;
-        }, 250); // デバウンス時間を延長
+        }, 150);
     };
 
     let orientationTimeout;
-    let isOrienting = false;
     const handleOrientationChange = () => {
-        if (isOrienting) return;
-        isOrienting = true;
         clearTimeout(orientationTimeout);
         orientationTimeout = setTimeout(() => {
             // ビューポート高さの変化を待つ
             setTimeout(() => {
                 ScrollTrigger.refresh();
-                isOrienting = false;
-            }, 400); // 待機時間を延長
-        }, 150);
+            }, 300);
+        }, 100);
     };
 
     window.addEventListener('resize', handleResize, { passive: true });
     window.addEventListener('orientationchange', handleOrientationChange, { passive: true });
 
-    // ビューポート高さの変化を検知（モバイルのアドレスバー表示/非表示対応・最適化）
+    // ビューポート高さの変化を検知（モバイルのアドレスバー表示/非表示対応）
     let lastViewportHeight = window.innerHeight;
-    let viewportCheckTimeout;
     const handleViewportChange = () => {
         const currentHeight = window.innerHeight;
         if (Math.abs(currentHeight - lastViewportHeight) > 50) {
             lastViewportHeight = currentHeight;
-            clearTimeout(viewportCheckTimeout);
-            viewportCheckTimeout = setTimeout(() => {
+            setTimeout(() => {
                 ScrollTrigger.refresh();
-            }, 300); // デバウンス時間を延長
+            }, 200);
         }
     };
 
-    // ビューポート高さの変化を監視（モバイルのみ・間隔を延長）
+    // ビューポート高さの変化を監視（モバイルのみ）
     if (isMobileSmall) {
-        let viewportCheckInterval = setInterval(handleViewportChange, 200); // 100ms → 200ms
+        let viewportCheckInterval = setInterval(handleViewportChange, 100);
         // ページが非表示になったら監視を停止
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 clearInterval(viewportCheckInterval);
             } else {
-                viewportCheckInterval = setInterval(handleViewportChange, 200);
+                viewportCheckInterval = setInterval(handleViewportChange, 100);
             }
         });
     }
@@ -1449,33 +1406,15 @@ function initAnimations() {
     };
 
     // Hero のパララックスアニメーション（スクロールで往復する必要があるため once: false を明示）
-    const heroBg = document.querySelector('.hero-bg-container');
-    if (heroBg) {
-        // スクロール中のみwill-changeを設定
-        gsap.set(heroBg, { willChange: 'transform' });
-    }
-    
     gsap.to('.hero-bg-container', {
         yPercent: 30, ease: 'none',
         scrollTrigger: { 
             trigger: '.hero', 
             start: 'top top', 
             end: 'bottom top', 
-            scrub: isAndroid ? 0.5 : 1, // scrub値を最適化（true → 1）
+            scrub: isAndroid ? 0.5 : true, // Androidではscrubを軽量化
             once: false, // 往復アニメのため必ず false
-            ...scrollTriggerDefaults,
-            onLeave: () => {
-                // セクションを離れたらwill-changeを削除
-                if (heroBg) {
-                    gsap.set(heroBg, { willChange: 'auto' });
-                }
-            },
-            onEnterBack: () => {
-                // セクションに戻ったらwill-changeを再設定
-                if (heroBg) {
-                    gsap.set(heroBg, { willChange: 'transform' });
-                }
-            }
+            ...scrollTriggerDefaults
         }
     });
 
@@ -1501,9 +1440,6 @@ function initAnimations() {
     });
 
     gsap.utils.toArray('.img-reveal-mask').forEach(mask => {
-        // will-changeをアニメーション開始時に設定
-        gsap.set(mask, { willChange: 'clip-path' });
-        
         gsap.to(mask, {
             clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
             duration: isAndroid ? 1.0 : 1.5, // Android向けに短縮
@@ -1512,11 +1448,7 @@ function initAnimations() {
                 trigger: mask, 
                 start: 'top 85%',
                 once: isAndroid, // 一度だけ再生する演出
-                ...scrollTriggerDefaults,
-                onComplete: () => {
-                    // アニメーション完了後にwill-changeを削除
-                    gsap.set(mask, { willChange: 'auto' });
-                }
+                ...scrollTriggerDefaults
             }
         });
     });
@@ -1548,28 +1480,13 @@ function initDistortionCanvas() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     let width, height;
-    let animationFrameId = null;
-    let isVisible = true;
-    
     function resize() {
         width = canvas.width = canvas.parentElement.offsetWidth;
         height = canvas.height = canvas.parentElement.offsetHeight;
     }
     resize();
-    
-    // リサイズのデバウンス
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(resize, 200);
-    }, { passive: true });
-    
+    window.addEventListener('resize', resize);
     function draw() {
-        if (!isVisible) {
-            animationFrameId = requestAnimationFrame(draw);
-            return;
-        }
-        
         const w = width; const h = height;
         const idata = ctx.createImageData(w, h);
         const buffer32 = new Uint32Array(idata.data.buffer);
@@ -1578,20 +1495,8 @@ function initDistortionCanvas() {
             else if (Math.random() < 0.02) buffer32[i] = 0xff111111;
         }
         ctx.putImageData(idata, 0, 0);
-        animationFrameId = requestAnimationFrame(draw);
+        requestAnimationFrame(draw);
     }
-    
-    // IntersectionObserverでビューポート外では描画を停止
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            isVisible = entry.isIntersecting;
-            if (isVisible && !animationFrameId) {
-                draw();
-            }
-        });
-    }, { threshold: 0.1 });
-    
-    observer.observe(canvas);
     draw();
 
     const isAndroid = /Android/i.test(navigator.userAgent);
@@ -2093,7 +1998,7 @@ function renderTicker(items) {
     // Reset position cleanly
     gsap.set('.marquee-track', { xPercent: 0 });
 
-    // Animation timeline for pause on hover/touch（パフォーマンス最適化）
+    // Animation timeline for pause on hover/touch
     let animation = gsap.to('.marquee-track', {
         xPercent: -50, // Move by 50% of track width. Requires track to be wide enough (2 sets of content at least covering screen)
         // With 6 sets, 50% is 3 sets. 3 sets should definitely cover the screen width unless items are tiny and screen is huge.
@@ -2101,9 +2006,7 @@ function renderTicker(items) {
         duration: marqueeDuration,
         repeat: -1,
         force3D: true,
-        lazy: false,
-        // パフォーマンス最適化オプション
-        immediateRender: false
+        lazy: false
     });
 
     // Pause on hover/touch

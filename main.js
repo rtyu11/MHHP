@@ -2222,7 +2222,7 @@ function renderLatestReleaseLP(album, targetEl) {
                 <span class="track-number">${track.track_number || index + 1}</span>
                 <span class="track-name">${escapeHtml(track.name)}</span>
                 <button class="track-play-button" aria-label="${isEnglish ? 'Play track' : '再生'}">
-                    <span class="play-icon-small">▶︎</span>
+                    <span class="music-icon">♪</span>
                 </button>
             </div>
         `;
@@ -2316,9 +2316,6 @@ function renderRailLP(albums, gridEl, artistId) {
             <div class="album-card" data-album-id="${escapeHtml(albumId)}">
                 <div class="album-card-image-wrapper">
                     <img src="${imageUrl}" alt="${escapeHtml(albumName)}" class="album-card-image" loading="lazy">
-                    <div class="album-card-overlay">
-                        <span class="play-icon">▶︎</span>
-                    </div>
                 </div>
                 <div class="album-card-body">
                     <div class="album-card-title">${escapeHtml(albumName)}</div>

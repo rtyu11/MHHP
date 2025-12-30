@@ -1848,15 +1848,17 @@ body.news-modal-open .news-item.is-active::after {
     color: #000;
 }
 
-.play-icon-small {
-    font-size: 0.7rem;
+.music-icon {
+    font-size: 1.2rem;
     color: #fff;
-    transition: color 0.3s var(--ease-out);
-    margin-left: 2px;
+    transition: all 0.3s var(--ease-out);
+    line-height: 1;
+    display: inline-block;
 }
 
-.track-list-item.is-active .play-icon-small {
+.track-list-item.is-active .music-icon {
     color: #000;
+    transform: scale(1.1);
 }
 
 /* アルバムカードのトラックリスト */
@@ -1908,34 +1910,6 @@ body.news-modal-open .news-item.is-active::after {
     transform: scale(1.08);
 }
 
-.album-card-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.album-card:hover .album-card-overlay {
-    opacity: 1;
-}
-
-.album-card .play-icon {
-    font-size: 2.5rem;
-    color: #fff;
-    transform: scale(0.8);
-    transition: all 0.3s var(--ease-out);
-}
-
-.album-card:hover .play-icon {
-    transform: scale(1);
-}
 
 .album-card-body {
     padding: 1.25rem;
@@ -2015,8 +1989,8 @@ body.news-modal-open .news-item.is-active::after {
     height: 28px;
 }
 
-.album-tracks-list .play-icon-small {
-    font-size: 0.6rem;
+.album-tracks-list .music-icon {
+    font-size: 1rem;
 }
 
 
@@ -2594,8 +2568,8 @@ body.news-modal-open .news-item.is-active::after {
         height: 26px;
     }
 
-    .album-tracks-list .play-icon-small {
-        font-size: 0.55rem;
+    .album-tracks-list .music-icon {
+        font-size: 0.9rem;
     }
 
     .track-play-button {
@@ -2603,8 +2577,8 @@ body.news-modal-open .news-item.is-active::after {
         height: 28px;
     }
 
-    .play-icon-small {
-        font-size: 0.65rem;
+    .music-icon {
+        font-size: 1rem;
     }
 
     .track-card-body {

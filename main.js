@@ -184,10 +184,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Android向けのパフォーマンス最適化
-    if (isAndroid) {
+    if (isAndroid || isMobileSmall) {
         // パッシブリスナーの使用（スクロールパフォーマンス向上）
         document.addEventListener('touchstart', () => { }, { passive: true });
         document.addEventListener('touchmove', () => { }, { passive: true });
+        document.addEventListener('touchend', () => { }, { passive: true });
 
         // メモリ使用量の最適化
         if ('requestIdleCallback' in window) {
@@ -195,6 +196,21 @@ document.addEventListener("DOMContentLoaded", () => {
                 // アイドル時に最適化処理を実行
             });
         }
+        
+        // スマホ版でスクロールイベントのパフォーマンス最適化
+        let ticking = false;
+        const optimizeScroll = () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    // スクロール時の処理を最適化
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        };
+        
+        // パッシブリスナーでスクロールイベントを最適化
+        window.addEventListener('scroll', optimizeScroll, { passive: true });
     }
 
     // モバイル向けに ScrollTrigger.refresh() を適切に呼ぶ

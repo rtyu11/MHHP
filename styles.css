@@ -87,6 +87,8 @@ html {
     /* Android向けの最適化 */
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    /* スマホ版でスムーズスクロールを有効化（Lenisが無効な場合） */
+    scroll-behavior: smooth;
 }
 
 body {
@@ -102,6 +104,7 @@ body {
     /* Android スクロール最適化 */
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: none;
+    overscroll-behavior-y: contain;
     /* テキスト選択の最適化 */
     -webkit-user-select: none;
     user-select: none;
@@ -110,6 +113,8 @@ body {
     /* 中央揃えのための設定 */
     width: 100%;
     box-sizing: border-box;
+    /* スクロールパフォーマンス最適化 */
+    contain: layout style paint;
 }
 
 /* Lenis スクロールコンテナの中央揃え */
@@ -120,6 +125,11 @@ body {
     padding: 0;
     box-sizing: border-box;
     position: relative;
+    /* スクロールパフォーマンス最適化 */
+    contain: layout style paint;
+    /* スマホ版でスムーズスクロールを有効化 */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
 }
 
 /* --- Loader --- */
@@ -139,9 +149,8 @@ body {
     align-items: center;
     color: #fff;
     overflow: hidden;
-    /* ハードウェアアクセラレーション */
+    /* ハードウェアアクセラレーション（will-changeは削除） */
     transform: translateZ(0);
-    will-change: transform, opacity;
     /* タッチ操作の無効化（ローディング中） */
     touch-action: none;
 }
@@ -814,9 +823,8 @@ body {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    /* Android向けのパフォーマンス最適化 */
+    /* Android向けのパフォーマンス最適化（will-changeは削除） */
     transform: translateZ(0);
-    will-change: transform;
     -webkit-transform: translateZ(0);
     /* ハードウェアアクセラレーション */
     backface-visibility: hidden;
@@ -835,9 +843,8 @@ body {
     top: 0;
     left: 0;
     filter: none;
-    /* Android向けのパフォーマンス最適化 */
+    /* Android向けのパフォーマンス最適化（will-changeは削除） */
     transform: translateZ(0);
-    will-change: transform;
     -webkit-transform: translateZ(0);
     /* ハードウェアアクセラレーション */
     backface-visibility: hidden;
@@ -895,7 +902,7 @@ body {
     /* 初期状態で非表示 */
     display: inline-block; /* transform時の字面欠けを防ぐ */
     padding-bottom: 0.14em; /* yの下が切れないように */
-    will-change: transform, opacity;
+    /* will-changeは削除（アニメーション時のみ必要） */
     margin-bottom: 0.3em; /* MasatoとHayashiの間隔を開ける */
 
     /* Gold Gradient（文字が透明にならないよう、span側に適用） */
@@ -959,8 +966,8 @@ body {
     display: flex;
     white-space: nowrap;
     width: fit-content;
-    will-change: transform;
-    /* パフォーマンス最適化 */
+    /* パフォーマンス最適化（will-changeは削除） */
+    transform: translateZ(0);
 }
 
 .marquee-item {
@@ -1028,9 +1035,8 @@ body {
     padding: clamp(5rem, 10vw, 10rem) 0;
     /* Android向けにレスポンシブ */
     position: relative;
-    /* スクロールパフォーマンスの最適化 */
-    transform: translateZ(0);
-    will-change: transform;
+    /* スクロールパフォーマンスの最適化（PCのみ） */
+    contain: layout style paint;
 }
 
 .container {
@@ -1112,9 +1118,8 @@ body {
     aspect-ratio: 3/4;
     overflow: hidden;
     clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
-    /* Android向けのパフォーマンス最適化 */
+    /* Android向けのパフォーマンス最適化（will-changeは削除） */
     transform: translateZ(0);
-    will-change: clip-path;
     -webkit-transform: translateZ(0);
     /* ハードウェアアクセラレーション */
     backface-visibility: hidden;
@@ -1127,9 +1132,8 @@ body {
     object-fit: cover;
     filter: grayscale(100%) contrast(1.2);
     transition: filter 0.5s ease;
-    /* Android向けのパフォーマンス最適化 */
+    /* Android向けのパフォーマンス最適化（will-changeは削除） */
     transform: translateZ(0);
-    will-change: transform, filter;
     -webkit-transform: translateZ(0);
     /* ハードウェアアクセラレーション */
     backface-visibility: hidden;
@@ -3297,6 +3301,8 @@ body.hovered .cursor-circle {
         /* スクロールバーのスペースを確保 */
         overflow-y: scroll;
         scrollbar-gutter: stable;
+        /* スマホ版でスムーズスクロールを有効化 */
+        scroll-behavior: smooth;
     }
 
     body {
@@ -3307,6 +3313,9 @@ body.hovered .cursor-circle {
         padding: 0;
         /* 中央揃えのための設定 */
         box-sizing: border-box;
+        /* スクロールパフォーマンス最適化 */
+        overscroll-behavior-y: contain;
+        -webkit-overflow-scrolling: touch;
     }
 
     /* コンテナの中央揃えを確実に */
@@ -3349,17 +3358,15 @@ body.hovered .cursor-circle {
 
     .menu-overlay.active {
         width: 100%;
-        /* ハードウェアアクセラレーション */
+        /* ハードウェアアクセラレーション（必要な時のみ） */
         transform: translateZ(0);
-        will-change: width;
     }
 
     .nav-menu.active {
         width: 100%;
         border-left: none;
-        /* ハードウェアアクセラレーション */
+        /* ハードウェアアクセラレーション（必要な時のみ） */
         transform: translateZ(0);
-        will-change: transform;
     }
 
     .nav-menu-links a {
@@ -3781,9 +3788,8 @@ body.hovered .cursor-circle {
     /* マーキーセクション（Android最適化） */
     .marquee-section {
         padding: 0.8rem 0;
-        /* ハードウェアアクセラレーション */
+        /* ハードウェアアクセラレーション（will-changeは削除） */
         transform: translateZ(0);
-        will-change: transform;
         min-height: 3.5rem;
         max-height: 3.5rem;
         /* 固定高さでHEROセクションと合わせて100vhに収める */
@@ -3812,9 +3818,8 @@ body.hovered .cursor-circle {
 
     /* ヒーローセクション（Android最適化） */
     .hero-video {
-        /* ハードウェアアクセラレーション */
+        /* ハードウェアアクセラレーション（will-changeは削除） */
         transform: translateZ(0);
-        will-change: transform;
         /* ビデオの最適化 */
         object-fit: cover;
         -webkit-transform: translateZ(0);
@@ -3828,8 +3833,13 @@ body.hovered .cursor-circle {
     /* セクション全体の最適化 */
     .section {
         /* スクロールパフォーマンスの最適化 */
+        contain: layout style paint;
+        /* セクション間のパディングを最適化（スクロールをスムーズに） */
+        padding: clamp(3rem, 8vw, 6rem) 0;
+        /* レンダリング最適化 */
         transform: translateZ(0);
-        will-change: transform;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
     }
 
     /* ARTISTセクションの最適化 */
@@ -3843,16 +3853,21 @@ body.hovered .cursor-circle {
         min-height: 400px;
     }
 
-    /* 画像の最適化 */
+    /* 画像の最適化（必要な時のみハードウェアアクセラレーション） */
     img {
         /* 画像レンダリングの最適化 */
         image-rendering: -webkit-optimize-contrast;
-        /* ハードウェアアクセラレーション */
-        transform: translateZ(0);
-        -webkit-transform: translateZ(0);
-        /* 画像読み込み時の最適化 */
+        /* レンダリング最適化（過剰なtransformは削除） */
         -webkit-backface-visibility: hidden;
         backface-visibility: hidden;
+    }
+    
+    /* アニメーションが必要な画像のみハードウェアアクセラレーション */
+    .artist-photo,
+    .hero-video,
+    .visual-bg {
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
     }
 
     /* ボタンとリンクの最適化 */
@@ -4086,8 +4101,7 @@ body.hovered .cursor-circle {
     /* スクロール動作の最適化 */
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
-    /* スクロール可能であることを明確にする */
-    will-change: scroll-position;
+    /* スクロール最適化（will-changeは削除） */
 }
 
 .news-more-scroll-container::-webkit-scrollbar {

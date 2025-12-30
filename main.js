@@ -1460,11 +1460,10 @@ function renderNews(items) {
                             { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }
                         );
                     });
-                    const textEl = currentMoreBtn.querySelector('.news-more-text');
-                    const arrowEl = currentMoreBtn.querySelector('.news-more-arrow');
-                    if (textEl) textEl.textContent = currentLang === 'ja' ? 'LESS' : 'LESS';
-                    if (arrowEl) arrowEl.textContent = '↑';
+                    const iconEl = currentMoreBtn.querySelector('.news-more-icon');
+                    if (iconEl) iconEl.textContent = '×';
                     currentMoreBtn.dataset.expanded = 'true';
+                    currentMoreBtn.setAttribute('aria-label', '折りたたむ');
                 } else {
                     // 折りたたみ
                     expandedItems.forEach(item => {
@@ -1478,16 +1477,15 @@ function renderNews(items) {
                             }
                         });
                     });
-                    const textEl = currentMoreBtn.querySelector('.news-more-text');
-                    const arrowEl = currentMoreBtn.querySelector('.news-more-arrow');
-                    const moreText = currentLang === 'ja' ? translations.ja.news.more : translations.en.news.more;
-                    if (textEl) textEl.textContent = moreText;
-                    if (arrowEl) arrowEl.textContent = '↓';
+                    const iconEl = currentMoreBtn.querySelector('.news-more-icon');
+                    if (iconEl) iconEl.textContent = '+';
                     currentMoreBtn.dataset.expanded = 'false';
+                    currentMoreBtn.setAttribute('aria-label', 'もっと見る');
                 }
             });
             currentMoreBtn.dataset.initialized = 'true';
             currentMoreBtn.dataset.expanded = 'false';
+            currentMoreBtn.setAttribute('aria-label', 'もっと見る');
         }
     }
 }

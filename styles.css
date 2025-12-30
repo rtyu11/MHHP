@@ -3115,11 +3115,15 @@ body.hovered .cursor-circle {
     }
 
     .news-more-btn {
-        padding: 0.85rem 1.5rem;
-        font-size: 0.8rem;
-        min-height: 44px;
+        width: 44px;
+        height: 44px;
+        padding: 0;
         touch-action: manipulation;
         -webkit-tap-highlight-color: rgba(212, 175, 55, 0.2);
+    }
+
+    .news-more-icon {
+        font-size: 1.3rem;
     }
 
     /* Android向け：ローダー画像をさらに明るく */
@@ -3151,10 +3155,10 @@ body.hovered .cursor-circle {
 
 /* --- News More Button --- */
 .news-more-wrapper {
-    margin-top: 3rem;
+    margin-top: 2rem;
     display: flex;
     justify-content: center;
-    padding: 2rem 0;
+    padding: 1.5rem 0;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -3162,15 +3166,14 @@ body.hovered .cursor-circle {
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: #e8e8e8;
-    padding: 1.2rem 3rem;
-    font-family: var(--font-tech);
-    font-size: 0.9rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
+    padding: 0.6rem;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 1rem;
+    justify-content: center;
     transition: all 0.3s var(--ease-out);
     position: relative;
     overflow: hidden;
@@ -3180,33 +3183,42 @@ body.hovered .cursor-circle {
     content: '';
     position: absolute;
     top: 0;
-    left: -100%;
+    left: 0;
     width: 100%;
     height: 100%;
     background: rgba(212, 175, 55, 0.1);
-    transition: left 0.3s var(--ease-out);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.3s var(--ease-out);
     z-index: -1;
 }
 
 .news-more-btn:hover {
     border-color: var(--accent);
     color: var(--accent);
-    transform: translateY(-2px);
+    transform: scale(1.1);
 }
 
 .news-more-btn:hover::before {
-    left: 0;
+    opacity: 1;
 }
 
-.news-more-text {
-    transition: color 0.3s var(--ease-out);
-}
-
-.news-more-arrow {
+.news-more-icon {
+    font-size: 1.5rem;
+    font-weight: 300;
+    line-height: 1;
     transition: transform 0.3s var(--ease-out), color 0.3s var(--ease-out);
-    font-size: 1.2em;
+    display: block;
 }
 
-.news-more-btn:hover .news-more-arrow {
-    transform: translateY(2px);
+.news-more-btn:hover .news-more-icon {
+    transform: rotate(90deg);
+}
+
+.news-more-btn[data-expanded="true"] .news-more-icon {
+    transform: rotate(45deg);
+}
+
+.news-more-btn[data-expanded="true"]:hover .news-more-icon {
+    transform: rotate(135deg);
 }

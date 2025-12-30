@@ -2341,147 +2341,66 @@ function renderRailLP(albums, gridEl, artistId) {
         const tracksList = card.querySelector('.album-tracks-list');
         const trackItems = card.querySelectorAll('.track-list-item');
         
-        // ジャケット画像のクリックで拡大/縮小とトラックリストを開閉
+        // ジャケット画像のクリックでトラックリストを開閉
         if (imageWrapper) {
             imageWrapper.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 
-                const isZoomed = card.classList.contains('is-zoomed');
+                // 他のカードのトラックリストを閉じる
+                gridEl.querySelectorAll('.album-card').forEach(c => {
+                    if (c !== card) {
+                        c.classList.remove('is-expanded');
+                        const otherTracksList = c.querySelector('.album-tracks-list');
+                        if (otherTracksList) {
+                            gsap.to(otherTracksList, {
+                                height: 0,
+                                opacity: 0,
+                                duration: 0.3,
+                                ease: 'power2.in',
+                                onComplete: () => {
+                                    otherTracksList.style.display = 'none';
+                                }
+                            });
+                        }
+                    }
+                });
                 
-                if (isZoomed) {
-                    // 拡大状態の場合は縮小してトラックリストも閉じる
-                    card.classList.remove('is-zoomed');
+                // このカードのトラックリストを開閉
+                const isExpanded = card.classList.contains('is-expanded');
+                if (isExpanded) {
                     card.classList.remove('is-expanded');
                     if (tracksList) {
                         gsap.to(tracksList, {
                             height: 0,
                             opacity: 0,
-                            padding: 0,
                             duration: 0.3,
                             ease: 'power2.in',
                             onComplete: () => {
                                 tracksList.style.display = 'none';
-                                tracksList.style.padding = '0';
-                                tracksList.style.borderTop = 'none';
                             }
                         });
                     }
                 } else {
-                    // 他のカードの拡大とトラックリストを閉じる
-                    gridEl.querySelectorAll('.album-card').forEach(c => {
-                        if (c !== card) {
-                            c.classList.remove('is-zoomed');
-                            c.classList.remove('is-expanded');
-                            const otherTracksList = c.querySelector('.album-tracks-list');
-                            if (otherTracksList) {
-                                gsap.to(otherTracksList, {
-                                    height: 0,
-                                    opacity: 0,
-                                    padding: 0,
-                                    duration: 0.3,
-                                    ease: 'power2.in',
-                                    onComplete: () => {
-                                        otherTracksList.style.display = 'none';
-                                        otherTracksList.style.padding = '0';
-                                        otherTracksList.style.borderTop = 'none';
-                                    }
-                                });
-                            }
-                        }
-                    });
-                    
-                    // このカードのジャケット画像だけを拡大（トラックリストは拡大しないが表示はする）
-                    // まず拡大クラスを追加
-                    card.classList.add('is-zoomed');
-                    
-                    // トラックリストを確実に非表示にしてから表示する
+                    card.classList.add('is-expanded');
                     if (tracksList) {
-                        // 既に表示されている場合は一旦非表示にする
-                        tracksList.style.display = 'none';
-                        tracksList.style.height = '0';
-                        tracksList.style.opacity = '0';
-                        
-                        // 拡大アニメーション後にトラックリストを表示
+                        tracksList.style.display = 'block';
+                        // レイアウトを確定させるために少し待機
                         setTimeout(() => {
-                            card.classList.add('is-expanded');
-                            tracksList.style.display = 'block';
-                            tracksList.style.padding = '1rem';
-                            tracksList.style.borderTop = '1px solid rgba(255, 255, 255, 0.1)';
-                            // レイアウトを確定させるために少し待機
-                            setTimeout(() => {
-                                gsap.fromTo(tracksList, 
-                                    { height: 0, opacity: 0 },
-                                    { 
-                                        height: 'auto',
-                                        opacity: 1,
-                                        duration: 0.4,
-                                        ease: 'power2.out'
-                                    }
-                                );
-                            }, 10);
-                        }, 50);
-                    } else {
-                        card.classList.add('is-expanded');
+                            gsap.fromTo(tracksList, 
+                                { height: 0, opacity: 0 },
+                                { 
+                                    height: 'auto',
+                                    opacity: 1,
+                                    duration: 0.4,
+                                    ease: 'power2.out'
+                                }
+                            );
+                        }, 10);
                     }
                 }
             });
         }
-        
-        // カード外をクリックしたら拡大を解除する処理
-        let outsideClickHandler = null;
-        
-        const setupOutsideClick = () => {
-            // 既存のハンドラーを削除
-            if (outsideClickHandler) {
-                document.removeEventListener('click', outsideClickHandler);
-            }
-            
-            // 新しいハンドラーを設定
-            outsideClickHandler = (e) => {
-                if (!card.contains(e.target) && card.classList.contains('is-zoomed')) {
-                    card.classList.remove('is-zoomed');
-                    card.classList.remove('is-expanded');
-                    const tracksList = card.querySelector('.album-tracks-list');
-                    if (tracksList) {
-                        gsap.to(tracksList, {
-                            height: 0,
-                            opacity: 0,
-                            padding: 0,
-                            duration: 0.3,
-                            ease: 'power2.in',
-                            onComplete: () => {
-                                tracksList.style.display = 'none';
-                                tracksList.style.padding = '0';
-                                tracksList.style.borderTop = 'none';
-                            }
-                        });
-                    }
-                    // ハンドラーを削除
-                    document.removeEventListener('click', outsideClickHandler);
-                    outsideClickHandler = null;
-                }
-            };
-            
-            // 次のイベントループでリスナーを追加（現在のクリックイベントを無視するため）
-            setTimeout(() => {
-                document.addEventListener('click', outsideClickHandler);
-            }, 0);
-        };
-        
-        // 拡大時に外側クリックを監視
-        const originalClickHandler = imageWrapper.onclick;
-        imageWrapper.addEventListener('click', () => {
-            if (card.classList.contains('is-zoomed')) {
-                setupOutsideClick();
-            } else {
-                // 拡大されていない場合は既存のハンドラーを削除
-                if (outsideClickHandler) {
-                    document.removeEventListener('click', outsideClickHandler);
-                    outsideClickHandler = null;
-                }
-            }
-        });
         
         // トラックリストアイテムのクリックイベント
         trackItems.forEach((item) => {

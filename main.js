@@ -2386,22 +2386,35 @@ function renderRailLP(albums, gridEl, artistId) {
                     });
                     
                     // このカードのジャケット画像だけを拡大（トラックリストは拡大しないが表示はする）
+                    // まず拡大クラスを追加
                     card.classList.add('is-zoomed');
-                    card.classList.add('is-expanded');
+                    
+                    // トラックリストを確実に非表示にしてから表示する
                     if (tracksList) {
-                        tracksList.style.display = 'block';
-                        // レイアウトを確定させるために少し待機
+                        // 既に表示されている場合は一旦非表示にする
+                        tracksList.style.display = 'none';
+                        tracksList.style.height = '0';
+                        tracksList.style.opacity = '0';
+                        
+                        // 拡大アニメーション後にトラックリストを表示
                         setTimeout(() => {
-                            gsap.fromTo(tracksList, 
-                                { height: 0, opacity: 0 },
-                                { 
-                                    height: 'auto',
-                                    opacity: 1,
-                                    duration: 0.4,
-                                    ease: 'power2.out'
-                                }
-                            );
-                        }, 10);
+                            card.classList.add('is-expanded');
+                            tracksList.style.display = 'block';
+                            // レイアウトを確定させるために少し待機
+                            setTimeout(() => {
+                                gsap.fromTo(tracksList, 
+                                    { height: 0, opacity: 0 },
+                                    { 
+                                        height: 'auto',
+                                        opacity: 1,
+                                        duration: 0.4,
+                                        ease: 'power2.out'
+                                    }
+                                );
+                            }, 10);
+                        }, 50);
+                    } else {
+                        card.classList.add('is-expanded');
                     }
                 }
             });

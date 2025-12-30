@@ -1941,9 +1941,15 @@ body.news-modal-open .news-item.is-active::after {
     background: rgba(255, 255, 255, 0.02);
 }
 
-.album-card.is-expanded .album-tracks-list {
+.album-card.is-expanded:not(.is-zoomed) .album-tracks-list {
     height: auto;
     opacity: 1;
+}
+
+.album-card.is-expanded.is-zoomed .album-tracks-list {
+    /* 拡大時はJavaScriptで制御するため、CSSでは自動表示しない */
+    height: 0;
+    opacity: 0;
 }
 
 .album-card.is-expanded:not(.is-zoomed) .album-card-image-wrapper {

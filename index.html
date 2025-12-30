@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" itemscope itemtype="https://schema.org/Person">
 
 <head>
     <meta charset="UTF-8">
@@ -8,8 +8,45 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#050505">
-    <title>Masato Hayashi | Official</title>
-    <meta name="description" content="Masato Hayashi Official Website.">
+    <title>Masato Hayashi | Official Website</title>
+    <meta name="description" content="Masato Hayashi（マサトハヤシ）の公式ウェブサイト。最新情報、ディスコグラフィー、ライブ情報などを掲載。J-HIPHOPアーティスト。">
+    <meta name="keywords" content="Masato Hayashi, マサトハヤシ, J-HIPHOP, ヒップホップ, ラップ, 音楽, アーティスト">
+    <meta name="author" content="Masato Hayashi">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://masatohayashi.com/">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://masatohayashi.com/">
+    <meta property="og:title" content="Masato Hayashi | Official Website">
+    <meta property="og:description" content="Masato Hayashi（マサトハヤシ）の公式ウェブサイト。最新情報、ディスコグラフィー、ライブ情報などを掲載。">
+    <meta property="og:image" content="https://masatohayashi.com/images/icon.jpg">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://masatohayashi.com/">
+    <meta property="twitter:title" content="Masato Hayashi | Official Website">
+    <meta property="twitter:description" content="Masato Hayashi（マサトハヤシ）の公式ウェブサイト。最新情報、ディスコグラフィー、ライブ情報などを掲載。">
+    <meta property="twitter:image" content="https://masatohayashi.com/images/icon.jpg">
+    
+    <!-- 構造化データ (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Masato Hayashi",
+        "alternateName": "マサトハヤシ",
+        "url": "https://masatohayashi.com/",
+        "image": "https://masatohayashi.com/images/icon.jpg",
+        "jobTitle": "Hip-hop Artist",
+        "description": "東京都八王子市出身のヒップホップ・アーティスト。",
+        "sameAs": [
+            "https://www.instagram.com/masatohayashi_/",
+            "https://x.com/masatohayashi_",
+            "https://www.youtube.com/@masatohayashi_"
+        ]
+    }
+    </script>
 
     <!-- Fonts: Cormorant Garamond (Main) + Shippori Mincho (JP) + Oswald (Numbers) + Dancing Script (Script) + Bebas Neue (Countdown) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -48,7 +85,7 @@
     <!-- Navigation -->
     <nav class="fixed-nav">
         <a href="#hero" class="nav-logo">
-            <img src="images/icon.jpg" alt="Masato Hayashi" class="logo-image">
+            <img src="images/icon.jpg" alt="Masato Hayashi" class="logo-image" width="120" height="120" loading="eager">
         </a>
         <!-- Hamburger Menu -->
         <div class="hamburger-wrapper">
@@ -105,7 +142,7 @@
             <!-- Hero Section -->
             <section id="hero" class="hero">
                 <div class="hero-bg-container">
-                    <video class="hero-video" autoplay loop muted playsinline webkit-playsinline preload="metadata">
+                    <video class="hero-video" autoplay loop muted playsinline webkit-playsinline preload="metadata" poster="images/icon.jpg">
                         <source src="images/hero-movie.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -157,10 +194,10 @@
                     <div class="artist-layout">
                         <div class="artist-img-wrapper">
                             <div class="img-reveal-mask">
-                                <img src="images/artist.jpg" alt="Masato Hayashi" class="artist-photo" loading="lazy" decoding="async">
+                                <img src="images/artist.jpg" alt="Masato Hayashi" class="artist-photo" loading="lazy" decoding="async" width="600" height="800">
                             </div>
                             <div class="img-reveal-mask">
-                                <img src="images/artist2.jpg" alt="Masato Hayashi" class="artist-photo" loading="lazy" decoding="async">
+                                <img src="images/artist2.jpg" alt="Masato Hayashi" class="artist-photo" loading="lazy" decoding="async" width="600" height="800">
                             </div>
                         </div>
 
@@ -232,7 +269,7 @@
             <!-- Visual Break -->
             <section class="visual-break">
                 <div class="visual-bg-wrapper">
-                    <img src="images/visual.jpg" alt="Unleash" class="visual-bg">
+                    <img src="images/visual.jpg" alt="Unleash" class="visual-bg" loading="lazy" decoding="async" width="1920" height="1080">
                 </div>
                 <canvas id="distortionCanvas"></canvas>
                 <div class="break-content">

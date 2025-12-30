@@ -891,10 +891,16 @@ body {
     letter-spacing: 0.2em;
     opacity: 0;
     /* 初期状態で非表示 */
-    color: #ddd;
+    color: rgba(221, 221, 221, 0.6);
     /* 文字が背景に溶け込まないように、確実に見えるようにする */
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 0, 0, 0.7);
     gap: 2rem;
+    flex-wrap: nowrap;
+}
+
+.hero-subtitle span {
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 /* --- Marquee --- */
@@ -2846,9 +2852,17 @@ body.hovered .cursor-circle {
     }
 
     .hero-subtitle {
-        max-width: 90%;
-        gap: 1rem;
-        font-size: 0.75rem;
+        max-width: 95%;
+        gap: 0.5rem;
+        font-size: 0.65rem;
+        letter-spacing: 0.15em;
+        color: rgba(221, 221, 221, 0.5);
+        margin-top: 1.5rem;
+    }
+
+    .hero-subtitle span {
+        white-space: nowrap;
+        font-size: 0.65rem;
     }
 
     .hero-overlay {

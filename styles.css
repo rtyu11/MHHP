@@ -51,7 +51,7 @@
         white-space: normal !important;
     }
     
-    /* keep-togetherクラスは改行を防ぐ */
+    /* keep-togetherクラスは改行を防ぐ（ただし画面幅を超える場合は許可） */
     .keep-together {
         white-space: nowrap !important;
         word-break: keep-all !important;
@@ -59,7 +59,7 @@
         line-break: auto !important;
         display: inline-block;
         vertical-align: baseline;
-        max-width: 100%;
+        max-width: calc(100vw - 2rem);
         box-sizing: border-box;
     }
     
@@ -69,7 +69,7 @@
         word-break: keep-all !important;
         overflow-wrap: normal !important;
         display: inline-block;
-        max-width: 100%;
+        max-width: calc(100% - 0.2em);
         box-sizing: border-box;
     }
 }
@@ -1164,10 +1164,17 @@ body {
     width: 100%;
     box-sizing: border-box;
     overflow-x: hidden;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .artist-bio-content {
     position: relative;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .artist-bio p {
@@ -1194,8 +1201,9 @@ body {
     overflow-wrap: normal !important;
     line-break: auto !important;
     display: inline-block;
-    max-width: 100%;
+    max-width: calc(100% - 0.2em);
     box-sizing: border-box;
+    vertical-align: baseline;
 }
 
 /* 最初の段落も同じスタイルに統一 */
@@ -3023,6 +3031,8 @@ body.hovered .cursor-circle {
         padding: 0 1rem;
         overflow-x: hidden;
         box-sizing: border-box;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
     
     .artist-bio p {
@@ -3030,6 +3040,7 @@ body.hovered .cursor-circle {
         word-break: break-word;
         max-width: 100%;
         box-sizing: border-box;
+        word-wrap: break-word;
     }
     
     /* モバイル版ではkeep-togetherが画面幅を超えないように */
@@ -3038,8 +3049,15 @@ body.hovered .cursor-circle {
         word-break: keep-all !important;
         overflow-wrap: normal !important;
         display: inline-block;
-        max-width: 100%;
+        max-width: calc(100% - 0.2em);
         box-sizing: border-box;
+        position: relative;
+    }
+    
+    /* ネストされたkeep-togetherも同様に処理 */
+    .artist-bio p .keep-together .keep-together {
+        max-width: 100%;
+        white-space: nowrap !important;
     }
 
     .artist-bio p {

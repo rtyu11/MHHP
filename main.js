@@ -2338,34 +2338,9 @@ function renderRailLP(albums, gridEl, artistId) {
         `;
     }).join('');
 
-    // 全曲見るボタンをカードの最後に追加
-    const isEnglish = currentLang === 'en';
-    const viewAllButton = artistId ? `
-        <div class="track-card view-all-card">
-            <a href="https://open.spotify.com/artist/${artistId}/discography/all" 
-               target="_blank" 
-               rel="noopener noreferrer" 
-               class="view-all-button"
-               aria-label="${isEnglish ? 'View all tracks on Spotify' : 'Spotifyで全曲を見る'}">
-                <div class="view-all-icon">
-                    <i class="fa-brands fa-spotify"></i>
-                </div>
-            </a>
-        </div>
-    ` : '';
+    gridEl.innerHTML = cards;
 
-    gridEl.innerHTML = `${cards}${viewAllButton}`;
-
-    // 全曲見るボタンのクリックイベント（親要素への伝播を防止）
-    const viewAllBtn = gridEl.querySelector('.view-all-button');
-    if (viewAllBtn) {
-        viewAllBtn.addEventListener('click', (e) => {
-            // リンクは自動的に動作するので、親要素のイベントを防ぐだけ
-            e.stopPropagation();
-        });
-    }
-
-    // album-cardのクリックイベント（view-all-cardは除外）
+    // album-cardのクリックイベント
     gridEl.querySelectorAll('.album-card').forEach((card) => {
         const imageWrapper = card.querySelector('.album-card-image-wrapper');
         const tracksList = card.querySelector('.album-tracks-list');

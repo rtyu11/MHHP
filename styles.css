@@ -785,6 +785,7 @@ body {
     top: 0;
     left: 0;
     right: 0;
+    bottom: 0;
     width: 100%;
     height: 100%;
     z-index: 0;
@@ -799,12 +800,16 @@ body {
     /* ハードウェアアクセラレーション */
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
+    overflow: hidden;
+    /* 動画がはみ出さないように */
 }
 
 .hero-video {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: top center;
+    /* 動画を常に上部から表示 */
     position: absolute;
     top: 0;
     left: 0;
@@ -2833,8 +2838,11 @@ body.hovered .cursor-circle {
 
     .hero-bg-container {
         width: 100%;
+        height: 100%;
+        top: 0;
         left: 0;
         right: 0;
+        bottom: 0;
     }
 
     .hero-title {
@@ -2881,8 +2889,12 @@ body.hovered .cursor-circle {
     .hero-video {
         filter: brightness(1.1) contrast(1);
         width: 100%;
+        height: 100%;
+        top: 0;
         left: 0;
         right: 0;
+        object-position: top center;
+        /* 動画を常に上部から表示 */
     }
 
     /* マーキーセクション（Android最適化） */

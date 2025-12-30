@@ -111,32 +111,77 @@ document.addEventListener("DOMContentLoaded", () => {
     // Android向けの最適化
     const isAndroid = /Android/i.test(navigator.userAgent);
     const isMobile = window.matchMedia('(max-width: 900px)').matches;
+    const isMobileSmall = window.matchMedia('(max-width: 768px)').matches;
     const navType = getNavigationType();
     if (navType === 'reload') {
         resetSessionLoaderFlag();
     }
 
-    // 強制スクロール（初回のみ推奨だが、既存ロジック維持のため最小限の変更）
-    // ※戻る操作などの不具合回避のため、Lenis初期化時の強制スクロールは削除または調整推奨
-    // window.scrollTo(0, 0); // 既存動作維持
+    // GSAP ScrollTrigger を先に登録
+    gsap.registerPlugin(ScrollTrigger);
 
-    // Smooth Scroll（モバイルは数値を極小にしてネイティブ動作に近づける）
-    lenis = new Lenis({
-        // Android向けにさらに最適化：durationを極小にしてネイティブスクロールに近づける
-        duration: isAndroid ? 0.05 : (isMobile ? 0.1 : 1.5),
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smooth: true, // smoothは有効のまま、durationで調整
-        mouseMultiplier: isMobile ? 0.5 : 1,
-        touchMultiplier: isAndroid ? 1.5 : (isMobile ? 2 : 1), // Android向けにタッチ感度を調整
-        infinite: false,
-        // Android向けのパフォーマンス最適化
-        wheelMultiplier: isAndroid ? 0.5 : 1,
-    });
+    // スマホ幅（max-width: 768px）では Lenis を完全に無効化
+    if (!isMobileSmall) {
+        // Smooth Scroll（PC・タブレットのみ）
+        lenis = new Lenis({
+            duration: isAndroid ? 0.05 : (isMobile ? 0.1 : 1.5),
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            smooth: true,
+            mouseMultiplier: isMobile ? 0.5 : 1,
+            touchMultiplier: isAndroid ? 1.5 : (isMobile ? 2 : 1),
+            infinite: false,
+            wheelMultiplier: isAndroid ? 0.5 : 1,
+        });
 
-    // 初期位置強制はバック時の位置までリセットしてしまうためコメントアウトまたは削除が望ましいが
-    // 既存ロジック維持の観点から、もし必要ならここではなくLoader完了後などが適切。
-    // 今回は「スクロール遅延・戻る不具合」修正のため、この強制スクロールは無効化します。
-    // lenis.scrollTo(0, { immediate: true }); 
+        // Lenis と ScrollTrigger の同期設定
+        lenis.on('scroll', ScrollTrigger.update);
+
+        // ScrollTrigger の scrollerProxy を設定
+        const smoothContent = document.querySelector('#smooth-content');
+        if (smoothContent) {
+            ScrollTrigger.scrollerProxy('#smooth-content', {
+                scrollTop(value) {
+                    if (arguments.length) {
+                        lenis.scrollTo(value, { immediate: true });
+                    }
+                    return lenis.scroll;
+                },
+                getBoundingClientRect() {
+                    return {
+                        top: 0,
+                        left: 0,
+                        width: window.innerWidth,
+                        height: window.innerHeight,
+                    };
+                },
+                pinType: smoothContent.style.transform ? 'transform' : 'fixed',
+            });
+        }
+
+        // ScrollTrigger のデフォルト scroller を設定
+        ScrollTrigger.defaults({
+            scroller: '#smooth-content',
+        });
+
+        // requestAnimationFrame で lenis.raf を回す
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+        // ScrollTrigger の refresh を Lenis の scroll イベント後に実行
+        ScrollTrigger.addEventListener('refresh', () => {
+            if (lenis) {
+                lenis.resize();
+            }
+        });
+    } else {
+        // スマホでは ScrollTrigger のデフォルト scroller を window に設定
+        ScrollTrigger.defaults({
+            scroller: window,
+        });
+    }
 
     // Android向けのパフォーマンス最適化
     if (isAndroid) {
@@ -152,13 +197,53 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function raf(time) {
-        lenis.raf(time);
-        requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
+    // モバイル向けに ScrollTrigger.refresh() を適切に呼ぶ
+    let resizeTimeout;
+    const handleResize = () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            ScrollTrigger.refresh();
+        }, 150);
+    };
 
-    gsap.registerPlugin(ScrollTrigger);
+    let orientationTimeout;
+    const handleOrientationChange = () => {
+        clearTimeout(orientationTimeout);
+        orientationTimeout = setTimeout(() => {
+            // ビューポート高さの変化を待つ
+            setTimeout(() => {
+                ScrollTrigger.refresh();
+            }, 300);
+        }, 100);
+    };
+
+    window.addEventListener('resize', handleResize, { passive: true });
+    window.addEventListener('orientationchange', handleOrientationChange, { passive: true });
+
+    // ビューポート高さの変化を検知（モバイルのアドレスバー表示/非表示対応）
+    let lastViewportHeight = window.innerHeight;
+    const handleViewportChange = () => {
+        const currentHeight = window.innerHeight;
+        if (Math.abs(currentHeight - lastViewportHeight) > 50) {
+            lastViewportHeight = currentHeight;
+            setTimeout(() => {
+                ScrollTrigger.refresh();
+            }, 200);
+        }
+    };
+
+    // ビューポート高さの変化を監視（モバイルのみ）
+    if (isMobileSmall) {
+        let viewportCheckInterval = setInterval(handleViewportChange, 100);
+        // ページが非表示になったら監視を停止
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                clearInterval(viewportCheckInterval);
+            } else {
+                viewportCheckInterval = setInterval(handleViewportChange, 100);
+            }
+        });
+    }
 
     initLoader(navType);
     initCursor();

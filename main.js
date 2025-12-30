@@ -2235,8 +2235,7 @@ function renderLatestReleaseLP(album, targetEl) {
             </div>
             <div class="discography-featured-info">
                 <div class="featured-label">
-                    <span>New Release</span>
-                    ${formattedDate ? `<span class="featured-label-date">${formattedDate}</span>` : ''}
+                    New Release${formattedDate ? ` ${formattedDate}` : ''}
                 </div>
                 <h2 class="discography-featured-title">${escapeHtml(albumName)}</h2>
                 ${tracks.length > 0 ? `

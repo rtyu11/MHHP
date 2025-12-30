@@ -1717,9 +1717,6 @@ body.news-modal-open .news-item.is-active::after {
 }
 
 .featured-label {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     font-family: var(--font-script);
     font-size: 1.4rem;
     color: var(--accent);
@@ -1728,15 +1725,6 @@ body.news-modal-open .news-item.is-active::after {
     margin-bottom: 1rem;
     text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
     line-height: 1.2;
-}
-
-.featured-label-date {
-    font-family: var(--font-script);
-    font-size: 1.4rem;
-    color: var(--accent);
-    letter-spacing: 0.05em;
-    font-weight: 400;
-    text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
 }
 
 .discography-featured-title {
@@ -1768,10 +1756,6 @@ body.news-modal-open .news-item.is-active::after {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    background: rgba(40, 40, 40, 0.6);
-    padding: 1.5rem;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .discography-featured-tracks .track-list-item {

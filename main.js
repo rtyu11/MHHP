@@ -1775,7 +1775,7 @@ function renderTicker(items) {
     // Start Animation
     // Re-implement the GSAP animation here
     // isMobile は上で既に定義済み
-    const marqueeDuration = isMobile ? 25 : 35; // Slower, more elegant speed
+    const marqueeDuration = isMobile ? 40 : 35; // Slower, more elegant speed
 
     // Kill existing tweaks if any
     gsap.killTweensOf('.marquee-track');

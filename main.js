@@ -2214,16 +2214,16 @@ function renderLatestReleaseLP(album, targetEl) {
 
     const formattedDate = releaseDate ? releaseDate.split('T')[0] : '';
     const isEnglish = currentLang === 'en';
-    const typeLabel = albumType === 'single' ? (isEnglish ? 'SINGLE' : 'シングル') : (isEnglish ? 'ALBUM' : 'アルバム');
 
     // トラックリストを生成
     const tracksList = tracks.map((track, index) => {
-        const duration = track.duration_ms ? formatDuration(track.duration_ms) : '';
         return `
             <div class="track-list-item" data-track-id="${escapeHtml(track.id)}">
                 <span class="track-number">${track.track_number || index + 1}</span>
                 <span class="track-name">${escapeHtml(track.name)}</span>
-                ${duration ? `<span class="track-duration">${duration}</span>` : ''}
+                <button class="track-play-button" aria-label="${isEnglish ? 'Play track' : '再生'}">
+                    <span class="play-icon-small">▶︎</span>
+                </button>
             </div>
         `;
     }).join('');
@@ -2232,7 +2232,6 @@ function renderLatestReleaseLP(album, targetEl) {
         <div class="discography-featured-content" data-album-id="${escapeHtml(albumId)}">
             <div class="discography-featured-image-wrapper">
                 <div class="featured-badge">${isEnglish ? 'LATEST' : 'NEW'}</div>
-                <div class="album-type-badge">${typeLabel}</div>
                 <img src="${imageUrl}" alt="${escapeHtml(albumName)}" class="discography-featured-image" loading="lazy">
             </div>
             <div class="discography-featured-info">
@@ -2260,10 +2259,32 @@ function renderLatestReleaseLP(album, targetEl) {
     // トラックリストアイテムのクリックイベント
     const trackItems = targetEl.querySelectorAll('.track-list-item');
     trackItems.forEach((item) => {
+        const playButton = item.querySelector('.track-play-button');
+        const trackId = item.dataset.trackId;
+        
+        // 再生ボタンのクリックイベント
+        if (playButton) {
+            playButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (trackId) {
+                    showGlobalSpotifyPlayer(trackId);
+                    
+                    // アクティブ状態の更新
+                    trackItems.forEach(t => t.classList.remove('is-active'));
+                    item.classList.add('is-active');
+                }
+            });
+        }
+        
+        // トラックリストアイテム全体のクリックイベント（再生ボタン以外）
         item.addEventListener('click', (e) => {
+            // 再生ボタンがクリックされた場合は処理しない
+            if (e.target.closest('.track-play-button')) {
+                return;
+            }
             e.preventDefault();
             e.stopPropagation();
-            const trackId = item.dataset.trackId;
             if (trackId) {
                 showGlobalSpotifyPlayer(trackId);
                 
@@ -2275,13 +2296,6 @@ function renderLatestReleaseLP(album, targetEl) {
     });
 }
 
-// 時間フォーマット関数
-function formatDuration(ms) {
-    const totalSeconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-}
 
 // 残りのアルバム/シングルを横スクロールで表示
 function renderRailLP(albums, gridEl, artistId) {
@@ -2297,12 +2311,10 @@ function renderRailLP(albums, gridEl, artistId) {
         const albumId = album?.id || `grid-${Date.now()}-${Math.random()}`;
         const year = releaseDate ? releaseDate.split('-')[0] : '';
         const isEnglish = currentLang === 'en';
-        const typeLabel = albumType === 'single' ? (isEnglish ? 'SINGLE' : 'シングル') : (isEnglish ? 'ALBUM' : 'アルバム');
 
         return `
             <div class="album-card" data-album-id="${escapeHtml(albumId)}">
                 <div class="album-card-image-wrapper">
-                    <div class="album-type-badge-small">${typeLabel}</div>
                     <img src="${imageUrl}" alt="${escapeHtml(albumName)}" class="album-card-image" loading="lazy">
                     <div class="album-card-overlay">
                         <span class="play-icon">▶︎</span>
@@ -2314,12 +2326,13 @@ function renderRailLP(albums, gridEl, artistId) {
                 </div>
                 <div class="album-tracks-list">
                     ${(album.tracks || []).map((track, index) => {
-                        const duration = track.duration_ms ? formatDuration(track.duration_ms) : '';
                         return `
                             <div class="track-list-item" data-track-id="${escapeHtml(track.id)}">
                                 <span class="track-number">${track.track_number || index + 1}</span>
                                 <span class="track-name">${escapeHtml(track.name)}</span>
-                                ${duration ? `<span class="track-duration">${duration}</span>` : ''}
+                                <button class="track-play-button" aria-label="${isEnglish ? 'Play track' : '再生'}">
+                                    <span class="play-icon-small">▶︎</span>
+                                </button>
                             </div>
                         `;
                     }).join('')}
@@ -2429,10 +2442,32 @@ function renderRailLP(albums, gridEl, artistId) {
         
         // トラックリストアイテムのクリックイベント
         trackItems.forEach((item) => {
+            const playButton = item.querySelector('.track-play-button');
+            const trackId = item.dataset.trackId;
+            
+            // 再生ボタンのクリックイベント
+            if (playButton) {
+                playButton.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (trackId) {
+                        showGlobalSpotifyPlayer(trackId);
+                        
+                        // アクティブ状態の更新
+                        trackItems.forEach(t => t.classList.remove('is-active'));
+                        item.classList.add('is-active');
+                    }
+                });
+            }
+            
+            // トラックリストアイテム全体のクリックイベント（再生ボタン以外）
             item.addEventListener('click', (e) => {
+                // 再生ボタンがクリックされた場合は処理しない
+                if (e.target.closest('.track-play-button')) {
+                    return;
+                }
                 e.preventDefault();
                 e.stopPropagation();
-                const trackId = item.dataset.trackId;
                 if (trackId) {
                     showGlobalSpotifyPlayer(trackId);
                     

@@ -1742,40 +1742,6 @@ body.news-modal-open .news-item.is-active::after {
     letter-spacing: 0.1em;
 }
 
-/* アルバムタイプバッジ */
-.album-type-badge {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    padding: 6px 16px;
-    background: rgba(212, 175, 55, 0.2);
-    border: 1px solid var(--accent);
-    color: var(--accent);
-    font-family: var(--font-tech);
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.15em;
-    z-index: 10;
-    border-radius: 2px;
-    text-transform: uppercase;
-}
-
-.album-type-badge-small {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    padding: 4px 12px;
-    background: rgba(212, 175, 55, 0.2);
-    border: 1px solid var(--accent);
-    color: var(--accent);
-    font-family: var(--font-tech);
-    font-size: 0.65rem;
-    font-weight: 600;
-    letter-spacing: 0.15em;
-    z-index: 10;
-    border-radius: 2px;
-    text-transform: uppercase;
-}
 
 /* 最新リリースのトラックリスト */
 .discography-featured-tracks {
@@ -1853,16 +1819,44 @@ body.news-modal-open .news-item.is-active::after {
     color: var(--accent);
 }
 
-.track-duration {
-    font-family: var(--font-tech);
-    font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.4);
-    min-width: 40px;
-    text-align: right;
+/* 再生ボタン */
+.track-play-button {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s var(--ease-out);
+    padding: 0;
+    margin: 0;
+    flex-shrink: 0;
 }
 
-.track-list-item.is-active .track-duration {
-    color: var(--accent);
+.track-play-button:hover {
+    background: rgba(212, 175, 55, 0.2);
+    border-color: var(--accent);
+    transform: scale(1.1);
+}
+
+.track-list-item.is-active .track-play-button {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+}
+
+.play-icon-small {
+    font-size: 0.7rem;
+    color: #fff;
+    transition: color 0.3s var(--ease-out);
+    margin-left: 2px;
+}
+
+.track-list-item.is-active .play-icon-small {
+    color: #000;
 }
 
 /* アルバムカードのトラックリスト */
@@ -2016,10 +2010,15 @@ body.news-modal-open .news-item.is-active::after {
     font-size: 0.9rem;
 }
 
-.album-tracks-list .track-duration {
-    min-width: 35px;
-    font-size: 0.65rem;
+.album-tracks-list .track-play-button {
+    width: 28px;
+    height: 28px;
 }
+
+.album-tracks-list .play-icon-small {
+    font-size: 0.6rem;
+}
+
 
 /* Global Spotify Player - Fixed Footer */
 .spotify-global-player {
@@ -2588,6 +2587,24 @@ body.news-modal-open .news-item.is-active::after {
     .album-tracks-list .track-list-item {
         padding: 0.5rem 0.6rem;
         font-size: 0.85rem;
+    }
+
+    .album-tracks-list .track-play-button {
+        width: 26px;
+        height: 26px;
+    }
+
+    .album-tracks-list .play-icon-small {
+        font-size: 0.55rem;
+    }
+
+    .track-play-button {
+        width: 28px;
+        height: 28px;
+    }
+
+    .play-icon-small {
+        font-size: 0.65rem;
     }
 
     .track-card-body {

@@ -1717,6 +1717,9 @@ body.news-modal-open .news-item.is-active::after {
 }
 
 .featured-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     font-family: var(--font-script);
     font-size: 1.4rem;
     color: var(--accent);
@@ -1725,6 +1728,15 @@ body.news-modal-open .news-item.is-active::after {
     margin-bottom: 1rem;
     text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
     line-height: 1.2;
+}
+
+.featured-label-date {
+    font-family: var(--font-script);
+    font-size: 1.4rem;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    font-weight: 400;
+    text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
 }
 
 .discography-featured-title {

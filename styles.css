@@ -1928,23 +1928,13 @@ body.news-modal-open .news-item.is-active::after {
 }
 
 .album-card.is-expanded {
-    border-color: rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.02);
+    border-color: var(--accent);
+    background: rgba(212, 175, 55, 0.05);
 }
 
 .album-card.is-expanded .album-tracks-list {
     height: auto;
     opacity: 1;
-}
-
-.album-card.is-expanded .album-card-image-wrapper {
-    transform: translateY(-12px);
-    transition: transform 0.4s var(--ease-out);
-}
-
-.album-card.is-expanded .album-card-image {
-    transform: scale(1.15);
-    transition: transform 0.4s var(--ease-out);
 }
 
 .album-card-image-wrapper {

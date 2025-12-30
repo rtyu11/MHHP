@@ -640,10 +640,9 @@ function initLoader(navType) {
     // Count: 1 (画像と同じ間隔で黒背景＋ノイズ)
     tl.call(() => {
         if (loader) loader.classList.add('show-noise');
-        // ここで「READY?」に変更し、中央に配置
+        // ここで「READY?」に変更（NOW LOADINGと同じ位置）
         if (textEl) {
             textEl.textContent = 'READY?';
-            textEl.classList.add('centered');
         }
     });
 

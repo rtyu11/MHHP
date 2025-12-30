@@ -2341,34 +2341,17 @@ function renderRailLP(albums, gridEl, artistId) {
         const tracksList = card.querySelector('.album-tracks-list');
         const trackItems = card.querySelectorAll('.track-list-item');
         
-        // ジャケット画像のクリックでトラックリストを開閉
+        // ジャケット画像のクリックで拡大/縮小とトラックリストを開閉
         if (imageWrapper) {
             imageWrapper.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 
-                // 他のカードのトラックリストを閉じる
-                gridEl.querySelectorAll('.album-card').forEach(c => {
-                    if (c !== card) {
-                        c.classList.remove('is-expanded');
-                        const otherTracksList = c.querySelector('.album-tracks-list');
-                        if (otherTracksList) {
-                            gsap.to(otherTracksList, {
-                                height: 0,
-                                opacity: 0,
-                                duration: 0.3,
-                                ease: 'power2.in',
-                                onComplete: () => {
-                                    otherTracksList.style.display = 'none';
-                                }
-                            });
-                        }
-                    }
-                });
+                const isZoomed = card.classList.contains('is-zoomed');
                 
-                // このカードのトラックリストを開閉
-                const isExpanded = card.classList.contains('is-expanded');
-                if (isExpanded) {
+                if (isZoomed) {
+                    // 拡大状態の場合は縮小してトラックリストも閉じる
+                    card.classList.remove('is-zoomed');
                     card.classList.remove('is-expanded');
                     if (tracksList) {
                         gsap.to(tracksList, {
@@ -2382,6 +2365,28 @@ function renderRailLP(albums, gridEl, artistId) {
                         });
                     }
                 } else {
+                    // 他のカードの拡大とトラックリストを閉じる
+                    gridEl.querySelectorAll('.album-card').forEach(c => {
+                        if (c !== card) {
+                            c.classList.remove('is-zoomed');
+                            c.classList.remove('is-expanded');
+                            const otherTracksList = c.querySelector('.album-tracks-list');
+                            if (otherTracksList) {
+                                gsap.to(otherTracksList, {
+                                    height: 0,
+                                    opacity: 0,
+                                    duration: 0.3,
+                                    ease: 'power2.in',
+                                    onComplete: () => {
+                                        otherTracksList.style.display = 'none';
+                                    }
+                                });
+                            }
+                        }
+                    });
+                    
+                    // このカードを拡大してトラックリストを表示
+                    card.classList.add('is-zoomed');
                     card.classList.add('is-expanded');
                     if (tracksList) {
                         tracksList.style.display = 'block';
@@ -2401,6 +2406,58 @@ function renderRailLP(albums, gridEl, artistId) {
                 }
             });
         }
+        
+        // カード外をクリックしたら拡大を解除する処理
+        let outsideClickHandler = null;
+        
+        const setupOutsideClick = () => {
+            // 既存のハンドラーを削除
+            if (outsideClickHandler) {
+                document.removeEventListener('click', outsideClickHandler);
+            }
+            
+            // 新しいハンドラーを設定
+            outsideClickHandler = (e) => {
+                if (!card.contains(e.target) && card.classList.contains('is-zoomed')) {
+                    card.classList.remove('is-zoomed');
+                    card.classList.remove('is-expanded');
+                    const tracksList = card.querySelector('.album-tracks-list');
+                    if (tracksList) {
+                        gsap.to(tracksList, {
+                            height: 0,
+                            opacity: 0,
+                            duration: 0.3,
+                            ease: 'power2.in',
+                            onComplete: () => {
+                                tracksList.style.display = 'none';
+                            }
+                        });
+                    }
+                    // ハンドラーを削除
+                    document.removeEventListener('click', outsideClickHandler);
+                    outsideClickHandler = null;
+                }
+            };
+            
+            // 次のイベントループでリスナーを追加（現在のクリックイベントを無視するため）
+            setTimeout(() => {
+                document.addEventListener('click', outsideClickHandler);
+            }, 0);
+        };
+        
+        // 拡大時に外側クリックを監視
+        const originalClickHandler = imageWrapper.onclick;
+        imageWrapper.addEventListener('click', () => {
+            if (card.classList.contains('is-zoomed')) {
+                setupOutsideClick();
+            } else {
+                // 拡大されていない場合は既存のハンドラーを削除
+                if (outsideClickHandler) {
+                    document.removeEventListener('click', outsideClickHandler);
+                    outsideClickHandler = null;
+                }
+            }
+        });
         
         // トラックリストアイテムのクリックイベント
         trackItems.forEach((item) => {

@@ -2234,7 +2234,7 @@ function renderLatestReleaseLP(album, targetEl) {
                 <img src="${imageUrl}" alt="${escapeHtml(albumName)}" class="discography-featured-image" loading="lazy">
             </div>
             <div class="discography-featured-info">
-                <div class="featured-label">New Release!!</div>
+                <div class="featured-label">New Release</div>
                 <h2 class="discography-featured-title">${escapeHtml(albumName)}</h2>
                 ${tracks.length > 0 ? `
                     <div class="discography-featured-tracks">

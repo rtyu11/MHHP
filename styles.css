@@ -1718,7 +1718,7 @@ body.news-modal-open .news-item.is-active::after {
 
 .featured-label {
     font-family: var(--font-script);
-    font-size: 2rem;
+    font-size: 1.4rem;
     color: var(--accent);
     letter-spacing: 0.05em;
     font-weight: 400;
@@ -1752,34 +1752,46 @@ body.news-modal-open .news-item.is-active::after {
     margin-bottom: 1.5rem;
 }
 
-.tracks-list {
+.discography-featured-tracks .tracks-list {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.75rem;
+    background: rgba(40, 40, 40, 0.6);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.track-list-item {
+.discography-featured-tracks .track-list-item {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 0.75rem 1rem;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
+    gap: 1.25rem;
+    padding: 1rem 1.25rem;
+    background: rgba(60, 60, 60, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
     cursor: pointer;
     transition: all 0.3s var(--ease-out);
 }
 
-.track-list-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.15);
+.discography-featured-tracks .track-list-item:hover {
+    background: rgba(80, 80, 80, 0.5);
+    border-color: rgba(255, 255, 255, 0.2);
     transform: translateX(4px);
 }
 
-.track-list-item.is-active {
-    background: rgba(212, 175, 55, 0.1);
+.discography-featured-tracks .track-list-item.is-active {
+    background: rgba(212, 175, 55, 0.15);
     border-color: var(--accent);
     color: var(--accent);
+}
+
+.discography-featured-tracks .track-number {
+    font-family: var(--font-tech);
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    min-width: 28px;
+    text-align: right;
 }
 
 .track-number {
@@ -1792,6 +1804,16 @@ body.news-modal-open .news-item.is-active::after {
 
 .track-list-item.is-active .track-number {
     color: var(--accent);
+}
+
+.discography-featured-tracks .track-name {
+    flex: 1;
+    font-family: var(--font-main);
+    font-size: 1.1rem;
+    color: #fff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .track-name {
@@ -1809,6 +1831,34 @@ body.news-modal-open .news-item.is-active::after {
 }
 
 /* 再生ボタン */
+.discography-featured-tracks .track-play-button {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s var(--ease-out);
+    padding: 0;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.discography-featured-tracks .track-play-button:hover {
+    background: rgba(212, 175, 55, 0.2);
+    border-color: var(--accent);
+    transform: scale(1.1);
+}
+
+.discography-featured-tracks .track-list-item.is-active .track-play-button {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+}
+
 .track-play-button {
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -1835,6 +1885,14 @@ body.news-modal-open .news-item.is-active::after {
     background: var(--accent);
     border-color: var(--accent);
     color: #000;
+}
+
+.discography-featured-tracks .music-icon {
+    font-size: 1.3rem;
+    color: #fff;
+    transition: all 0.3s var(--ease-out);
+    line-height: 1;
+    display: inline-block;
 }
 
 .music-icon {
@@ -2371,7 +2429,7 @@ body.news-modal-open .news-item.is-active::after {
     }
 
     .featured-label {
-        font-size: 1.6rem;
+        font-size: 1.2rem;
     }
 
     .discography-featured-title {

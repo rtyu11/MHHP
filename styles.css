@@ -1129,9 +1129,18 @@ body {
     -webkit-backface-visibility: hidden;
     /* 画像レンダリングの最適化 */
     image-rendering: -webkit-optimize-contrast;
+    cursor: pointer;
 }
 
 .artist-photo:hover {
+    filter: grayscale(0%) contrast(1.1);
+}
+
+.artist-photo.is-colored {
+    filter: grayscale(0%) contrast(1.1);
+}
+
+.artist-photo.is-colored:hover {
     filter: grayscale(0%) contrast(1.1);
 }
 

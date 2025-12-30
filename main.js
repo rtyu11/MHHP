@@ -255,6 +255,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initVideoOptimization(); // 動画最適化を追加
     initSectionNavigation(); // セクションナビゲーション初期化
     initArtistBioToggle(); // アーティスト説明文の折りたたみ機能
+    initArtistPhotoToggle(); // アーティスト画像の色切り替え機能
     fetchData();
     initLandingDiscography();
     setupForm();
@@ -847,6 +848,110 @@ function initLogoScroll() {
             // Lenisが初期化されていない場合のフォールバック
             heroSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
+    });
+}
+
+// アーティスト画像の色切り替え機能（タップで独立して切り替え）
+function initArtistPhotoToggle() {
+    const artistPhotos = document.querySelectorAll('.artist-photo');
+    
+    if (artistPhotos.length === 0) return;
+    
+    // 各画像に独立したクリック/タップイベントを追加
+    artistPhotos.forEach(photo => {
+        // タッチ状態管理
+        const touchState = {
+            startY: 0,
+            startX: 0,
+            startTime: 0,
+            moved: false,
+            cancelled: false
+        };
+        
+        const SCROLL_THRESHOLD = 15;
+        const MAX_TAP_TIME = 300;
+        const MAX_TAP_DISTANCE = 10;
+        
+        // タッチ開始
+        photo.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            touchState.startY = touch.clientY;
+            touchState.startX = touch.clientX;
+            touchState.startTime = Date.now();
+            touchState.moved = false;
+            touchState.cancelled = false;
+        }, { passive: true });
+        
+        // タッチ移動（スクロール検知）
+        photo.addEventListener('touchmove', (e) => {
+            if (touchState.cancelled) return;
+            
+            const touch = e.touches[0];
+            const deltaY = Math.abs(touch.clientY - touchState.startY);
+            const deltaX = Math.abs(touch.clientX - touchState.startX);
+            const distance = Math.sqrt(deltaY * deltaY + deltaX * deltaX);
+            
+            if (distance > SCROLL_THRESHOLD) {
+                if (deltaY > deltaX * 1.5) {
+                    touchState.moved = true;
+                }
+            }
+        }, { passive: true });
+        
+        // タッチ終了（クリック判定）
+        photo.addEventListener('touchend', (e) => {
+            if (touchState.cancelled) {
+                touchState.cancelled = false;
+                return;
+            }
+            
+            const touchTime = Date.now() - touchState.startTime;
+            const touch = e.changedTouches[0];
+            const deltaY = Math.abs(touch.clientY - touchState.startY);
+            const deltaX = Math.abs(touch.clientX - touchState.startX);
+            const distance = Math.sqrt(deltaY * deltaY + deltaX * deltaX);
+            
+            const isScroll = touchState.moved || 
+                            distance > SCROLL_THRESHOLD || 
+                            touchTime > MAX_TAP_TIME ||
+                            (deltaY > MAX_TAP_DISTANCE && deltaY > deltaX * 1.5);
+            
+            if (isScroll) {
+                touchState.moved = false;
+                return;
+            }
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // 少し遅延を入れて確実にクリックイベントを発火
+            setTimeout(() => {
+                if (!touchState.cancelled) {
+                    const clickEvent = new MouseEvent('click', {
+                        bubbles: true,
+                        cancelable: true,
+                        view: window,
+                        detail: 1
+                    });
+                    photo.dispatchEvent(clickEvent);
+                }
+            }, 50);
+        }, { passive: false });
+        
+        // タッチキャンセル
+        photo.addEventListener('touchcancel', () => {
+            touchState.cancelled = true;
+            touchState.moved = false;
+        }, { passive: true });
+        
+        // クリックイベント（色の切り替え）
+        photo.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // この画像だけのクラスをトグル（他の画像には影響しない）
+            photo.classList.toggle('is-colored');
+        });
     });
 }
 

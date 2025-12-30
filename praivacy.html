@@ -123,7 +123,7 @@
         </div>
 
         <div class="privacy-last-updated">
-            <p data-i18n="privacy.lastUpdated">最終更新日: 2025年1月</p>
+            <p data-i18n="privacy.lastUpdated">最終更新日: 2026年1月</p>
         </div>
     </div>
 
@@ -157,7 +157,7 @@
                 'privacy.section5.text1': 'プライバシーポリシーに関するお問い合わせは、',
                 'privacy.section5.link1': 'お問い合わせフォーム',
                 'privacy.section5.text1end': 'よりご連絡ください。',
-                'privacy.lastUpdated': '最終更新日: 2025年1月'
+                'privacy.lastUpdated': '最終更新日: 2026年1月'
             },
             en: {
                 'privacy.title': 'Privacy Policy',
@@ -185,7 +185,7 @@
                 'privacy.section5.text1': 'For inquiries regarding the Privacy Policy, please contact us through the ',
                 'privacy.section5.link1': 'contact form',
                 'privacy.section5.text1end': '.',
-                'privacy.lastUpdated': 'Last Updated: January 2025'
+                'privacy.lastUpdated': 'Last Updated: January 2026'
             }
         };
 
@@ -215,8 +215,8 @@
                     // Update text content for all elements
                     if (el.tagName === 'SPAN' || el.tagName === 'P' || el.tagName === 'LI' || el.tagName === 'H1' || el.tagName === 'H2') {
                         el.textContent = value;
-                    } else if (el.tagName === 'A' && !el.href.includes('http')) {
-                        // Only update internal links
+                    } else if (el.tagName === 'A') {
+                        // Update all A tags (both internal and external links)
                         el.textContent = value;
                     } else if (el.tagName !== 'A') {
                         el.textContent = value;

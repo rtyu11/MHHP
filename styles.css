@@ -1921,15 +1921,17 @@ body.news-modal-open .news-item.is-active::after {
     cursor: pointer;
 }
 
-.album-card:hover {
+.album-card:hover:not(.is-expanded) {
     transform: translateY(-8px);
     border-color: rgba(255, 255, 255, 0.2);
     background: rgba(255, 255, 255, 0.05);
 }
 
 .album-card.is-expanded {
-    border-color: var(--accent);
-    background: rgba(212, 175, 55, 0.05);
+    border-color: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
+    transform: scale(1.05);
+    z-index: 10;
 }
 
 .album-card.is-expanded .album-tracks-list {

@@ -1648,16 +1648,19 @@ function renderNews(items) {
         let activeNewsItem = null;
         
         const openModal = (clickedItem) => {
-            modal.classList.add('is-open');
-            modal.setAttribute('aria-hidden', 'false');
-            document.body.style.overflow = 'hidden';
-            document.body.classList.add('news-modal-open');
-            
-            // クリックされた記事にクラスを追加
+            // まず記事にクラスを追加して横にずれるアニメーションを開始
             if (clickedItem) {
                 activeNewsItem = clickedItem;
                 clickedItem.classList.add('is-active');
+                document.body.classList.add('news-modal-open');
             }
+            
+            // 少し遅延してからモーダルを開く（記事のアニメーションを見せるため）
+            setTimeout(() => {
+                modal.classList.add('is-open');
+                modal.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+            }, 250); // 250ms遅延
         };
         const closeModal = () => {
             modal.classList.remove('is-open');

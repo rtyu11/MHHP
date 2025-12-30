@@ -4107,6 +4107,9 @@ body.hovered .cursor-circle {
 @media (max-width: 768px) {
     .news-more-scroll-container.is-expanded {
         overscroll-behavior-y: auto;
+        overscroll-behavior-x: contain;
+        touch-action: pan-y;
+        /* ページスクロールへの移行を許可 */
     }
 }
 

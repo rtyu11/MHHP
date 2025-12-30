@@ -1939,15 +1939,22 @@ function renderNews(items) {
                                         const scrollY = window.scrollY || window.pageYOffset || 0;
                                         const moreBtnTop = moreBtnRect.top + scrollY;
                                         
+                                        // モバイル版では画面の中央に来るように調整
+                                        const isMobile = window.matchMedia('(max-width: 900px)').matches;
+                                        const viewportHeight = window.innerHeight;
+                                        const targetScroll = isMobile 
+                                            ? moreBtnTop - (viewportHeight / 2) 
+                                            : moreBtnTop - 100;
+                                        
                                         if (lenis) {
-                                            lenis.scrollTo(moreBtnTop - 100, {
+                                            lenis.scrollTo(targetScroll, {
                                                 duration: 0.6,
                                                 easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
                                                 offset: 0
                                             });
                                         } else {
                                             window.scrollTo({
-                                                top: moreBtnTop - 100,
+                                                top: targetScroll,
                                                 behavior: 'smooth'
                                             });
                                         }

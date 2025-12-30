@@ -2,17 +2,275 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Privacy Policy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="privacy.title">プライバシーポリシー | Privacy Policy</title>
+    
+    <!-- Google Analytics (GA4) -->
+    <!-- TODO: Replace G-XXXXXXXXXX with your actual Google Analytics Measurement ID -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
+    
+    <link rel="stylesheet" href="styles.css">
     <style>
-        body{ background:#0a0a0a; color:#ccc; font-family: sans-serif; padding:2rem; max-width:800px; margin:0 auto; line-height:1.6; }
-        h1{ border-bottom:1px solid #333; padding-bottom:1rem; }
-        a{ color:#fff; }
+        .privacy-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            color: #ccc;
+            line-height: 1.8;
+        }
+        .privacy-header {
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #333;
+        }
+        .privacy-header h1 {
+            font-family: var(--font-main, 'Cormorant Garamond', serif);
+            font-size: 2.5rem;
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+        .privacy-header .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent, #d4af37);
+            text-decoration: none;
+            font-family: var(--font-tech, 'Oswald', sans-serif);
+            font-size: 0.9rem;
+            letter-spacing: 0.1em;
+            margin-top: 1rem;
+            transition: opacity 0.3s ease;
+        }
+        .privacy-header .back-link:hover {
+            opacity: 0.7;
+        }
+        .privacy-section {
+            margin-bottom: 2.5rem;
+        }
+        .privacy-section h2 {
+            font-family: var(--font-main, 'Cormorant Garamond', serif);
+            font-size: 1.8rem;
+            color: #fff;
+            margin-bottom: 1rem;
+            padding-top: 1rem;
+        }
+        .privacy-section p {
+            margin-bottom: 1rem;
+            color: #ccc;
+        }
+        .privacy-section ul {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+        .privacy-section li {
+            margin-bottom: 0.5rem;
+            color: #ccc;
+        }
+        .privacy-last-updated {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #333;
+        }
+        @media (max-width: 768px) {
+            .privacy-container {
+                padding: 2rem 1rem;
+            }
+            .privacy-header h1 {
+                font-size: 2rem;
+            }
+            .privacy-section h2 {
+                font-size: 1.5rem;
+            }
+        }
     </style>
 </head>
-<body>
-    <h1>Privacy Policy</h1>
-    <p>当サイトのメールフォームを通じて取得した個人情報（氏名、メールアドレス等）は、お問い合わせへの対応のみに利用し、第三者への提供は行いません。</p>
-    <p>法令に基づく場合を除き、ご本人の同意なく目的外での利用はいたしません。</p>
-    <p><a href="index.html">&larr; Back to Top</a></p>
+<body style="background: #0a0a0a;">
+    <div class="privacy-container">
+        <div class="privacy-header">
+            <h1 data-i18n="privacy.title">プライバシーポリシー</h1>
+            <a href="index.html" class="back-link" data-i18n="privacy.back">← トップページに戻る</a>
+        </div>
+
+        <div class="privacy-section">
+            <h2 data-i18n="privacy.section1.title">1. 個人情報の取り扱いについて</h2>
+            <p data-i18n="privacy.section1.text1">当サイトでは、お問い合わせフォームを通じて以下の個人情報を取得する場合があります。</p>
+            <ul>
+                <li data-i18n="privacy.section1.item1">お名前</li>
+                <li data-i18n="privacy.section1.item2">メールアドレス</li>
+                <li data-i18n="privacy.section1.item3">お問い合わせ内容</li>
+            </ul>
+            <p data-i18n="privacy.section1.text2">取得した個人情報は、お問い合わせへの対応のみに利用し、第三者への提供は行いません。法令に基づく場合を除き、ご本人の同意なく目的外での利用はいたしません。</p>
+        </div>
+
+        <div class="privacy-section">
+            <h2 data-i18n="privacy.section2.title">2. Googleアナリティクスについて</h2>
+            <p data-i18n="privacy.section2.text1">当サイトでは、サービス向上のため、Googleアナリティクスを使用してアクセス解析を行っています。Googleアナリティクスは、Cookieを使用してデータを収集します。</p>
+            <p><span data-i18n="privacy.section2.text2">Googleアナリティクスで収集されるデータは、Google社のプライバシーポリシーに基づいて管理されます。詳細については、</span><a href="https://policies.google.com/privacy?hl=ja" target="_blank" rel="noopener" style="color: var(--accent, #d4af37);"><span data-i18n="privacy.section2.link1">Googleのプライバシーポリシー</span></a><span data-i18n="privacy.section2.text2end">をご確認ください。</span></p>
+            <p><span data-i18n="privacy.section2.text3">GoogleアナリティクスのCookieを無効化したい場合は、</span><a href="https://tools.google.com/dlpage/gaoptout?hl=ja" target="_blank" rel="noopener" style="color: var(--accent, #d4af37);"><span data-i18n="privacy.section2.link2">Googleアナリティクスオプトアウトアドオン</span></a><span data-i18n="privacy.section2.text3end">をご利用いただくか、ブラウザの設定でCookieを無効化してください。</span></p>
+        </div>
+
+        <div class="privacy-section">
+            <h2 data-i18n="privacy.section3.title">3. Cookieについて</h2>
+            <p data-i18n="privacy.section3.text1">当サイトでは、ユーザー体験の向上のため、Cookieを使用する場合があります。Cookieは、ウェブサイトがユーザーのコンピュータに保存する小さなテキストファイルです。</p>
+            <p data-i18n="privacy.section3.text2">ブラウザの設定でCookieを無効化することも可能ですが、その場合、一部の機能が正常に動作しない可能性があります。</p>
+        </div>
+
+        <div class="privacy-section">
+            <h2 data-i18n="privacy.section4.title">4. 個人情報の保護</h2>
+            <p data-i18n="privacy.section4.text1">当サイトでは、取得した個人情報の適切な管理と保護に努めております。個人情報への不正アクセス、紛失、破壊、改ざん、漏洩などを防ぐため、適切なセキュリティ対策を講じています。</p>
+        </div>
+
+        <div class="privacy-section">
+            <h2 data-i18n="privacy.section5.title">5. お問い合わせ</h2>
+            <p><span data-i18n="privacy.section5.text1">プライバシーポリシーに関するお問い合わせは、</span><a href="index.html#contact" style="color: var(--accent, #d4af37);"><span data-i18n="privacy.section5.link1">お問い合わせフォーム</span></a><span data-i18n="privacy.section5.text1end">よりご連絡ください。</span></p>
+        </div>
+
+        <div class="privacy-last-updated">
+            <p data-i18n="privacy.lastUpdated">最終更新日: 2025年1月</p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script>
+        // Language translations
+        const privacyTranslations = {
+            ja: {
+                'privacy.title': 'プライバシーポリシー',
+                'privacy.back': '← トップページに戻る',
+                'privacy.section1.title': '1. 個人情報の取り扱いについて',
+                'privacy.section1.text1': '当サイトでは、お問い合わせフォームを通じて以下の個人情報を取得する場合があります。',
+                'privacy.section1.item1': 'お名前',
+                'privacy.section1.item2': 'メールアドレス',
+                'privacy.section1.item3': 'お問い合わせ内容',
+                'privacy.section1.text2': '取得した個人情報は、お問い合わせへの対応のみに利用し、第三者への提供は行いません。法令に基づく場合を除き、ご本人の同意なく目的外での利用はいたしません。',
+                'privacy.section2.title': '2. Googleアナリティクスについて',
+                'privacy.section2.text1': '当サイトでは、サービス向上のため、Googleアナリティクスを使用してアクセス解析を行っています。Googleアナリティクスは、Cookieを使用してデータを収集します。',
+                'privacy.section2.text2': 'Googleアナリティクスで収集されるデータは、Google社のプライバシーポリシーに基づいて管理されます。詳細については、',
+                'privacy.section2.link1': 'Googleのプライバシーポリシー',
+                'privacy.section2.text2end': 'をご確認ください。',
+                'privacy.section2.text3': 'GoogleアナリティクスのCookieを無効化したい場合は、',
+                'privacy.section2.link2': 'Googleアナリティクスオプトアウトアドオン',
+                'privacy.section2.text3end': 'をご利用いただくか、ブラウザの設定でCookieを無効化してください。',
+                'privacy.section3.title': '3. Cookieについて',
+                'privacy.section3.text1': '当サイトでは、ユーザー体験の向上のため、Cookieを使用する場合があります。Cookieは、ウェブサイトがユーザーのコンピュータに保存する小さなテキストファイルです。',
+                'privacy.section3.text2': 'ブラウザの設定でCookieを無効化することも可能ですが、その場合、一部の機能が正常に動作しない可能性があります。',
+                'privacy.section4.title': '4. 個人情報の保護',
+                'privacy.section4.text1': '当サイトでは、取得した個人情報の適切な管理と保護に努めております。個人情報への不正アクセス、紛失、破壊、改ざん、漏洩などを防ぐため、適切なセキュリティ対策を講じています。',
+                'privacy.section5.title': '5. お問い合わせ',
+                'privacy.section5.text1': 'プライバシーポリシーに関するお問い合わせは、',
+                'privacy.section5.link1': 'お問い合わせフォーム',
+                'privacy.section5.text1end': 'よりご連絡ください。',
+                'privacy.lastUpdated': '最終更新日: 2025年1月'
+            },
+            en: {
+                'privacy.title': 'Privacy Policy',
+                'privacy.back': '← Back to Top',
+                'privacy.section1.title': '1. Handling of Personal Information',
+                'privacy.section1.text1': 'This website may collect the following personal information through the contact form:',
+                'privacy.section1.item1': 'Name',
+                'privacy.section1.item2': 'Email address',
+                'privacy.section1.item3': 'Inquiry content',
+                'privacy.section1.text2': 'The personal information collected will only be used to respond to inquiries and will not be provided to third parties. Except as required by law, we will not use personal information for purposes other than those agreed upon by the individual without their consent.',
+                'privacy.section2.title': '2. About Google Analytics',
+                'privacy.section2.text1': 'This website uses Google Analytics to analyze access for service improvement. Google Analytics collects data using Cookies.',
+                'privacy.section2.text2': 'Data collected by Google Analytics is managed in accordance with Google\'s Privacy Policy. For details, please refer to ',
+                'privacy.section2.link1': 'Google\'s Privacy Policy',
+                'privacy.section2.text2end': '.',
+                'privacy.section2.text3': 'If you wish to disable Google Analytics cookies, please use the ',
+                'privacy.section2.link2': 'Google Analytics Opt-out Add-on',
+                'privacy.section2.text3end': ' or disable cookies in your browser settings.',
+                'privacy.section3.title': '3. About Cookies',
+                'privacy.section3.text1': 'This website may use cookies to improve user experience. Cookies are small text files that websites store on users\' computers.',
+                'privacy.section3.text2': 'You can disable cookies in your browser settings, but some features may not work properly in that case.',
+                'privacy.section4.title': '4. Protection of Personal Information',
+                'privacy.section4.text1': 'We strive to properly manage and protect the personal information we collect. We take appropriate security measures to prevent unauthorized access, loss, destruction, alteration, and leakage of personal information.',
+                'privacy.section5.title': '5. Contact',
+                'privacy.section5.text1': 'For inquiries regarding the Privacy Policy, please contact us through the ',
+                'privacy.section5.link1': 'contact form',
+                'privacy.section5.text1end': '.',
+                'privacy.lastUpdated': 'Last Updated: January 2025'
+            }
+        };
+
+        // Get current language from localStorage or default to 'ja'
+        let currentLang = 'ja';
+        try {
+            const savedLang = localStorage.getItem('masato-lang');
+            if (savedLang && (savedLang === 'ja' || savedLang === 'en')) {
+                currentLang = savedLang;
+            }
+        } catch (_) {
+            // ignore
+        }
+
+        // Update HTML lang attribute
+        document.documentElement.lang = currentLang;
+
+        // Update all elements with data-i18n attribute
+        function updatePrivacyLanguage(lang) {
+            const t = privacyTranslations[lang];
+            if (!t) return;
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                const value = t[key];
+                if (value !== undefined) {
+                    // Update text content for all elements
+                    if (el.tagName === 'SPAN' || el.tagName === 'P' || el.tagName === 'LI' || el.tagName === 'H1' || el.tagName === 'H2') {
+                        el.textContent = value;
+                    } else if (el.tagName === 'A' && !el.href.includes('http')) {
+                        // Only update internal links
+                        el.textContent = value;
+                    } else if (el.tagName !== 'A') {
+                        el.textContent = value;
+                    }
+                }
+            });
+
+            // Update title
+            const titleEl = document.querySelector('title');
+            if (titleEl) {
+                if (lang === 'ja') {
+                    titleEl.textContent = t['privacy.title'] + ' | Privacy Policy';
+                } else {
+                    titleEl.textContent = 'Privacy Policy | ' + t['privacy.title'];
+                }
+            }
+        }
+
+        // Initialize language on page load
+        updatePrivacyLanguage(currentLang);
+
+        // Listen for language changes from main page
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'masato-lang' && e.newValue && (e.newValue === 'ja' || e.newValue === 'en')) {
+                currentLang = e.newValue;
+                document.documentElement.lang = currentLang;
+                updatePrivacyLanguage(currentLang);
+            }
+        });
+
+        // Also check on focus (in case storage event doesn't fire)
+        window.addEventListener('focus', () => {
+            try {
+                const savedLang = localStorage.getItem('masato-lang');
+                if (savedLang && (savedLang === 'ja' || savedLang === 'en') && savedLang !== currentLang) {
+                    currentLang = savedLang;
+                    document.documentElement.lang = currentLang;
+                    updatePrivacyLanguage(currentLang);
+                }
+            } catch (_) {
+                // ignore
+            }
+        });
+    </script>
 </body>
 </html>

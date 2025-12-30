@@ -334,6 +334,9 @@ const translations = {
         visual: {
             statement: 'Silence is not empty,<br>it\'s full of <span class="highlight">answers</span>.',
             location: 'TOKYO / 2025'
+        },
+        footer: {
+            privacy: 'PRIVACY POLICY'
         }
     },
     en: {
@@ -407,6 +410,9 @@ const translations = {
         visual: {
             statement: 'Silence is not empty,<br>it\'s full of <span class="highlight">answers</span>.',
             location: 'TOKYO / 2025'
+        },
+        footer: {
+            privacy: 'PRIVACY POLICY'
         }
     }
 };

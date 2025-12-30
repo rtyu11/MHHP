@@ -1197,7 +1197,7 @@ body {
 /* 最初の段落も同じスタイルに統一 */
 .artist-bio p:first-child {
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 700;
     color: #ccc;
     line-height: 1.9;
 }

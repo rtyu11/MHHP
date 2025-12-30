@@ -1521,7 +1521,7 @@ function renderNews(items) {
                         );
                     });
                     const iconEl = currentMoreBtn.querySelector('.news-more-icon');
-                    if (iconEl) iconEl.textContent = '×';
+                    if (iconEl) iconEl.textContent = '−';
                     currentMoreBtn.dataset.expanded = 'true';
                     currentMoreBtn.setAttribute('aria-label', '折りたたむ');
                 } else {

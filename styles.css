@@ -3196,8 +3196,6 @@ body.hovered .cursor-circle {
 }
 
 .news-more-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
     transform: scale(1.1);
 }
 
@@ -3209,18 +3207,7 @@ body.hovered .cursor-circle {
     font-size: 1.5rem;
     font-weight: 300;
     line-height: 1;
-    transition: transform 0.3s var(--ease-out), color 0.3s var(--ease-out);
+    transition: transform 0.3s var(--ease-out);
     display: block;
-}
-
-.news-more-btn:hover .news-more-icon {
-    transform: rotate(90deg);
-}
-
-.news-more-btn[data-expanded="true"] .news-more-icon {
-    transform: rotate(45deg);
-}
-
-.news-more-btn[data-expanded="true"]:hover .news-more-icon {
-    transform: rotate(135deg);
+    color: inherit;
 }

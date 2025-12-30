@@ -1206,12 +1206,13 @@ body {
     vertical-align: baseline;
 }
 
-/* 最初の段落も同じスタイルに統一 */
+/* 最初の段落を太めで目立たせる */
 .artist-bio p:first-child {
     font-size: 1rem;
-    font-weight: 400;
-    color: #ccc;
+    font-weight: 600;
+    color: #e8e8e8;
     line-height: 1.9;
+    letter-spacing: 0.03em;
 }
 
 /* 折りたたみ部分のスタイル（モバイル用） */
@@ -3069,8 +3070,9 @@ body.hovered .cursor-circle {
 
     .artist-bio p:first-child {
         font-size: 1rem;
-        font-weight: 400;
-        color: #ccc;
+        font-weight: 600;
+        color: #e8e8e8;
+        letter-spacing: 0.03em;
     }
     
     .artist-bio-collapsed p {

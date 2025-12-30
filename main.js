@@ -1343,57 +1343,55 @@ function renderNews(items) {
         // Store original item data for modal
         a.dataset.newsItem = JSON.stringify(item);
 
-        // スクロールとクリックを区別するための変数
+        // スクロール検知用の変数
         let touchStartY = 0;
         let touchStartX = 0;
-        let touchStartTime = 0;
-        let wasScrolling = false;
-        const SCROLL_THRESHOLD = 10; // スクロールと判定する移動距離（px）
-        const TAP_TIME_THRESHOLD = 300; // タップと判定する時間（ms）
+        let touchMoved = false;
+        const SCROLL_THRESHOLD = 10; // 10px以上移動したらスクロールと判定
 
         // タッチ開始
         a.addEventListener('touchstart', (e) => {
             touchStartY = e.touches[0].clientY;
             touchStartX = e.touches[0].clientX;
-            touchStartTime = Date.now();
-            wasScrolling = false;
+            touchMoved = false;
         }, { passive: true });
 
         // タッチ移動（スクロール検知）
         a.addEventListener('touchmove', (e) => {
-            if (!touchStartY) return;
-            const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
-            const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
-            // 縦方向の移動が横方向より大きく、かつ閾値を超えた場合はスクロールと判定
-            if (deltaY > SCROLL_THRESHOLD && deltaY > deltaX) {
-                wasScrolling = true;
+            if (!touchMoved) {
+                const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
+                const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
+                // 縦方向の移動が横方向より大きく、かつ閾値を超えたらスクロールと判定
+                if (deltaY > SCROLL_THRESHOLD && deltaY > deltaX) {
+                    touchMoved = true;
+                }
             }
         }, { passive: true });
 
-        // タッチ終了
+        // タッチ終了（クリック判定）
         a.addEventListener('touchend', (e) => {
-            const touchDuration = Date.now() - touchStartTime;
-            const hadScrolling = wasScrolling;
-            // リセット
-            touchStartY = 0;
-            touchStartX = 0;
-            touchStartTime = 0;
-            wasScrolling = false;
-            
-            // スクロール中でない、かつ短時間のタップの場合のみクリックとして処理
-            if (!hadScrolling && touchDuration < TAP_TIME_THRESHOLD) {
-                // クリックイベントを手動で発火
-                const clickEvent = new MouseEvent('click', {
-                    bubbles: true,
-                    cancelable: true,
-                    view: window
-                });
-                a.dispatchEvent(clickEvent);
+            if (touchMoved) {
+                // スクロール中だった場合はクリックを無視
+                e.preventDefault();
+                touchMoved = false;
+                return;
             }
-        }, { passive: true });
+            // スクロールでない場合はクリックとして処理
+            const clickEvent = new MouseEvent('click', {
+                bubbles: true,
+                cancelable: true,
+                view: window
+            });
+            a.dispatchEvent(clickEvent);
+        }, { passive: false });
 
-        // Modal Click Event（マウスとタッチの両方に対応）
+        // Modal Click Event
         a.addEventListener('click', (e) => {
+            // タッチイベントからのクリックの場合は既に処理済み
+            if (e.type === 'click' && touchMoved) {
+                e.preventDefault();
+                return;
+            }
             e.preventDefault();
             if (modal && modal.open) {
                 const storedItem = JSON.parse(a.dataset.newsItem);

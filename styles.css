@@ -1947,6 +1947,23 @@ body.news-modal-open .news-item.is-active::after {
     transition: transform 0.4s var(--ease-out);
 }
 
+/* ジャケット拡大状態 */
+.album-card.is-zoomed {
+    z-index: 10;
+    position: relative;
+}
+
+.album-card.is-zoomed .album-card-image-wrapper {
+    transform: scale(1.25);
+    transition: transform 0.4s var(--ease-out);
+    z-index: 11;
+}
+
+.album-card.is-zoomed .album-card-image {
+    transform: scale(1.0);
+    transition: transform 0.4s var(--ease-out);
+}
+
 .album-card-image-wrapper {
     position: relative;
     width: 100%;

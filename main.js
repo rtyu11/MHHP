@@ -2335,72 +2335,81 @@ function renderRailLP(albums, gridEl, artistId) {
 
     gridEl.innerHTML = cards;
 
-    // album-cardのクリックイベント
-    gridEl.querySelectorAll('.album-card').forEach((card) => {
-        const imageWrapper = card.querySelector('.album-card-image-wrapper');
-        const tracksList = card.querySelector('.album-tracks-list');
-        const trackItems = card.querySelectorAll('.track-list-item');
-        
-        // ジャケット画像のクリックでトラックリストを開閉
-        if (imageWrapper) {
-            imageWrapper.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                // 他のカードのトラックリストを閉じる
-                gridEl.querySelectorAll('.album-card').forEach(c => {
-                    if (c !== card) {
-                        c.classList.remove('is-expanded');
-                        const otherTracksList = c.querySelector('.album-tracks-list');
-                        if (otherTracksList) {
-                            gsap.to(otherTracksList, {
+        // album-cardのクリックイベント
+        gridEl.querySelectorAll('.album-card').forEach((card) => {
+            const imageWrapper = card.querySelector('.album-card-image-wrapper');
+            const tracksList = card.querySelector('.album-tracks-list');
+            const trackItems = card.querySelectorAll('.track-list-item');
+            const cardBody = card.querySelector('.album-card-body');
+            
+            // ジャケット画像のクリックで拡大/縮小とトラックリストの開閉
+            if (imageWrapper) {
+                imageWrapper.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // 拡大状態をトグル
+                    const isZoomed = card.classList.contains('is-zoomed');
+                    
+                    if (isZoomed) {
+                        // 縮小
+                        card.classList.remove('is-zoomed');
+                        // トラックリストも閉じる
+                        card.classList.remove('is-expanded');
+                        if (tracksList) {
+                            gsap.to(tracksList, {
                                 height: 0,
                                 opacity: 0,
                                 duration: 0.3,
                                 ease: 'power2.in',
                                 onComplete: () => {
-                                    otherTracksList.style.display = 'none';
+                                    tracksList.style.display = 'none';
                                 }
                             });
                         }
-                    }
-                });
-                
-                // このカードのトラックリストを開閉
-                const isExpanded = card.classList.contains('is-expanded');
-                if (isExpanded) {
-                    card.classList.remove('is-expanded');
-                    if (tracksList) {
-                        gsap.to(tracksList, {
-                            height: 0,
-                            opacity: 0,
-                            duration: 0.3,
-                            ease: 'power2.in',
-                            onComplete: () => {
-                                tracksList.style.display = 'none';
+                    } else {
+                        // 他のカードの拡大状態とトラックリストを閉じる
+                        gridEl.querySelectorAll('.album-card').forEach(c => {
+                            if (c !== card) {
+                                c.classList.remove('is-zoomed');
+                                c.classList.remove('is-expanded');
+                                const otherTracksList = c.querySelector('.album-tracks-list');
+                                if (otherTracksList) {
+                                    gsap.to(otherTracksList, {
+                                        height: 0,
+                                        opacity: 0,
+                                        duration: 0.3,
+                                        ease: 'power2.in',
+                                        onComplete: () => {
+                                            otherTracksList.style.display = 'none';
+                                        }
+                                    });
+                                }
                             }
                         });
+                        
+                        // 拡大
+                        card.classList.add('is-zoomed');
+                        // トラックリストも開く
+                        card.classList.add('is-expanded');
+                        if (tracksList) {
+                            tracksList.style.display = 'block';
+                            // レイアウトを確定させるために少し待機
+                            setTimeout(() => {
+                                gsap.fromTo(tracksList, 
+                                    { height: 0, opacity: 0 },
+                                    { 
+                                        height: 'auto',
+                                        opacity: 1,
+                                        duration: 0.4,
+                                        ease: 'power2.out'
+                                    }
+                                );
+                            }, 10);
+                        }
                     }
-                } else {
-                    card.classList.add('is-expanded');
-                    if (tracksList) {
-                        tracksList.style.display = 'block';
-                        // レイアウトを確定させるために少し待機
-                        setTimeout(() => {
-                            gsap.fromTo(tracksList, 
-                                { height: 0, opacity: 0 },
-                                { 
-                                    height: 'auto',
-                                    opacity: 1,
-                                    duration: 0.4,
-                                    ease: 'power2.out'
-                                }
-                            );
-                        }, 10);
-                    }
-                }
-            });
-        }
+                });
+            }
         
         // トラックリストアイテムのクリックイベント
         trackItems.forEach((item) => {

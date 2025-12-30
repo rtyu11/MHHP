@@ -254,6 +254,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initLanguageSwitcher();
     initVideoOptimization(); // 動画最適化を追加
     initSectionNavigation(); // セクションナビゲーション初期化
+    initArtistBioToggle(); // アーティスト説明文の折りたたみ機能
     fetchData();
     initLandingDiscography();
     setupForm();
@@ -462,6 +463,9 @@ function updateLanguage(lang) {
     
     // Update news items if they exist
     updateNewsItemsLanguage(lang);
+    
+    // Update artist bio toggle button text
+    updateArtistBioToggleText();
 }
 
 function updateNewsItemsLanguage(lang) {
@@ -828,6 +832,64 @@ function initLogoScroll() {
             heroSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     });
+}
+
+// アーティスト説明文の折りたたみ機能
+function initArtistBioToggle() {
+    const artistBio = document.querySelector('.artist-bio');
+    const toggleBtn = document.querySelector('.artist-bio-toggle');
+    
+    if (!artistBio || !toggleBtn) return;
+    
+    // クリックイベント
+    const handleToggle = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const isExpanded = artistBio.classList.contains('is-expanded');
+        
+        if (isExpanded) {
+            // 折りたたみ
+            artistBio.classList.remove('is-expanded');
+            toggleBtn.setAttribute('aria-expanded', 'false');
+            toggleBtn.setAttribute('aria-label', currentLang === 'ja' ? '全文を表示' : 'Show full text');
+        } else {
+            // 展開
+            artistBio.classList.add('is-expanded');
+            toggleBtn.setAttribute('aria-expanded', 'true');
+            toggleBtn.setAttribute('aria-label', currentLang === 'ja' ? '全文を非表示' : 'Hide full text');
+        }
+        
+        updateArtistBioToggleText();
+    };
+    
+    toggleBtn.addEventListener('click', handleToggle);
+    toggleBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        handleToggle(e);
+    }, { passive: false });
+    
+    // 初期テキストを設定
+    updateArtistBioToggleText();
+}
+
+// アーティスト説明文トグルボタンのテキストを更新
+function updateArtistBioToggleText() {
+    const artistBio = document.querySelector('.artist-bio');
+    const toggleBtn = document.querySelector('.artist-bio-toggle');
+    const toggleText = toggleBtn?.querySelector('.toggle-text');
+    
+    if (!artistBio || !toggleBtn || !toggleText) return;
+    
+    const isExpanded = artistBio.classList.contains('is-expanded');
+    
+    if (isExpanded) {
+        toggleText.textContent = currentLang === 'ja' ? '閉じる' : 'Show Less';
+        toggleBtn.setAttribute('aria-label', currentLang === 'ja' ? '全文を非表示' : 'Hide full text');
+    } else {
+        toggleText.textContent = currentLang === 'ja' ? 'もっと読む' : 'Read More';
+        toggleBtn.setAttribute('aria-label', currentLang === 'ja' ? '全文を表示' : 'Show full text');
+    }
 }
 
 // セクションへのスクロール関数（グローバルスコープ）

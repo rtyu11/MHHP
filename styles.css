@@ -1135,6 +1135,11 @@ body {
     max-width: 780px;
     margin: 0 auto;
     padding: 0 clamp(16px, 4vw, 40px);
+    position: relative;
+}
+
+.artist-bio-content {
+    position: relative;
 }
 
 .artist-bio p {
@@ -1160,6 +1165,91 @@ body {
     color: #fff;
     line-height: 1.8;
 }
+
+/* 折りたたみ部分のスタイル */
+.artist-bio-collapsed {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.4s ease-out,
+                margin 0.4s ease-out;
+    margin-top: 0;
+}
+
+.artist-bio.is-expanded .artist-bio-collapsed {
+    max-height: 2000px;
+    opacity: 1;
+    margin-top: 0;
+}
+
+/* フェードアウト効果 */
+.artist-bio-fade {
+    position: absolute;
+    bottom: 60px;
+    left: clamp(16px, 4vw, 40px);
+    right: clamp(16px, 4vw, 40px);
+    height: 80px;
+    background: linear-gradient(to bottom, 
+        rgba(5, 5, 5, 0) 0%,
+        rgba(5, 5, 5, 0.7) 30%,
+        rgba(5, 5, 5, 0.95) 70%,
+        rgba(5, 5, 5, 1) 100%);
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.5s ease-out;
+    z-index: 1;
+}
+
+.artist-bio.is-expanded .artist-bio-fade {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* トグルボタン */
+.artist-bio-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 1.5rem;
+    padding: 12px 24px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    color: #fff;
+    font-family: var(--font-jp);
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 2;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.artist-bio-toggle:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-1px);
+}
+
+.artist-bio-toggle:active {
+    transform: translateY(0);
+}
+
+.artist-bio-toggle .toggle-icon {
+    display: inline-block;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 1.1rem;
+}
+
+.artist-bio.is-expanded .artist-bio-toggle .toggle-icon {
+    transform: rotate(180deg);
+}
+
 
 /* --- Info --- */
 .section-heading {
@@ -2810,6 +2900,19 @@ body.hovered .cursor-circle {
 
     .artist-bio p:first-child {
         font-size: 1.15rem;
+    }
+    
+    .artist-bio-fade {
+        bottom: 50px;
+        left: clamp(16px, 4vw, 40px);
+        right: clamp(16px, 4vw, 40px);
+        height: 60px;
+    }
+    
+    .artist-bio-toggle {
+        padding: 10px 20px;
+        font-size: 0.85rem;
+        margin-top: 1rem;
     }
 
     .artist-img-wrapper {

@@ -14,7 +14,10 @@
 
 .keep-together {
     display: inline-block;
-    white-space: nowrap;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    line-break: auto !important;
 }
 
 *,
@@ -46,6 +49,14 @@
         line-break: strict !important;
         overflow-wrap: anywhere !important;
         white-space: normal !important;
+    }
+    
+    /* keep-togetherクラスは改行を防ぐ */
+    .keep-together {
+        white-space: nowrap !important;
+        word-break: keep-all !important;
+        overflow-wrap: normal !important;
+        line-break: auto !important;
     }
 }
 
@@ -1157,6 +1168,15 @@ body {
     word-break: normal;
     overflow-wrap: break-word;
     margin: 0 0 1.2em 0;
+}
+
+/* keep-togetherクラス内は改行を防ぐ */
+.artist-bio p .keep-together {
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    line-break: auto !important;
+    display: inline-block;
 }
 
 /* 最初の段落も同じスタイルに統一 */

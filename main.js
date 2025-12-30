@@ -1343,7 +1343,56 @@ function renderNews(items) {
         // Store original item data for modal
         a.dataset.newsItem = JSON.stringify(item);
 
-        // Modal Click Event
+        // スクロールとクリックを区別するための変数
+        let touchStartY = 0;
+        let touchStartX = 0;
+        let touchStartTime = 0;
+        let wasScrolling = false;
+        const SCROLL_THRESHOLD = 10; // スクロールと判定する移動距離（px）
+        const TAP_TIME_THRESHOLD = 300; // タップと判定する時間（ms）
+
+        // タッチ開始
+        a.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+            touchStartX = e.touches[0].clientX;
+            touchStartTime = Date.now();
+            wasScrolling = false;
+        }, { passive: true });
+
+        // タッチ移動（スクロール検知）
+        a.addEventListener('touchmove', (e) => {
+            if (!touchStartY) return;
+            const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
+            const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
+            // 縦方向の移動が横方向より大きく、かつ閾値を超えた場合はスクロールと判定
+            if (deltaY > SCROLL_THRESHOLD && deltaY > deltaX) {
+                wasScrolling = true;
+            }
+        }, { passive: true });
+
+        // タッチ終了
+        a.addEventListener('touchend', (e) => {
+            const touchDuration = Date.now() - touchStartTime;
+            const hadScrolling = wasScrolling;
+            // リセット
+            touchStartY = 0;
+            touchStartX = 0;
+            touchStartTime = 0;
+            wasScrolling = false;
+            
+            // スクロール中でない、かつ短時間のタップの場合のみクリックとして処理
+            if (!hadScrolling && touchDuration < TAP_TIME_THRESHOLD) {
+                // クリックイベントを手動で発火
+                const clickEvent = new MouseEvent('click', {
+                    bubbles: true,
+                    cancelable: true,
+                    view: window
+                });
+                a.dispatchEvent(clickEvent);
+            }
+        }, { passive: true });
+
+        // Modal Click Event（マウスとタッチの両方に対応）
         a.addEventListener('click', (e) => {
             e.preventDefault();
             if (modal && modal.open) {

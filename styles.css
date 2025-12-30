@@ -1176,6 +1176,7 @@ body {
     border-top: 1px solid #333;
     position: relative;
     z-index: 2;
+    padding: 0 clamp(20px, 5vw, 60px);
 }
 
 .news-item {
@@ -1188,6 +1189,10 @@ body {
     transition: padding 0.3s var(--ease-out), opacity 0.3s;
     align-items: baseline;
     position: relative;
+    touch-action: pan-y;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .news-item:hover {
@@ -3068,6 +3073,10 @@ body.hovered .cursor-circle {
     }
 
     /* News Section (Mobile) */
+    .news-list {
+        padding: 0 clamp(16px, 4vw, 24px);
+    }
+
     .news-item {
         grid-template-columns: 90px 1fr auto;
         padding: 1rem 0;

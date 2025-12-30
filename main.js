@@ -2339,6 +2339,46 @@ function renderRailLP(albums, gridEl, artistId) {
 
     gridEl.innerHTML = cards;
 
+    // すべての展開されているトラックリストを閉じる関数
+    const closeAllTracksLists = () => {
+        gridEl.querySelectorAll('.album-card.is-expanded').forEach(card => {
+            card.classList.remove('is-expanded');
+            const tracksList = card.querySelector('.album-tracks-list');
+            if (tracksList) {
+                gsap.to(tracksList, {
+                    height: 0,
+                    opacity: 0,
+                    duration: 0.3,
+                    ease: 'power2.in',
+                    onComplete: () => {
+                        tracksList.style.display = 'none';
+                    }
+                });
+            }
+        });
+    };
+
+    // discographyセクション内の余白をクリックしたときにトラックリストを閉じる
+    const discographySection = document.getElementById('discography');
+    if (discographySection) {
+        discographySection.addEventListener('click', (e) => {
+            // アルバムカードやその子要素がクリックされた場合は何もしない
+            if (e.target.closest('.album-card')) {
+                return;
+            }
+            // トラックリストアイテムがクリックされた場合も何もしない（再生処理があるため）
+            if (e.target.closest('.track-list-item')) {
+                return;
+            }
+            // 音楽サービスリンクがクリックされた場合も何もしない
+            if (e.target.closest('.discography-streaming-links')) {
+                return;
+            }
+            // その他の要素（余白）がクリックされた場合はトラックリストを閉じる
+            closeAllTracksLists();
+        });
+    }
+
     // album-cardのクリックイベント
     gridEl.querySelectorAll('.album-card').forEach((card) => {
         const imageWrapper = card.querySelector('.album-card-image-wrapper');
@@ -2369,6 +2409,9 @@ function renderRailLP(albums, gridEl, artistId) {
                         }
                     }
                 });
+                
+                // イベントの伝播を防ぐ（余白クリック処理が発動しないように）
+                e.stopPropagation();
                 
                 // このカードのトラックリストを開閉
                 const isExpanded = card.classList.contains('is-expanded');
@@ -2435,7 +2478,7 @@ function renderRailLP(albums, gridEl, artistId) {
                     return;
                 }
                 e.preventDefault();
-                e.stopPropagation();
+                e.stopPropagation(); // 余白クリック処理が発動しないように
                 if (trackId) {
                     // すべてのトラックリストアイテムからis-activeを削除
                     removeAllActiveStates();

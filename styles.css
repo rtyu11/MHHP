@@ -1159,11 +1159,12 @@ body {
     margin: 0 0 1.2em 0;
 }
 
+/* 最初の段落も同じスタイルに統一 */
 .artist-bio p:first-child {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: #fff;
-    line-height: 1.8;
+    font-size: 1rem;
+    font-weight: 400;
+    color: #ccc;
+    line-height: 1.9;
 }
 
 /* 折りたたみ部分のスタイル */
@@ -1181,8 +1182,12 @@ body {
 }
 
 .artist-bio-collapsed p {
-    font-weight: 400 !important;
+    font-size: 1rem;
+    font-weight: 400;
     color: #ccc;
+    line-height: 1.9;
+    letter-spacing: 0.02em;
+    font-family: var(--font-jp);
 }
 
 .artist-bio.is-expanded .artist-bio-collapsed {
@@ -2959,10 +2964,22 @@ body.hovered .cursor-circle {
 
     .artist-bio p {
         line-height: 2.0;
+        font-size: 1rem;
+        font-weight: 400;
+        color: #ccc;
     }
 
     .artist-bio p:first-child {
-        font-size: 1.15rem;
+        font-size: 1rem;
+        font-weight: 400;
+        color: #ccc;
+    }
+    
+    .artist-bio-collapsed p {
+        font-size: 1rem;
+        font-weight: 400;
+        color: #ccc;
+        line-height: 2.0;
     }
     
     .artist-bio-fade {

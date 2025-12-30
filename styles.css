@@ -1718,10 +1718,13 @@ body.news-modal-open .news-item.is-active::after {
 
 .featured-label {
     font-family: var(--font-tech);
-    font-size: 0.75rem;
+    font-size: 1.2rem;
     color: var(--accent);
-    letter-spacing: 0.25em;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
 }
 
 .discography-featured-title {
@@ -1745,22 +1748,8 @@ body.news-modal-open .news-item.is-active::after {
 
 /* 最新リリースのトラックリスト */
 .discography-featured-tracks {
-    grid-column: 1 / -1;
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.tracks-list-header {
-    margin-bottom: 1rem;
-}
-
-.tracks-count {
-    font-family: var(--font-tech);
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.5);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .tracks-list {
@@ -2378,7 +2367,11 @@ body.news-modal-open .news-item.is-active::after {
 
     .discography-featured-tracks {
         margin-top: 1.5rem;
-        padding-top: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .featured-label {
+        font-size: 1rem;
     }
 
     .discography-featured-title {

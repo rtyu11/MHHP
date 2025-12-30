@@ -2231,28 +2231,24 @@ function renderLatestReleaseLP(album, targetEl) {
     targetEl.innerHTML = `
         <div class="discography-featured-content" data-album-id="${escapeHtml(albumId)}">
             <div class="discography-featured-image-wrapper">
-                <div class="featured-badge">${isEnglish ? 'LATEST' : 'NEW'}</div>
                 <img src="${imageUrl}" alt="${escapeHtml(albumName)}" class="discography-featured-image" loading="lazy">
             </div>
             <div class="discography-featured-info">
-                <div class="featured-label">${isEnglish ? 'LATEST RELEASE' : '最新リリース'}</div>
+                <div class="featured-label">New Release!!</div>
                 <h2 class="discography-featured-title">${escapeHtml(albumName)}</h2>
+                ${tracks.length > 0 ? `
+                    <div class="discography-featured-tracks">
+                        <div class="tracks-list">
+                            ${tracksList}
+                        </div>
+                    </div>
+                ` : ''}
                 ${formattedDate ? `
                     <div class="discography-featured-release">
                         <span>${formattedDate}</span>
                     </div>
                 ` : ''}
             </div>
-            ${tracks.length > 0 ? `
-                <div class="discography-featured-tracks">
-                    <div class="tracks-list-header">
-                        <span class="tracks-count">${tracks.length} ${isEnglish ? 'TRACKS' : '曲'}</span>
-                    </div>
-                    <div class="tracks-list">
-                        ${tracksList}
-                    </div>
-                </div>
-            ` : ''}
         </div>
     `;
 

@@ -1930,7 +1930,8 @@ function renderNews(items) {
                     // 展開：スクロールコンテナを表示
                     scrollContainer.style.display = 'block';
                     const isMobile = window.matchMedia('(max-width: 768px)').matches;
-                    const maxHeight = isMobile ? '400px' : '600px';
+                    const maxHeight = isMobile ? '300px' : '500px';
+                    const padding = isMobile ? '1rem' : '1.5rem';
                     // レイアウトを確定させるために少し待機
                     setTimeout(() => {
                         scrollContainer.classList.add('is-expanded');
@@ -1946,8 +1947,8 @@ function renderNews(items) {
                                 opacity: 1, 
                                 maxHeight: maxHeight,
                                 marginTop: '1rem',
-                                paddingTop: '1rem',
-                                paddingBottom: '1rem',
+                                paddingTop: padding,
+                                paddingBottom: padding,
                                 duration: 0.4, 
                                 ease: 'power2.out'
                             }

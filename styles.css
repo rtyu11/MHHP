@@ -3687,6 +3687,8 @@ body.hovered .cursor-circle {
     border-top: none;
     border-bottom: none;
     opacity: 0;
+    background: transparent;
+    border-radius: 0;
     /* スクロールバーのスタイル */
     scrollbar-width: thin;
     scrollbar-color: rgba(212, 175, 55, 0.5) transparent;
@@ -3695,9 +3697,14 @@ body.hovered .cursor-circle {
 .news-more-scroll-container.is-expanded {
     overflow-y: auto;
     margin-top: 1rem;
-    padding: 1rem 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(30, 30, 30, 0.6);
+    border-radius: 8px;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3), 0 2px 12px rgba(0, 0, 0, 0.2);
 }
 
 .news-more-scroll-container::-webkit-scrollbar {
@@ -3720,10 +3727,11 @@ body.hovered .cursor-circle {
 /* モバイル版では高さを調整 */
 @media (max-width: 768px) {
     .news-more-scroll-container {
-        max-height: 400px;
+        max-height: 300px;
     }
     
     .news-more-scroll-container.is-expanded {
-        max-height: 400px;
+        max-height: 300px;
+        padding: 1rem;
     }
 }

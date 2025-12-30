@@ -1971,6 +1971,30 @@ function renderNews(items) {
                         onComplete: () => {
                             scrollContainer.style.display = 'none';
                             scrollContainer.classList.remove('is-expanded');
+                            
+                            // +ボタンが画面中央に来るようにスクロール位置を調整
+                            setTimeout(() => {
+                                const moreBtnRect = currentMoreBtn.getBoundingClientRect();
+                                const scrollY = window.scrollY || window.pageYOffset || 0;
+                                const moreBtnTop = moreBtnRect.top + scrollY;
+                                
+                                // 画面の中央に来るように調整
+                                const viewportHeight = window.innerHeight;
+                                const targetScroll = moreBtnTop - (viewportHeight / 2) + (moreBtnRect.height / 2);
+                                
+                                if (lenis) {
+                                    lenis.scrollTo(targetScroll, {
+                                        duration: 0.6,
+                                        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                                        offset: 0
+                                    });
+                                } else {
+                                    window.scrollTo({
+                                        top: targetScroll,
+                                        behavior: 'smooth'
+                                    });
+                                }
+                            }, 100);
                         }
                     });
                     const iconEl = currentMoreBtn.querySelector('.news-more-icon');

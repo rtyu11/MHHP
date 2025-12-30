@@ -3724,6 +3724,23 @@ body.hovered .cursor-circle {
     background: rgba(212, 175, 55, 0.7);
 }
 
+/* スクロールウィンドウ内の記事のスタイルを調整（5記事程度収まるように） */
+.news-more-scroll-container .news-item {
+    padding: 1rem 0;
+    margin-bottom: 0.25rem;
+    border-bottom: 1px solid rgba(51, 51, 51, 0.6);
+    grid-template-columns: 120px 1fr auto;
+}
+
+.news-more-scroll-container .news-title {
+    font-size: 1.2rem;
+    line-height: 1.4;
+}
+
+.news-more-scroll-container .news-date {
+    font-size: 0.75rem;
+}
+
 /* モバイル版では高さを調整 */
 @media (max-width: 768px) {
     .news-more-scroll-container {
@@ -3733,5 +3750,20 @@ body.hovered .cursor-circle {
     .news-more-scroll-container.is-expanded {
         max-height: 300px;
         padding: 1rem;
+    }
+    
+    .news-more-scroll-container .news-item {
+        padding: 0.75rem 0;
+        margin-bottom: 0.2rem;
+        grid-template-columns: 80px 1fr auto;
+    }
+    
+    .news-more-scroll-container .news-title {
+        font-size: 1rem;
+        line-height: 1.3;
+    }
+    
+    .news-more-scroll-container .news-date {
+        font-size: 0.7rem;
     }
 }

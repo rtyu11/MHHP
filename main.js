@@ -1242,27 +1242,6 @@ function initAnimations() {
         });
     });
 
-    // アーティスト画像のスクロールベースの色変化アニメーション
-    const artistSection = document.querySelector('#artist');
-    const artistPhotos = document.querySelectorAll('.artist-photo');
-    
-    if (artistSection && artistPhotos.length > 0) {
-        artistPhotos.forEach(photo => {
-            gsap.to(photo, {
-                filter: 'grayscale(0%) contrast(1.1)',
-                ease: 'none',
-                scrollTrigger: {
-                    trigger: artistSection,
-                    start: 'top 80%', // セクションが80%の位置に来たら開始
-                    end: 'bottom 20%', // セクションの下部20%の位置で完了
-                    scrub: isAndroid ? 0.5 : true, // スクロールに連動（Androidでは軽量化）
-                    once: false, // 往復アニメのため false
-                    ...scrollTriggerDefaults
-                }
-            });
-        });
-    }
-
     const bioLines = document.querySelectorAll('.artist-bio-text, .artist-bio-lead');
 
     // スマホでの不自然な改行を防ぐため、レイアウトが確定するまでわずかに待機

@@ -1119,7 +1119,7 @@ body {
     height: 100%;
     object-fit: cover;
     filter: grayscale(100%) contrast(1.2);
-    /* transitionは削除（スクロールアニメーションで制御するため） */
+    transition: filter 0.5s ease;
     /* Android向けのパフォーマンス最適化 */
     transform: translateZ(0);
     will-change: transform, filter;
@@ -1131,7 +1131,9 @@ body {
     image-rendering: -webkit-optimize-contrast;
 }
 
-/* ホバー効果は削除（スクロールベースの変化に統一） */
+.artist-photo:hover {
+    filter: grayscale(0%) contrast(1.1);
+}
 
 .artist-text-wrapper {
     display: flex;

@@ -2020,8 +2020,10 @@ function renderNews(items) {
             let touchStartY = 0;
             let lastTouchY = 0;
             let isScrollingContainer = false;
+            let allowPageScroll = false;
+            let initialScrollY = 0;
 
-            scrollContainer.addEventListener('touchstart', (e) => {
+            const handleTouchStart = (e) => {
                 if (!scrollContainer.classList.contains('is-expanded')) {
                     return;
                 }
@@ -2029,9 +2031,11 @@ function renderNews(items) {
                 touchStartY = e.touches[0].clientY;
                 lastTouchY = touchStartY;
                 isScrollingContainer = false;
-            }, { passive: true });
+                allowPageScroll = false;
+                initialScrollY = window.scrollY || window.pageYOffset || 0;
+            };
 
-            scrollContainer.addEventListener('touchmove', (e) => {
+            const handleTouchMove = (e) => {
                 if (!scrollContainer.classList.contains('is-expanded')) {
                     return;
                 }
@@ -2044,7 +2048,7 @@ function renderNews(items) {
                 const maxScroll = Math.max(0, scrollHeight - clientHeight);
 
                 // スクロール可能かチェック（少し余裕を持たせる）
-                const threshold = 3; // 3pxの余裕
+                const threshold = 1; // 1pxの余裕
                 const isAtTop = scrollTop <= threshold;
                 const isAtBottom = scrollTop >= maxScroll - threshold;
                 const canScrollDown = scrollTop < maxScroll - threshold;
@@ -2056,59 +2060,76 @@ function renderNews(items) {
 
                 // 下方向にスクロールしようとしている場合
                 if (isScrollingDown) {
-                    // 最下部に達している場合は、ページスクロールに移行（何もせずにイベントを伝播）
+                    // 最下部に達している場合は、ページスクロールに移行
                     if (isAtBottom) {
                         isScrollingContainer = false;
+                        allowPageScroll = true;
+                        // preventDefaultを呼ばず、イベントを親要素に伝播
+                        // 親要素（window）に直接スクロールイベントを送る
+                        const currentScrollY = window.scrollY || window.pageYOffset || 0;
+                        const pageScrollDelta = -deltaY; // 下方向なので負の値
+                        window.scrollTo({
+                            top: currentScrollY + pageScrollDelta,
+                            behavior: 'auto'
+                        });
                         lastTouchY = touchY;
-                        // preventDefaultもstopPropagationも呼ばず、イベントをそのまま伝播させる
                         return;
                     }
                     // スクロール可能な場合は、コンテナ内でスクロール
                     if (canScrollDown) {
                         e.preventDefault();
+                        e.stopPropagation();
                         isScrollingContainer = true;
+                        allowPageScroll = false;
                         const newScrollTop = Math.max(0, Math.min(maxScroll, scrollTop - deltaY));
                         scrollContainer.scrollTop = newScrollTop;
-                        lastTouchY = touchY;
-                    } else {
-                        // スクロールできない場合は、ページスクロールに移行
-                        isScrollingContainer = false;
                         lastTouchY = touchY;
                     }
                 }
                 // 上方向にスクロールしようとしている場合
                 else if (isScrollingUp) {
-                    // 最上部に達している場合は、ページスクロールに移行（何もせずにイベントを伝播）
+                    // 最上部に達している場合は、ページスクロールに移行
                     if (isAtTop) {
                         isScrollingContainer = false;
+                        allowPageScroll = true;
+                        // preventDefaultを呼ばず、イベントを親要素に伝播
+                        // 親要素（window）に直接スクロールイベントを送る
+                        const currentScrollY = window.scrollY || window.pageYOffset || 0;
+                        const pageScrollDelta = -deltaY; // 上方向なので正の値
+                        window.scrollTo({
+                            top: currentScrollY + pageScrollDelta,
+                            behavior: 'auto'
+                        });
                         lastTouchY = touchY;
-                        // preventDefaultもstopPropagationも呼ばず、イベントをそのまま伝播させる
                         return;
                     }
                     // スクロール可能な場合は、コンテナ内でスクロール
                     if (canScrollUp) {
                         e.preventDefault();
+                        e.stopPropagation();
                         isScrollingContainer = true;
+                        allowPageScroll = false;
                         const newScrollTop = Math.max(0, Math.min(maxScroll, scrollTop - deltaY));
                         scrollContainer.scrollTop = newScrollTop;
-                        lastTouchY = touchY;
-                    } else {
-                        // スクロールできない場合は、ページスクロールに移行
-                        isScrollingContainer = false;
                         lastTouchY = touchY;
                     }
                 } else {
                     // deltaYが0に近い場合は、位置を更新するだけ
                     lastTouchY = touchY;
                 }
-            }, { passive: false });
+            };
 
-            scrollContainer.addEventListener('touchend', (e) => {
+            const handleTouchEnd = (e) => {
                 if (!scrollContainer.classList.contains('is-expanded')) {
                     return;
                 }
                 isScrollingContainer = false;
-            }, { passive: true });
+                allowPageScroll = false;
+            };
+
+            scrollContainer.addEventListener('touchstart', handleTouchStart, { passive: true });
+            scrollContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
+            scrollContainer.addEventListener('touchend', handleTouchEnd, { passive: true });
         }
 
         // 「もっと見る」ボタンのイベント（重複防止）

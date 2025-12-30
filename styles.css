@@ -69,7 +69,7 @@
         word-break: keep-all !important;
         overflow-wrap: normal !important;
         display: inline-block;
-        max-width: calc(100% - 0.2em);
+        max-width: calc(100% - 0.5em);
         box-sizing: border-box;
     }
 }
@@ -1159,7 +1159,7 @@ body {
 .artist-bio {
     max-width: 780px;
     margin: 0 auto;
-    padding: 0 clamp(16px, 4vw, 40px);
+    padding: 0 clamp(20px, 5vw, 48px);
     position: relative;
     width: 100%;
     box-sizing: border-box;
@@ -1201,7 +1201,7 @@ body {
     overflow-wrap: normal !important;
     line-break: auto !important;
     display: inline-block;
-    max-width: calc(100% - 0.2em);
+    max-width: calc(100% - 0.5em);
     box-sizing: border-box;
     vertical-align: baseline;
 }
@@ -3029,7 +3029,7 @@ body.hovered .cursor-circle {
 
     .artist-bio {
         max-width: 100%;
-        padding: 0 1rem;
+        padding: 0 1.25rem;
         overflow-x: hidden;
         box-sizing: border-box;
         word-wrap: break-word;
@@ -3050,7 +3050,7 @@ body.hovered .cursor-circle {
         word-break: keep-all !important;
         overflow-wrap: normal !important;
         display: inline-block;
-        max-width: calc(100% - 0.2em);
+        max-width: calc(100% - 0.5em);
         box-sizing: border-box;
         position: relative;
     }

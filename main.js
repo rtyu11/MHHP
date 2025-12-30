@@ -1919,7 +1919,10 @@ function renderNews(items) {
                     currentMoreBtn.setAttribute('aria-label', collapseLabel);
                 } else {
                     // 折りたたみ
-                    expandedItems.forEach(item => {
+                    const itemCount = expandedItems.length;
+                    let completedCount = 0;
+                    
+                    expandedItems.forEach((item, index) => {
                         gsap.to(item, {
                             opacity: 0,
                             y: -20,
@@ -1927,6 +1930,29 @@ function renderNews(items) {
                             ease: 'power2.in',
                             onComplete: () => {
                                 item.classList.add('news-item-hidden');
+                                completedCount++;
+                                
+                                // すべてのアニメーションが完了したら、+ボタンの位置までスクロール
+                                if (completedCount === itemCount) {
+                                    setTimeout(() => {
+                                        const moreBtnRect = currentMoreBtn.getBoundingClientRect();
+                                        const scrollY = window.scrollY || window.pageYOffset || 0;
+                                        const moreBtnTop = moreBtnRect.top + scrollY;
+                                        
+                                        if (lenis) {
+                                            lenis.scrollTo(moreBtnTop - 100, {
+                                                duration: 0.6,
+                                                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                                                offset: 0
+                                            });
+                                        } else {
+                                            window.scrollTo({
+                                                top: moreBtnTop - 100,
+                                                behavior: 'smooth'
+                                            });
+                                        }
+                                    }, 100);
+                                }
                             }
                         });
                     });

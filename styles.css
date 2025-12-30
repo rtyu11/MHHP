@@ -2995,15 +2995,31 @@ body.hovered .cursor-circle {
         cursor: auto;
     }
 
+    /* News Section (Mobile) */
+    .news-item {
+        grid-template-columns: 90px 1fr auto;
+        padding: 1rem 0;
+        gap: 0.75rem;
+    }
+
+    .news-date {
+        font-size: 0.7rem;
+    }
+
+    .news-title {
+        font-size: 1.1rem;
+        line-height: 1.4;
+    }
+
     /* News More Button (Mobile) */
     .news-more-wrapper {
-        margin-top: 2rem;
-        padding: 1.5rem 0;
+        margin-top: 1rem;
+        padding: 1rem 0;
     }
 
     .news-more-btn {
-        padding: 1rem 2rem;
-        font-size: 0.85rem;
+        padding: 0.85rem 1.5rem;
+        font-size: 0.8rem;
         min-height: 44px;
         touch-action: manipulation;
         -webkit-tap-highlight-color: rgba(212, 175, 55, 0.2);

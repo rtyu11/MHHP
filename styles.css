@@ -3676,3 +3676,54 @@ body.hovered .cursor-circle {
     display: block;
     color: inherit;
 }
+
+/* --- News More Scroll Container --- */
+.news-more-scroll-container {
+    max-height: 0;
+    overflow-y: hidden;
+    overflow-x: hidden;
+    margin-top: 0;
+    padding: 0;
+    border-top: none;
+    border-bottom: none;
+    opacity: 0;
+    /* スクロールバーのスタイル */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(212, 175, 55, 0.5) transparent;
+}
+
+.news-more-scroll-container.is-expanded {
+    overflow-y: auto;
+    margin-top: 1rem;
+    padding: 1rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.news-more-scroll-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.news-more-scroll-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.news-more-scroll-container::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.5);
+    border-radius: 3px;
+}
+
+.news-more-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(212, 175, 55, 0.7);
+}
+
+/* モバイル版では高さを調整 */
+@media (max-width: 768px) {
+    .news-more-scroll-container {
+        max-height: 400px;
+    }
+    
+    .news-more-scroll-container.is-expanded {
+        max-height: 400px;
+    }
+}

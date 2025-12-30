@@ -1902,11 +1902,19 @@ function renderNews(items) {
     if (remainingItems.length > 0 && moreWrapper && moreBtn) {
         moreWrapper.style.display = 'block';
         
-        // 残りのアイテムを非表示で追加
+        // 追加記事用のスクロールコンテナを作成
+        const scrollContainer = document.createElement('div');
+        scrollContainer.className = 'news-more-scroll-container';
+        scrollContainer.style.display = 'none'; // 初期状態は非表示
+        
+        // 残りのアイテムをスクロールコンテナ内に追加
         remainingItems.forEach(item => {
-            const hiddenItem = createNewsItem(item, true);
-            container.appendChild(hiddenItem);
+            const hiddenItem = createNewsItem(item, false);
+            scrollContainer.appendChild(hiddenItem);
         });
+        
+        // スクロールコンテナを「もっと見る」ボタンの前に挿入
+        moreWrapper.parentNode.insertBefore(scrollContainer, moreWrapper);
 
         // 「もっと見る」ボタンのイベント（重複防止）
         // 既存のイベントリスナーを削除
@@ -1916,71 +1924,54 @@ function renderNews(items) {
         
         if (!currentMoreBtn.dataset.initialized) {
             currentMoreBtn.addEventListener('click', () => {
-                const allItems = container.querySelectorAll('.news-item');
-                const initialCount = initialItems.length;
-                const expandedItems = Array.from(allItems).slice(initialCount);
-                
                 const isExpanded = currentMoreBtn.dataset.expanded === 'true';
                 
                 if (!isExpanded) {
-                    // 展開
-                    expandedItems.forEach(item => {
-                        item.classList.remove('news-item-hidden');
-                        gsap.fromTo(item, 
-                            { opacity: 0, y: -20 },
-                            { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }
+                    // 展開：スクロールコンテナを表示
+                    scrollContainer.style.display = 'block';
+                    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+                    const maxHeight = isMobile ? '400px' : '600px';
+                    // レイアウトを確定させるために少し待機
+                    setTimeout(() => {
+                        scrollContainer.classList.add('is-expanded');
+                        gsap.fromTo(scrollContainer, 
+                            { 
+                                opacity: 0, 
+                                maxHeight: 0,
+                                marginTop: 0,
+                                paddingTop: 0,
+                                paddingBottom: 0
+                            },
+                            { 
+                                opacity: 1, 
+                                maxHeight: maxHeight,
+                                marginTop: '1rem',
+                                paddingTop: '1rem',
+                                paddingBottom: '1rem',
+                                duration: 0.4, 
+                                ease: 'power2.out'
+                            }
                         );
-                    });
+                    }, 10);
                     const iconEl = currentMoreBtn.querySelector('.news-more-icon');
                     if (iconEl) iconEl.textContent = '−';
                     currentMoreBtn.dataset.expanded = 'true';
                     const collapseLabel = getNestedValue(translations[currentLang], 'news.collapseButton') || (currentLang === 'ja' ? '折りたたむ' : 'Show Less');
                     currentMoreBtn.setAttribute('aria-label', collapseLabel);
                 } else {
-                    // 折りたたみ
-                    const itemCount = expandedItems.length;
-                    let completedCount = 0;
-                    
-                    expandedItems.forEach((item, index) => {
-                        gsap.to(item, {
-                            opacity: 0,
-                            y: -20,
-                            duration: 0.3,
-                            ease: 'power2.in',
-                            onComplete: () => {
-                                item.classList.add('news-item-hidden');
-                                completedCount++;
-                                
-                                // すべてのアニメーションが完了したら、+ボタンの位置までスクロール
-                                if (completedCount === itemCount) {
-                                    setTimeout(() => {
-                                        const moreBtnRect = currentMoreBtn.getBoundingClientRect();
-                                        const scrollY = window.scrollY || window.pageYOffset || 0;
-                                        const moreBtnTop = moreBtnRect.top + scrollY;
-                                        
-                                        // モバイル版では画面の中央に来るように調整
-                                        const isMobile = window.matchMedia('(max-width: 900px)').matches;
-                                        const viewportHeight = window.innerHeight;
-                                        const targetScroll = isMobile 
-                                            ? moreBtnTop - (viewportHeight / 2) 
-                                            : moreBtnTop - 100;
-                                        
-                                        if (lenis) {
-                                            lenis.scrollTo(targetScroll, {
-                                                duration: 0.6,
-                                                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-                                                offset: 0
-                                            });
-                                        } else {
-                                            window.scrollTo({
-                                                top: targetScroll,
-                                                behavior: 'smooth'
-                                            });
-                                        }
-                                    }, 100);
-                                }
-                            }
-                        });
+                    // 折りたたみ：スクロールコンテナを非表示
+                    gsap.to(scrollContainer, {
+                        opacity: 0,
+                        maxHeight: 0,
+                        marginTop: 0,
+                        paddingTop: 0,
+                        paddingBottom: 0,
+                        duration: 0.3,
+                        ease: 'power2.in',
+                        onComplete: () => {
+                            scrollContainer.style.display = 'none';
+                            scrollContainer.classList.remove('is-expanded');
+                        }
                     });
                     const iconEl = currentMoreBtn.querySelector('.news-more-icon');
                     if (iconEl) iconEl.textContent = '+';

@@ -1167,7 +1167,7 @@ body {
     line-height: 1.9;
 }
 
-/* 折りたたみ部分のスタイル */
+/* 折りたたみ部分のスタイル（モバイル用） */
 .artist-bio:not(.is-expanded) .artist-bio-collapsed {
     max-height: 0 !important;
     overflow: hidden !important;
@@ -1179,6 +1179,27 @@ body {
                 visibility 0s linear 0.4s;
     margin-top: 0;
     display: block;
+}
+
+/* PCサイズでは常に全文表示 */
+@media (min-width: 901px) {
+    .artist-bio:not(.is-expanded) .artist-bio-collapsed {
+        max-height: none !important;
+        overflow: visible !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        transition: none;
+        margin-top: 0;
+        display: block;
+    }
+    
+    .artist-bio-fade {
+        display: none !important;
+    }
+    
+    .artist-bio-toggle {
+        display: none !important;
+    }
 }
 
 .artist-bio-collapsed p {

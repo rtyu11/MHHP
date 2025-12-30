@@ -842,7 +842,16 @@ function initArtistBioToggle() {
     
     if (!artistBio) return;
     
-    // 初期状態を確実に折りたたみ状態にする
+    // PCサイズでは折りたたみ機能を無効化
+    const isMobile = window.matchMedia('(max-width: 900px)').matches;
+    
+    // PCサイズでは常に展開状態にする
+    if (!isMobile) {
+        artistBio.classList.add('is-expanded');
+        return; // PCサイズではイベントリスナーを追加しない
+    }
+    
+    // 初期状態を確実に折りたたみ状態にする（モバイルのみ）
     artistBio.classList.remove('is-expanded');
     
     // フェードエリアの位置を保存（折りたたみ時にスクロール位置を戻すため）
@@ -944,6 +953,18 @@ function initArtistBioToggle() {
         fadeArea.setAttribute('aria-expanded', 'false');
         fadeArea.setAttribute('aria-label', currentLang === 'ja' ? '全文を表示' : 'Show full text');
     }
+    
+    // リサイズ時の処理（PCサイズになったら展開状態にする）
+    const handleResize = () => {
+        const isMobileNow = window.matchMedia('(max-width: 900px)').matches;
+        if (!isMobileNow) {
+            artistBio.classList.add('is-expanded');
+        } else if (!artistBio.classList.contains('is-expanded')) {
+            artistBio.classList.remove('is-expanded');
+        }
+    };
+    
+    window.addEventListener('resize', handleResize, { passive: true });
 }
 
 // アーティスト説明文トグルボタンのテキストを更新

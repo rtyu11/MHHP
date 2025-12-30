@@ -2159,7 +2159,6 @@ canvas#distortionCanvas {
     display: flex;
     flex-direction: column;
     gap: 3.5rem;
-    padding-top: 2rem;
     position: relative;
 }
 
@@ -2191,7 +2190,19 @@ canvas#distortionCanvas {
     opacity: 0.9;
 }
 
-.form-group input,
+.form-group input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 1.6rem;
+    font-family: var(--font-main);
+    padding: 0.8rem 0;
+    outline: none;
+    font-style: italic;
+    transition: color 0.3s var(--ease-out);
+}
+
 .form-group textarea {
     width: 100%;
     background: transparent;
@@ -2203,6 +2214,9 @@ canvas#distortionCanvas {
     outline: none;
     font-style: italic;
     transition: color 0.3s var(--ease-out);
+    min-height: 12rem;
+    resize: vertical;
+    line-height: 1.6;
 }
 
 .form-group input:focus,
@@ -2327,7 +2341,6 @@ canvas#distortionCanvas {
     letter-spacing: 0.15em;
     text-transform: uppercase;
     transition: transform 0.3s var(--ease-out), border 0.3s var(--ease-out), color 0.3s var(--ease-out);
-    margin-top: 1rem;
     position: relative;
     overflow: hidden;
     box-shadow: 0 20px 45px rgba(0, 0, 0, 0.55);
@@ -3001,11 +3014,17 @@ body.hovered .cursor-circle {
     }
 
     /* フォームグループの最適化 */
-    .form-group input,
-    .form-group textarea {
+    .form-group input {
         min-height: 44px;
         /* タッチターゲットサイズ */
         padding: 1rem;
+    }
+
+    .form-group textarea {
+        min-height: 10rem;
+        /* メッセージ欄の高さを確保 */
+        padding: 1rem;
+        line-height: 1.6;
     }
 
     /* 送信ボタンの最適化 */

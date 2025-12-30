@@ -1944,12 +1944,22 @@ body.news-modal-open .news-item.is-active::after {
 .album-card.is-expanded:not(.is-zoomed) .album-tracks-list {
     height: auto;
     opacity: 1;
+    padding: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .album-card.is-expanded.is-zoomed .album-tracks-list {
     /* 拡大時はJavaScriptで制御するため、CSSでは自動表示しない */
     height: 0;
     opacity: 0;
+    padding: 0;
+    border-top: none;
+}
+
+.album-card.is-expanded.is-zoomed .album-tracks-list[style*="display: block"],
+.album-card.is-expanded.is-zoomed .album-tracks-list[style*="display:block"] {
+    padding: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .album-card.is-expanded:not(.is-zoomed) .album-card-image-wrapper {
@@ -2030,8 +2040,8 @@ body.news-modal-open .news-item.is-active::after {
 }
 
 .album-tracks-list {
-    padding: 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0;
+    border-top: none;
     background: rgba(0, 0, 0, 0.2);
     max-height: 400px;
     overflow-y: auto;
@@ -2040,6 +2050,12 @@ body.news-modal-open .news-item.is-active::after {
     scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
     height: 0;
     opacity: 0;
+    transition: height 0.4s ease, opacity 0.4s ease, padding 0.4s ease, border-top 0.4s ease;
+}
+
+.album-card.is-expanded .album-tracks-list {
+    padding: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .album-tracks-list::-webkit-scrollbar {

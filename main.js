@@ -2357,10 +2357,13 @@ function renderRailLP(albums, gridEl, artistId) {
                         gsap.to(tracksList, {
                             height: 0,
                             opacity: 0,
+                            padding: 0,
                             duration: 0.3,
                             ease: 'power2.in',
                             onComplete: () => {
                                 tracksList.style.display = 'none';
+                                tracksList.style.padding = '0';
+                                tracksList.style.borderTop = 'none';
                             }
                         });
                     }
@@ -2375,10 +2378,13 @@ function renderRailLP(albums, gridEl, artistId) {
                                 gsap.to(otherTracksList, {
                                     height: 0,
                                     opacity: 0,
+                                    padding: 0,
                                     duration: 0.3,
                                     ease: 'power2.in',
                                     onComplete: () => {
                                         otherTracksList.style.display = 'none';
+                                        otherTracksList.style.padding = '0';
+                                        otherTracksList.style.borderTop = 'none';
                                     }
                                 });
                             }
@@ -2400,6 +2406,8 @@ function renderRailLP(albums, gridEl, artistId) {
                         setTimeout(() => {
                             card.classList.add('is-expanded');
                             tracksList.style.display = 'block';
+                            tracksList.style.padding = '1rem';
+                            tracksList.style.borderTop = '1px solid rgba(255, 255, 255, 0.1)';
                             // レイアウトを確定させるために少し待機
                             setTimeout(() => {
                                 gsap.fromTo(tracksList, 
@@ -2439,10 +2447,13 @@ function renderRailLP(albums, gridEl, artistId) {
                         gsap.to(tracksList, {
                             height: 0,
                             opacity: 0,
+                            padding: 0,
                             duration: 0.3,
                             ease: 'power2.in',
                             onComplete: () => {
                                 tracksList.style.display = 'none';
+                                tracksList.style.padding = '0';
+                                tracksList.style.borderTop = 'none';
                             }
                         });
                     }

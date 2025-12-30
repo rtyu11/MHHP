@@ -1011,16 +1011,16 @@ function initAnimations() {
     const isMobile = window.matchMedia('(max-width: 900px)').matches;
     
     // Android向けにScrollTriggerの設定を最適化
+    // 注意: once は scrollTriggerDefaults から削除（Hero のような往復アニメには適用しない）
     const scrollTriggerDefaults = {
         markers: false,
         // Android向けにrefreshPriorityを下げてパフォーマンス向上
         refreshPriority: isAndroid ? -1 : 0,
-        // Android向けにonceをtrueにしてアニメーションを1回のみ実行
-        once: isAndroid,
         // Android向けにinvalidateOnRefreshをfalseにしてパフォーマンス向上
         invalidateOnRefresh: !isAndroid,
     };
 
+    // Hero のパララックスアニメーション（スクロールで往復する必要があるため once: false を明示）
     gsap.to('.hero-bg-container', {
         yPercent: 30, ease: 'none',
         scrollTrigger: { 
@@ -1028,6 +1028,7 @@ function initAnimations() {
             start: 'top top', 
             end: 'bottom top', 
             scrub: isAndroid ? 0.5 : true, // Androidではscrubを軽量化
+            once: false, // 往復アニメのため必ず false
             ...scrollTriggerDefaults
         }
     });
@@ -1047,6 +1048,7 @@ function initAnimations() {
             scrollTrigger: { 
                 trigger: char, 
                 start: 'top 80%',
+                once: isAndroid, // 一度だけ再生する演出
                 ...scrollTriggerDefaults
             }
         });
@@ -1060,6 +1062,7 @@ function initAnimations() {
             scrollTrigger: { 
                 trigger: mask, 
                 start: 'top 85%',
+                once: isAndroid, // 一度だけ再生する演出
                 ...scrollTriggerDefaults
             }
         });
@@ -1079,6 +1082,7 @@ function initAnimations() {
                 scrollTrigger: { 
                     trigger: block, 
                     start: "top 85%",
+                    once: isAndroid, // 一度だけ再生する演出
                     ...scrollTriggerDefaults
                 }
             });
@@ -1110,9 +1114,14 @@ function initDistortionCanvas() {
     }
     draw();
 
+    const isAndroid = /Android/i.test(navigator.userAgent);
     gsap.from('.statement-text', {
         y: 50, opacity: 0, duration: 1.5, ease: 'power3.out',
-        scrollTrigger: { trigger: '.visual-break', start: 'center 70%' }
+        scrollTrigger: { 
+            trigger: '.visual-break', 
+            start: 'center 70%',
+            once: isAndroid // 一度だけ再生する演出
+        }
     });
 }
 

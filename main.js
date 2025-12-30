@@ -2494,6 +2494,13 @@ function renderRailLP(albums, gridEl, artistId) {
 }
 
 
+// すべてのis-activeクラスを削除する関数
+function removeAllActiveStates() {
+    document.querySelectorAll('.track-list-item.is-active').forEach(el => {
+        el.classList.remove('is-active');
+    });
+}
+
 // グローバルなSpotifyプレーヤーを表示（フッター固定）
 function showGlobalSpotifyPlayer(trackId) {
     let playerEl = document.getElementById('spotify-global-player');
@@ -2509,6 +2516,7 @@ function showGlobalSpotifyPlayer(trackId) {
         `;
         document.body.appendChild(playerEl);
 
+        // 閉じるボタンのクリックイベント
         playerEl.querySelector('.spotify-player-close').addEventListener('click', () => {
             playerEl.classList.remove('active');
             playerEl.querySelector('.spotify-player-embed').innerHTML = '';
@@ -2518,7 +2526,50 @@ function showGlobalSpotifyPlayer(trackId) {
             document.querySelectorAll('.track-card.is-playing, .discography-featured-content.is-playing').forEach(el => {
                 el.classList.remove('is-playing');
             });
+            
+            // すべてのis-activeを解除
+            removeAllActiveStates();
         });
+
+        // プレーヤーの外側（ページの他の部分）をクリックしたときに閉じる
+        const handleOutsideClick = (e) => {
+            // プレーヤー自体やその子要素がクリックされた場合は何もしない
+            if (playerEl.contains(e.target)) {
+                return;
+            }
+            
+            // プレーヤーがアクティブな場合のみ閉じる
+            if (playerEl.classList.contains('active')) {
+                playerEl.classList.remove('active');
+                playerEl.querySelector('.spotify-player-embed').innerHTML = '';
+                currentEmbedTrackId = null;
+
+                // すべてのis-playingを解除
+                document.querySelectorAll('.track-card.is-playing, .discography-featured-content.is-playing').forEach(el => {
+                    el.classList.remove('is-playing');
+                });
+                
+                // すべてのis-activeを解除
+                removeAllActiveStates();
+            }
+        };
+        
+        // プレーヤーがアクティブなときのみ外側クリックを監視
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'class') {
+                    if (playerEl.classList.contains('active')) {
+                        // プレーヤーがアクティブになったら外側クリックを監視
+                        document.addEventListener('click', handleOutsideClick);
+                    } else {
+                        // プレーヤーが非アクティブになったら外側クリックの監視を解除
+                        document.removeEventListener('click', handleOutsideClick);
+                    }
+                }
+            });
+        });
+        
+        observer.observe(playerEl, { attributes: true, attributeFilter: ['class'] });
     }
 
     const embedContainer = playerEl.querySelector('.spotify-player-embed');
@@ -2533,6 +2584,9 @@ function showGlobalSpotifyPlayer(trackId) {
         document.querySelectorAll('.track-card.is-playing, .discography-featured-content.is-playing').forEach(el => {
             el.classList.remove('is-playing');
         });
+        
+        // すべてのis-activeを解除
+        removeAllActiveStates();
         return;
     }
 

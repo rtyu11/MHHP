@@ -2658,34 +2658,41 @@ canvas#distortionCanvas {
 .footer-links {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 300px;
     gap: 0;
 }
 
 .footer-links a {
-    color: #fff;
+    color: var(--accent, #d4af37);
     text-decoration: none;
-    margin-right: 2rem;
     font-family: var(--font-tech);
     font-size: 0.8rem;
     letter-spacing: 0.1em;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
+    flex: 1;
+    text-align: center;
 }
 
 .footer-links i {
-    font-size: 1.2em;
+    font-size: 1.8em;
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    color: var(--accent, #d4af37);
 }
 
 .footer-links a:hover {
-    color: var(--accent);
+    color: var(--accent, #d4af37);
+    opacity: 0.8;
 }
 
-/* ホバーでゴールドに */
+/* ホバーで拡大 */
 .footer-links a:hover i {
-    transform: scale(1.3);
+    transform: scale(1.2);
 }
 
 /* アイコン拡大 */
@@ -3027,13 +3034,15 @@ body.hovered .cursor-circle {
     .footer-links {
         display: flex;
         align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        max-width: 200px;
         gap: 0;
         flex-shrink: 0;
     }
 
     /* SNSリンクのテキストを非表示（アイコンのみ） */
     .footer-links a {
-        margin-right: 0.8rem;
         font-size: 0.7rem;
         display: inline-flex;
         align-items: center;
@@ -3042,19 +3051,22 @@ body.hovered .cursor-circle {
         text-indent: -9999px;
         overflow: hidden;
         width: auto;
-        padding: 0.3rem;
-        min-width: 32px;
-        height: 32px;
+        padding: 0.4rem;
+        min-width: 40px;
+        height: 40px;
+        flex: 1;
+        color: var(--accent, #d4af37);
     }
 
     .footer-links a i {
-        font-size: 1.1em;
+        font-size: 1.6em;
         margin: 0;
         position: absolute;
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
         text-indent: 0;
+        color: var(--accent, #d4af37);
     }
 
     .privacy-link {

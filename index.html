@@ -38,7 +38,7 @@
     <div class="loader">
         <img class="loader-flash" src="" alt="" aria-hidden="true">
         <div class="loader-counter"></div>
-        <div class="loader-text">NOW LOADING...</div>
+        <div class="loader-text" data-i18n="loader.loading">NOW LOADING...</div>
     </div>
 
     <!-- Cursor -->
@@ -52,7 +52,7 @@
         </a>
         <!-- Hamburger Menu -->
         <div class="hamburger-wrapper">
-            <button class="hamburger-menu" id="hamburger-menu" aria-label="メニューを開く">
+            <button class="hamburger-menu" id="hamburger-menu" aria-label="メニューを開く" data-i18n-aria-label="menu.open">
                 <span class="hamburger-line"></span>
                 <span class="hamburger-line"></span>
                 <span class="hamburger-line"></span>
@@ -63,7 +63,7 @@
     <div class="menu-overlay" id="menu-overlay"></div>
     <!-- Navigation Menu -->
     <div class="nav-menu" id="nav-menu">
-        <button class="nav-menu-close" id="nav-menu-close" aria-label="メニューを閉じる">
+        <button class="nav-menu-close" id="nav-menu-close" aria-label="メニューを閉じる" data-i18n-aria-label="menu.close">
             <span class="close-icon">×</span>
         </button>
         <!-- Language Switcher -->
@@ -117,8 +117,8 @@
                         <span class="char-wrap" data-word="hayashi">Hayashi</span>
                     </h1>
                     <div class="hero-subtitle">
-                        <span>FORMERLY KNOWN AS PABLO BLASTA</span>
-                        <span>REBORN IN <span class="year-highlight">2021</span></span>
+                        <span data-i18n="hero.subtitle1">FORMERLY KNOWN AS PABLO BLASTA</span>
+                        <span data-i18n="hero.subtitle2">REBORN IN <span class="year-highlight">2021</span></span>
                     </div>
                 </div>
             </section>
@@ -207,18 +207,18 @@
             <section id="discography" class="section discography">
                 <div class="container">
                     <div class="section-label section-label--with-subtext">
-                        <span class="section-label-main">DISCOGRAPHY</span>
-                        <span class="section-label-subtext" lang="ja">作品</span>
+                        <span class="section-label-main" data-i18n="discography.title">DISCOGRAPHY</span>
+                        <span class="section-label-subtext" data-i18n="discography.subtitle">作品</span>
                     </div>
 
                     <!-- Loading State -->
                     <div id="discography-loading-lp" class="discography-loading">
-                        <div class="discography-loading-text">NOW LOADING...</div>
+                        <div class="discography-loading-text" data-i18n="discography.loading">NOW LOADING...</div>
                     </div>
 
                     <!-- Error State -->
                     <div id="discography-error-lp" class="discography-error" style="display: none;">
-                        <p>データの取得に失敗しました。しばらく時間をおいて再度お試しください。</p>
+                        <p data-i18n="discography.error">データの取得に失敗しました。しばらく時間をおいて再度お試しください。</p>
                     </div>
 
                     <!-- Featured (Latest 1) -->
@@ -236,11 +236,11 @@
                 </div>
                 <canvas id="distortionCanvas"></canvas>
                 <div class="break-content">
-                    <p class="statement-text split-text-lines">
+                    <p class="statement-text split-text-lines" data-i18n="visual.statement">
                         <span class="italic">Silence</span> is not empty,<br>
                         it's full of <span class="highlight">answers</span>.
                     </p>
-                    <p class="statement-sub">
+                    <p class="statement-sub" data-i18n="visual.location">
                         TOKYO / 2025
                     </p>
                 </div>
@@ -347,7 +347,7 @@
 
             <div id="news-modal-body" class="news-modal__body"></div>
 
-            <a id="news-modal-link" class="news-modal__link" href="#" target="_blank" rel="noopener">
+            <a id="news-modal-link" class="news-modal__link" href="#" target="_blank" rel="noopener" data-i18n="news.modalLink">
                 こちら →
             </a>
         </div>

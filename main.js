@@ -269,6 +269,20 @@ const translations = {
             info: 'INFORMATION',
             contact: 'CONTACT'
         },
+        hero: {
+            subtitle1: 'FORMERLY KNOWN AS PABLO BLASTA',
+            subtitle2: 'REBORN IN'
+        },
+        loader: {
+            loading: 'NOW LOADING...',
+            ready: 'READY?'
+        },
+        discography: {
+            title: 'DISCOGRAPHY',
+            subtitle: '作品',
+            loading: 'NOW LOADING...',
+            error: 'データの取得に失敗しました。しばらく時間をおいて再度お試しください。'
+        },
         artist: {
             title: 'ARTIST',
             bio: {
@@ -286,7 +300,10 @@ const translations = {
             subtitle: 'お知らせ'
         },
         news: {
-            more: 'MORE'
+            more: 'MORE',
+            modalLink: 'こちら →',
+            moreButton: 'もっと見る',
+            collapseButton: '折りたたむ'
         },
         contact: {
             title: 'CONTACT',
@@ -306,6 +323,17 @@ const translations = {
                 label: 'お名前'
             },
             submit: '送信'
+        },
+        player: {
+            close: 'プレーヤーを閉じる'
+        },
+        menu: {
+            open: 'メニューを開く',
+            close: 'メニューを閉じる'
+        },
+        visual: {
+            statement: 'Silence is not empty,<br>it\'s full of <span class="highlight">answers</span>.',
+            location: 'TOKYO / 2025'
         }
     },
     en: {
@@ -313,6 +341,20 @@ const translations = {
             artist: 'ARTIST',
             info: 'INFORMATION',
             contact: 'CONTACT'
+        },
+        hero: {
+            subtitle1: 'FORMERLY KNOWN AS PABLO BLASTA',
+            subtitle2: 'REBORN IN'
+        },
+        loader: {
+            loading: 'NOW LOADING...',
+            ready: 'READY?'
+        },
+        discography: {
+            title: 'DISCOGRAPHY',
+            subtitle: 'Works',
+            loading: 'NOW LOADING...',
+            error: 'Failed to retrieve data. Please try again later.'
         },
         artist: {
             title: 'ARTIST',
@@ -331,7 +373,10 @@ const translations = {
             subtitle: 'News'
         },
         news: {
-            more: 'MORE'
+            more: 'MORE',
+            modalLink: 'Here →',
+            moreButton: 'Show More',
+            collapseButton: 'Show Less'
         },
         contact: {
             title: 'CONTACT',
@@ -351,6 +396,17 @@ const translations = {
                 label: 'Name'
             },
             submit: 'Send'
+        },
+        player: {
+            close: 'Close player'
+        },
+        menu: {
+            open: 'Open menu',
+            close: 'Close menu'
+        },
+        visual: {
+            statement: 'Silence is not empty,<br>it\'s full of <span class="highlight">answers</span>.',
+            location: 'TOKYO / 2025'
         }
     }
 };
@@ -451,10 +507,27 @@ function updateLanguage(lang) {
                     htmlValue = htmlValue.replace(/& JP THE WAVY/g, '<span class="keep-together">& JP THE WAVY</span>');
                     htmlValue = htmlValue.replace(/J-HIPHOP/g, '<span class="keep-together">J-HIPHOP</span>');
                     el.innerHTML = htmlValue;
+                } else if (key === 'hero.subtitle2') {
+                    // 年号を保持しながらテキストを更新
+                    const yearHighlight = el.querySelector('.year-highlight');
+                    const yearText = yearHighlight ? yearHighlight.textContent : '2021';
+                    el.innerHTML = value + ' <span class="year-highlight">' + yearText + '</span>';
+                } else if (key === 'visual.statement') {
+                    // HTMLを含むテキストをそのまま設定
+                    el.innerHTML = value;
                 } else {
                     el.textContent = value;
                 }
             }
+        }
+    });
+    
+    // Update aria-label attributes with data-i18n-aria-label
+    document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
+        const key = el.getAttribute('data-i18n-aria-label');
+        const value = getNestedValue(t, key);
+        if (value !== undefined) {
+            el.setAttribute('aria-label', value);
         }
     });
     
@@ -483,6 +556,29 @@ function updateLanguage(lang) {
     
     // Update artist bio toggle button text
     updateArtistBioToggleText();
+    
+    // Update Spotify player close button aria-label if it exists
+    const spotifyCloseBtn = document.querySelector('.spotify-player-close');
+    if (spotifyCloseBtn) {
+        const closeLabel = getNestedValue(t, 'player.close') || (lang === 'ja' ? 'プレーヤーを閉じる' : 'Close player');
+        spotifyCloseBtn.setAttribute('aria-label', closeLabel);
+    }
+    
+    // Update news more button aria-label if it exists
+    const newsMoreBtn = document.getElementById('news-more-btn');
+    if (newsMoreBtn && newsMoreBtn.dataset.initialized) {
+        const isExpanded = newsMoreBtn.dataset.expanded === 'true';
+        const moreLabel = getNestedValue(t, 'news.moreButton') || (lang === 'ja' ? 'もっと見る' : 'Show More');
+        const collapseLabel = getNestedValue(t, 'news.collapseButton') || (lang === 'ja' ? '折りたたむ' : 'Show Less');
+        newsMoreBtn.setAttribute('aria-label', isExpanded ? collapseLabel : moreLabel);
+    }
+    
+    // Update news modal link label if modal is open
+    const newsModalLink = document.getElementById('news-modal-link');
+    if (newsModalLink && newsModalLink.style.display !== 'none') {
+        const modalLinkText = getNestedValue(t, 'news.modalLink') || (lang === 'ja' ? 'こちら →' : 'Here →');
+        newsModalLink.textContent = modalLinkText;
+    }
 }
 
 function updateNewsItemsLanguage(lang) {
@@ -627,8 +723,9 @@ function initLoader(navType) {
     // --- タイムライン実行 ---
 
     // START（最初は「NOW LOADING...」）
+    const loadingText = getNestedValue(translations[currentLang], 'loader.loading') || 'NOW LOADING...';
     tl.call(() => {
-        if (textEl) textEl.textContent = 'NOW LOADING...';
+        if (textEl) textEl.textContent = loadingText;
     });
 
     // Count: 3
@@ -638,11 +735,12 @@ function initLoader(navType) {
     countStep('2', 'images/count2.jpg');
 
     // Count: 1 (画像と同じ間隔で黒背景＋ノイズ)
+    const readyText = getNestedValue(translations[currentLang], 'loader.ready') || 'READY?';
     tl.call(() => {
         if (loader) loader.classList.add('show-noise');
         // ここで「READY?」に変更（NOW LOADINGと同じ位置）
         if (textEl) {
-            textEl.textContent = 'READY?';
+            textEl.textContent = readyText;
         }
     });
 
@@ -1602,7 +1700,8 @@ function renderNews(items) {
             if (currentLang === 'en' && item.link_label_en) {
                 return item.link_label_en;
             }
-            return item.link_label || (currentLang === 'ja' ? 'こちら →' : 'Here →');
+            const defaultLabel = getNestedValue(translations[currentLang], 'news.modalLink') || (currentLang === 'ja' ? 'こちら →' : 'Here →');
+            return item.link_label || defaultLabel;
         };
 
         const title = getLocalizedTitle(item);
@@ -1801,7 +1900,8 @@ function renderNews(items) {
                     const iconEl = currentMoreBtn.querySelector('.news-more-icon');
                     if (iconEl) iconEl.textContent = '−';
                     currentMoreBtn.dataset.expanded = 'true';
-                    currentMoreBtn.setAttribute('aria-label', '折りたたむ');
+                    const collapseLabel = getNestedValue(translations[currentLang], 'news.collapseButton') || (currentLang === 'ja' ? '折りたたむ' : 'Show Less');
+                    currentMoreBtn.setAttribute('aria-label', collapseLabel);
                 } else {
                     // 折りたたみ
                     expandedItems.forEach(item => {
@@ -1818,12 +1918,14 @@ function renderNews(items) {
                     const iconEl = currentMoreBtn.querySelector('.news-more-icon');
                     if (iconEl) iconEl.textContent = '+';
                     currentMoreBtn.dataset.expanded = 'false';
-                    currentMoreBtn.setAttribute('aria-label', 'もっと見る');
+                    const moreLabel = getNestedValue(translations[currentLang], 'news.moreButton') || (currentLang === 'ja' ? 'もっと見る' : 'Show More');
+                    currentMoreBtn.setAttribute('aria-label', moreLabel);
                 }
             });
             currentMoreBtn.dataset.initialized = 'true';
             currentMoreBtn.dataset.expanded = 'false';
-            currentMoreBtn.setAttribute('aria-label', 'もっと見る');
+            const initialMoreLabel = getNestedValue(translations[currentLang], 'news.moreButton') || (currentLang === 'ja' ? 'もっと見る' : 'Show More');
+            currentMoreBtn.setAttribute('aria-label', initialMoreLabel);
         }
     }
 }
@@ -2164,8 +2266,9 @@ function showGlobalSpotifyPlayer(trackId) {
         playerEl = document.createElement('div');
         playerEl.id = 'spotify-global-player';
         playerEl.className = 'spotify-global-player';
+        const closeLabel = getNestedValue(translations[currentLang], 'player.close') || (currentLang === 'ja' ? 'プレーヤーを閉じる' : 'Close player');
         playerEl.innerHTML = `
-            <button class="spotify-player-close" aria-label="プレーヤーを閉じる">×</button>
+            <button class="spotify-player-close" aria-label="${closeLabel}">×</button>
             <div class="spotify-player-embed"></div>
         `;
         document.body.appendChild(playerEl);

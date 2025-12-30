@@ -1366,6 +1366,13 @@ function initHamburgerMenu() {
     const menuLinks = navMenu.querySelectorAll('.nav-menu-links a');
     menuLinks.forEach(link => {
         const handleLinkClick = (e) => {
+            // クリックされた要素がリンク要素またはその子要素（テキスト、アイコンなど）であることを確認
+            // 余白部分をクリックした場合は処理をスキップ
+            const clickedElement = e.target;
+            if (clickedElement !== link && !link.contains(clickedElement)) {
+                return;
+            }
+            
             // data-section属性がある場合はページ遷移を防ぐ
             const sectionId = link.getAttribute('data-section');
             if (sectionId) {

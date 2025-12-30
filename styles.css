@@ -1321,10 +1321,11 @@ body {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     transition: all 0.3s ease;
-    pointer-events: none;
+    pointer-events: auto;
+    cursor: pointer;
 }
 
-.artist-bio-fade:hover .fade-hint {
+.fade-hint:hover {
     color: rgba(255, 255, 255, 1);
     background: rgba(255, 255, 255, 0.1);
     border-color: rgba(255, 255, 255, 0.3);

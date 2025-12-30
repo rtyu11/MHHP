@@ -1104,8 +1104,11 @@ function initArtistBioToggle() {
         
         artistBio.classList.add('is-expanded');
         if (fadeArea) {
-            fadeArea.setAttribute('aria-expanded', 'true');
-            fadeArea.setAttribute('aria-label', currentLang === 'ja' ? '全文を非表示' : 'Hide full text');
+            const fadeHint = fadeArea.querySelector('.fade-hint');
+            if (fadeHint) {
+                fadeHint.setAttribute('aria-expanded', 'true');
+                fadeHint.setAttribute('aria-label', currentLang === 'ja' ? '全文を非表示' : 'Hide full text');
+            }
         }
         if (toggleBtn) {
             toggleBtn.setAttribute('aria-expanded', 'true');
@@ -1122,8 +1125,11 @@ function initArtistBioToggle() {
         
         artistBio.classList.remove('is-expanded');
         if (fadeArea) {
-            fadeArea.setAttribute('aria-expanded', 'false');
-            fadeArea.setAttribute('aria-label', currentLang === 'ja' ? '全文を表示' : 'Show full text');
+            const fadeHint = fadeArea.querySelector('.fade-hint');
+            if (fadeHint) {
+                fadeHint.setAttribute('aria-expanded', 'false');
+                fadeHint.setAttribute('aria-label', currentLang === 'ja' ? '全文を表示' : 'Show full text');
+            }
         }
         if (toggleBtn) {
             toggleBtn.setAttribute('aria-expanded', 'false');
@@ -1149,27 +1155,48 @@ function initArtistBioToggle() {
         }
     };
     
-    // フェードエリアのクリックイベント（展開）
+    // フェードエリアのクリックイベント（展開）- MOREボタンのみに限定
     if (fadeArea) {
+        const fadeHint = fadeArea.querySelector('.fade-hint');
+        
         const handleFadeClick = (e) => {
             if (!artistBio.classList.contains('is-expanded')) {
                 handleExpand(e);
             }
         };
         
-        fadeArea.addEventListener('click', handleFadeClick);
-        fadeArea.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            handleFadeClick(e);
-        }, { passive: false });
-        
-        // キーボードアクセシビリティ
-        fadeArea.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
+        // fade-hint要素だけにクリックイベントを設定
+        if (fadeHint) {
+            // アクセシビリティ属性をfade-hintに移動
+            fadeHint.setAttribute('role', 'button');
+            fadeHint.setAttribute('tabindex', '0');
+            fadeHint.setAttribute('aria-label', currentLang === 'ja' ? '全文を表示' : 'Show full text');
+            fadeHint.setAttribute('aria-expanded', 'false');
+            
+            // fadeAreaからアクセシビリティ属性を削除
+            fadeArea.removeAttribute('role');
+            fadeArea.removeAttribute('tabindex');
+            fadeArea.removeAttribute('aria-label');
+            fadeArea.removeAttribute('aria-expanded');
+            
+            fadeHint.addEventListener('click', handleFadeClick);
+            fadeHint.addEventListener('touchend', (e) => {
                 e.preventDefault();
                 handleFadeClick(e);
-            }
-        });
+            }, { passive: false });
+            
+            // キーボードアクセシビリティ
+            fadeHint.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleFadeClick(e);
+                }
+            });
+        }
+        
+        // fadeArea全体のクリックイベントは削除（MOREボタン周辺をクリックしても展開されないように）
+        // fadeAreaのpointer-eventsをnoneにして、クリックが通らないようにする
+        fadeArea.style.pointerEvents = 'none';
     }
     
     // トグルボタンのクリックイベント（折りたたみ）
@@ -1183,8 +1210,11 @@ function initArtistBioToggle() {
     
     // 初期状態を設定
     if (fadeArea) {
-        fadeArea.setAttribute('aria-expanded', 'false');
-        fadeArea.setAttribute('aria-label', currentLang === 'ja' ? '全文を表示' : 'Show full text');
+        const fadeHint = fadeArea.querySelector('.fade-hint');
+        if (fadeHint) {
+            fadeHint.setAttribute('aria-expanded', 'false');
+            fadeHint.setAttribute('aria-label', currentLang === 'ja' ? '全文を表示' : 'Show full text');
+        }
     }
     
     // リサイズ時の処理（PCサイズになったら展開状態にする）
@@ -1210,9 +1240,17 @@ function updateArtistBioToggleText() {
     
     const isExpanded = artistBio?.classList.contains('is-expanded');
     
-    if (fadeArea && fadeHintText) {
-        fadeHintText.textContent = 'MORE';
-        fadeArea.setAttribute('aria-label', currentLang === 'ja' ? '全文を表示' : 'Show full text');
+    if (fadeArea) {
+        const fadeHint = fadeArea.querySelector('.fade-hint');
+        const fadeHintText = fadeHint?.querySelector('.fade-hint-text');
+        if (fadeHintText) {
+            fadeHintText.textContent = 'MORE';
+        }
+        if (fadeHint) {
+            const isExpanded = artistBio?.classList.contains('is-expanded');
+            fadeHint.setAttribute('aria-label', currentLang === 'ja' ? '全文を表示' : 'Show full text');
+            fadeHint.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+        }
     }
     
     if (toggleBtn && toggleText) {

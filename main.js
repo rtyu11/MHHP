@@ -2682,7 +2682,7 @@ function showGlobalSpotifyPlayer(trackId) {
     currentEmbedTrackId = trackId;
     embedContainer.innerHTML = `
         <iframe 
-            src="https://open.spotify.com/embed/track/${trackId}?utm_source=generator&theme=0" 
+            src="https://open.spotify.com/embed/track/${trackId}?utm_source=generator&theme=0&autoplay=true" 
             width="100%" 
             height="80" 
             frameBorder="0" 

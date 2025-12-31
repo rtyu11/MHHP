@@ -1506,7 +1506,14 @@ function initAnimations() {
         });
     });
 
+    // img-reveal-maskのScrollTrigger設定
+    // 注意: インタラクティブ要素（album-card内など）には適用しない
+    // 出現アニメ専用に限定し、once設定も出現アニメ専用
     gsap.utils.toArray('.img-reveal-mask').forEach(mask => {
+        // album-card内の要素には適用しない（インタラクティブ要素を保護）
+        if (mask.closest('.album-card') || mask.closest('.track-card')) {
+            return; // スキップ
+        }
         gsap.to(mask, {
             clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
             duration: isAndroid ? 1.0 : 1.5, // Android向けに短縮
@@ -1514,7 +1521,7 @@ function initAnimations() {
             scrollTrigger: { 
                 trigger: mask, 
                 start: 'top 85%',
-                once: isAndroid, // 一度だけ再生する演出
+                once: isAndroid, // 出現アニメ専用：一度だけ再生する演出
                 ...scrollTriggerDefaults
             }
         });
@@ -2545,19 +2552,38 @@ function renderRailLP(albums, gridEl, artistId) {
 
     gridEl.innerHTML = cards;
 
+    // トラックリストをScrollTriggerの影響から完全に分離
+    // すべてのalbum-card内のトラックリストに対して、ScrollTriggerの影響を無効化
+    gridEl.querySelectorAll('.album-tracks-list').forEach(tracksList => {
+        // ScrollTriggerがトラックリストに影響しないように、明示的にスタイルを設定
+        tracksList.style.pointerEvents = 'auto';
+        tracksList.style.overflow = 'visible';
+        tracksList.style.willChange = 'height, opacity';
+        // ScrollTriggerの影響を無効化するため、transformをリセット
+        gsap.set(tracksList, { clearProps: 'transform' });
+    });
+
     // すべての展開されているトラックリストを閉じる関数
+    // ScrollTriggerの影響を受けないように、純粋なclickイベントで処理
     const closeAllTracksLists = () => {
         gridEl.querySelectorAll('.album-card.is-expanded').forEach(card => {
             card.classList.remove('is-expanded');
             const tracksList = card.querySelector('.album-tracks-list');
             if (tracksList) {
+                // ScrollTriggerの影響を無視して、直接スタイルを操作
+                tracksList.style.pointerEvents = 'auto';
+                tracksList.style.overflow = 'visible';
                 gsap.to(tracksList, {
                     height: 0,
                     opacity: 0,
                     duration: 0.3,
                     ease: 'power2.in',
+                    immediateRender: false, // ScrollTriggerの影響を避ける
                     onComplete: () => {
                         tracksList.style.display = 'none';
+                        // ScrollTriggerの影響を完全に無効化
+                        tracksList.style.pointerEvents = 'auto';
+                        tracksList.style.overflow = 'visible';
                     }
                 });
             }
@@ -2591,7 +2617,18 @@ function renderRailLP(albums, gridEl, artistId) {
         const tracksList = card.querySelector('.album-tracks-list');
         const trackItems = card.querySelectorAll('.track-list-item');
         
+        // トラックリストをScrollTriggerの影響から完全に分離
+        // pointer-events、height、overflowをScrollTrigger側で触らないようにする
+        if (tracksList) {
+            // ScrollTriggerがトラックリストに影響しないように、明示的にスタイルをリセット
+            tracksList.style.pointerEvents = 'auto';
+            tracksList.style.overflow = 'visible';
+            // ScrollTriggerの影響を無効化するため、will-changeを設定
+            tracksList.style.willChange = 'height, opacity';
+        }
+        
         // ジャケット画像のクリックでトラックリストを開閉
+        // ScrollTriggerと無関係な純粋なclickイベントで処理
         if (imageWrapper) {
             imageWrapper.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -2603,13 +2640,20 @@ function renderRailLP(albums, gridEl, artistId) {
                         c.classList.remove('is-expanded');
                         const otherTracksList = c.querySelector('.album-tracks-list');
                         if (otherTracksList) {
+                            // ScrollTriggerの影響を無視して、直接スタイルを操作
+                            otherTracksList.style.pointerEvents = 'auto';
+                            otherTracksList.style.overflow = 'visible';
                             gsap.to(otherTracksList, {
                                 height: 0,
                                 opacity: 0,
                                 duration: 0.3,
                                 ease: 'power2.in',
+                                immediateRender: false, // ScrollTriggerの影響を避ける
                                 onComplete: () => {
                                     otherTracksList.style.display = 'none';
+                                    // ScrollTriggerの影響を完全に無効化
+                                    otherTracksList.style.pointerEvents = 'auto';
+                                    otherTracksList.style.overflow = 'visible';
                                 }
                             });
                         }
@@ -2624,19 +2668,29 @@ function renderRailLP(albums, gridEl, artistId) {
                 if (isExpanded) {
                     card.classList.remove('is-expanded');
                     if (tracksList) {
+                        // ScrollTriggerの影響を無視して、直接スタイルを操作
+                        tracksList.style.pointerEvents = 'auto';
+                        tracksList.style.overflow = 'visible';
                         gsap.to(tracksList, {
                             height: 0,
                             opacity: 0,
                             duration: 0.3,
                             ease: 'power2.in',
+                            immediateRender: false, // ScrollTriggerの影響を避ける
                             onComplete: () => {
                                 tracksList.style.display = 'none';
+                                // ScrollTriggerの影響を完全に無効化
+                                tracksList.style.pointerEvents = 'auto';
+                                tracksList.style.overflow = 'visible';
                             }
                         });
                     }
                 } else {
                     card.classList.add('is-expanded');
                     if (tracksList) {
+                        // ScrollTriggerの影響を無視して、直接スタイルを操作
+                        tracksList.style.pointerEvents = 'auto';
+                        tracksList.style.overflow = 'visible';
                         tracksList.style.display = 'block';
                         // レイアウトを確定させるために少し待機
                         setTimeout(() => {
@@ -2646,7 +2700,13 @@ function renderRailLP(albums, gridEl, artistId) {
                                     height: 'auto',
                                     opacity: 1,
                                     duration: 0.4,
-                                    ease: 'power2.out'
+                                    ease: 'power2.out',
+                                    immediateRender: false, // ScrollTriggerの影響を避ける
+                                    onComplete: () => {
+                                        // ScrollTriggerの影響を完全に無効化
+                                        tracksList.style.pointerEvents = 'auto';
+                                        tracksList.style.overflow = 'visible';
+                                    }
                                 }
                             );
                         }, 10);

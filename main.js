@@ -2341,6 +2341,68 @@ let currentEmbedTrackId = null;
 // Spotify API取得用のPromise共有（複数回呼ばれても1回のみリクエスト）
 let spotifyPromise = null;
 
+// localStorageキャッシュのキー
+const SPOTIFY_CACHE_KEY = 'spotify_cache_v1';
+const CACHE_MAX_AGE = 86400 * 1000; // 24時間（ミリ秒）
+
+// localStorageからキャッシュを読み込む
+function loadSpotifyCache() {
+    try {
+        const cached = localStorage.getItem(SPOTIFY_CACHE_KEY);
+        if (!cached) return null;
+        
+        const parsed = JSON.parse(cached);
+        const now = Date.now();
+        
+        // 24時間を超えている場合は無効
+        if (now - parsed.timestamp > CACHE_MAX_AGE) {
+            localStorage.removeItem(SPOTIFY_CACHE_KEY);
+            return null;
+        }
+        
+        return parsed.data;
+    } catch (e) {
+        // パースエラーなどは無視
+        return null;
+    }
+}
+
+// localStorageにキャッシュを保存
+function saveSpotifyCache(data) {
+    try {
+        const cacheData = {
+            data: data,
+            timestamp: Date.now(),
+        };
+        localStorage.setItem(SPOTIFY_CACHE_KEY, JSON.stringify(cacheData));
+    } catch (e) {
+        // 保存失敗は無視（localStorageが無効な場合など）
+    }
+}
+
+// データをレンダリング（共通処理）
+function renderDiscographyData(data) {
+    const featuredEl = document.getElementById('discography-featured');
+    const gridEl = document.getElementById('discography-grid');
+    
+    if (!featuredEl || !gridEl) return;
+    
+    const albums = data.albums;
+    const latestAlbum = albums[0];
+    const otherAlbums = albums.slice(1);
+    const artistId = data.artistId || '';
+
+    if (latestAlbum) {
+        renderLatestReleaseLP(latestAlbum, featuredEl);
+        featuredEl.style.display = 'block';
+    }
+
+    if (otherAlbums.length > 0) {
+        renderRailLP(otherAlbums, gridEl, artistId);
+        gridEl.style.display = 'flex';
+    }
+}
+
 function loadSpotifyOnce() {
     // 既にリクエスト中のPromiseがあればそれを返す
     if (spotifyPromise) {
@@ -2350,13 +2412,19 @@ function loadSpotifyOnce() {
     // 新しいリクエストを作成
     spotifyPromise = fetch('/api/spotify')
         .then((res) => {
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            return res.json();
+            // 200以外でもstaleキャッシュの可能性があるので、JSONを試みる
+            if (res.status === 200) {
+                return res.json();
+            }
+            // 200以外の場合はエラーとして扱う（ただしstaleキャッシュは既にサーバ側で処理済み）
+            throw new Error(`HTTP ${res.status}`);
         })
         .then((data) => {
             if (!data?.albums || !Array.isArray(data.albums) || data.albums.length === 0) {
                 throw new Error('no albums');
             }
+            // 成功時はキャッシュを更新（staleでも更新する）
+            saveSpotifyCache(data);
             return data;
         })
         .catch((err) => {
@@ -2369,6 +2437,10 @@ function loadSpotifyOnce() {
 }
 
 function initLandingDiscography() {
+    // 初期化の多重実行を防ぐ
+    if (window.__discographyInitDone) return;
+    window.__discographyInitDone = true;
+    
     const featuredEl = document.getElementById('discography-featured');
     const gridEl = document.getElementById('discography-grid');
     const loadingEl = document.getElementById('discography-loading-lp');
@@ -2384,29 +2456,28 @@ function initLandingDiscography() {
         if (errorEl) errorEl.style.display = 'block';
     };
 
+    // まずlocalStorageからキャッシュを読み込んで即レンダリング
+    const cachedData = loadSpotifyCache();
+    if (cachedData) {
+        renderDiscographyData(cachedData);
+        hideLoading();
+    }
+
+    // 次に /api/spotify をfetchして成功したらキャッシュ更新＆再レンダリング
     loadSpotifyOnce()
         .then((data) => {
-            const albums = data.albums;
-            const latestAlbum = albums[0];
-            const otherAlbums = albums.slice(1);
-            const artistId = data.artistId || '';
-
+            // キャッシュから表示済みの場合でも、最新データで再レンダリング
+            renderDiscographyData(data);
             hideLoading();
-
-            if (latestAlbum) {
-                renderLatestReleaseLP(latestAlbum, featuredEl);
-                featuredEl.style.display = 'block';
-            }
-
-            if (otherAlbums.length > 0) {
-                renderRailLP(otherAlbums, gridEl, artistId);
-                gridEl.style.display = 'flex';
-            }
         })
         .catch((err) => {
-            console.error('Discography fetch failed', err);
-            hideLoading();
-            showError();
+            // fetch失敗時はshowError()を出さない（キャッシュ表示を維持）
+            // ただし、キャッシュも無い場合のみエラー表示
+            if (!cachedData) {
+                hideLoading();
+                showError();
+            }
+            // キャッシュがある場合は何もしない（既に表示済み）
         });
 }
 

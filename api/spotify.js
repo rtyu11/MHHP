@@ -1,6 +1,40 @@
 // /api/spotify.js
+
+// メモリキャッシュ（TTL 5分 = 300秒）
+let memoryCache = null;
+let cacheTimestamp = null;
+const CACHE_TTL = 300 * 1000; // 5分（ミリ秒）
+
+// キャッシュが有効かチェック
+function isCacheValid() {
+  if (!memoryCache || !cacheTimestamp) return false;
+  const now = Date.now();
+  return (now - cacheTimestamp) < CACHE_TTL;
+}
+
+// キャッシュを取得
+function getCachedData() {
+  if (isCacheValid()) {
+    return memoryCache;
+  }
+  return null;
+}
+
+// キャッシュを保存
+function setCachedData(data) {
+  memoryCache = data;
+  cacheTimestamp = Date.now();
+}
+
 export default async function handler(req, res) {
     try {
+      // キャッシュがあれば返す（429/500エラー時のフォールバック用にも使用）
+      const cached = getCachedData();
+      if (cached) {
+        res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600");
+        return res.status(200).json(cached);
+      }
+
       // Vercel Environment Variables に入れた値を読む
       const clientId = process.env.SPOTIFY_CLIENT_ID;
       const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
@@ -25,6 +59,12 @@ export default async function handler(req, res) {
       });
   
       if (!tokenResp.ok) {
+        // 429/500エラー時はキャッシュがあれば返す
+        const cached = getCachedData();
+        if (cached) {
+          res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600");
+          return res.status(200).json(cached);
+        }
         const t = await tokenResp.text();
         return res.status(500).json({ error: "Token request failed", detail: t });
       }
@@ -42,6 +82,12 @@ export default async function handler(req, res) {
         });
         
         if (!albumsResp.ok) {
+          // 429/500エラー時はキャッシュがあれば返す
+          const cached = getCachedData();
+          if (cached) {
+            res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600");
+            return res.status(200).json(cached);
+          }
           const t = await albumsResp.text();
           return res.status(500).json({ error: "Albums request failed", detail: t });
         }
@@ -64,6 +110,7 @@ export default async function handler(req, res) {
             });
             
             if (!tracksResp.ok) {
+              // 429エラーの場合はキャッシュを返す可能性があるが、個別トラック取得なので警告のみ
               console.warn(`Failed to fetch tracks for album ${album.id}`);
               break;
             }
@@ -97,10 +144,21 @@ export default async function handler(req, res) {
         const db = b.release_date || '';
         return db.localeCompare(da);
       });
+
+      const result = { artistId, albums: albumsWithTracks };
+      
+      // キャッシュに保存
+      setCachedData(result);
   
       res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600"); // 5分キャッシュ
-      return res.status(200).json({ artistId, albums: albumsWithTracks });
+      return res.status(200).json(result);
     } catch (e) {
+      // エラー時もキャッシュがあれば返す
+      const cached = getCachedData();
+      if (cached) {
+        res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600");
+        return res.status(200).json(cached);
+      }
       return res.status(500).json({ error: "Unexpected error", detail: String(e) });
     }
   }

@@ -2331,6 +2331,36 @@ function renderTicker(items) {
 // Spotify Embed用の状態管理
 let currentEmbedTrackId = null;
 
+// Spotify API取得用のPromise共有（複数回呼ばれても1回のみリクエスト）
+let spotifyPromise = null;
+
+function loadSpotifyOnce() {
+    // 既にリクエスト中のPromiseがあればそれを返す
+    if (spotifyPromise) {
+        return spotifyPromise;
+    }
+
+    // 新しいリクエストを作成
+    spotifyPromise = fetch('/api/spotify')
+        .then((res) => {
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return res.json();
+        })
+        .then((data) => {
+            if (!data?.albums || !Array.isArray(data.albums) || data.albums.length === 0) {
+                throw new Error('no albums');
+            }
+            return data;
+        })
+        .catch((err) => {
+            // エラー時はPromiseをリセットして再試行可能にする
+            spotifyPromise = null;
+            throw err;
+        });
+
+    return spotifyPromise;
+}
+
 function initLandingDiscography() {
     const featuredEl = document.getElementById('discography-featured');
     const gridEl = document.getElementById('discography-grid');
@@ -2347,16 +2377,8 @@ function initLandingDiscography() {
         if (errorEl) errorEl.style.display = 'block';
     };
 
-    fetch('/api/spotify')
-        .then((res) => {
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            return res.json();
-        })
+    loadSpotifyOnce()
         .then((data) => {
-            if (!data?.albums || !Array.isArray(data.albums) || data.albums.length === 0) {
-                throw new Error('no albums');
-            }
-
             const albums = data.albums;
             const latestAlbum = albums[0];
             const otherAlbums = albums.slice(1);

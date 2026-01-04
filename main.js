@@ -2,7 +2,11 @@
  * MASATO HAYASHI OFFICIAL - FINAL ULTIMATE BUILD
  * ============================================================ */
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbxnG4QxC_iQYZpPhy48Sau1e7E3Cu3Ou0f4ONv7gmHwWmL1q9bJXqdfzeNiYzsqb-tB/exec';
+// フォーム送信用API URL（相対パス）
+const API_URL = '/api/contact';
+
+// INFORMATIONセクション（News/Ticker）用API URL
+const NEWS_API_URL = 'https://script.google.com/macros/s/AKfycbxnG4QxC_iQYZpPhy48Sau1e7E3Cu3Ou0f4ONv7gmHwWmL1q9bJXqdfzeNiYzsqb-tB/exec';
 
 // ★重要: スクロール位置の記憶を有効化（戻る操作修正のため）
 if (history.scrollRestoration) {
@@ -1586,10 +1590,12 @@ function initDistortionCanvas() {
 
 async function fetchData() {
     try {
-        console.log('Fetching data from:', API_URL);
-        const res = await fetch(API_URL);
+        console.log('Fetching data from:', NEWS_API_URL);
+        const res = await fetch(NEWS_API_URL);
 
         if (!res.ok) {
+            const errorText = await res.text().catch(() => '');
+            console.error('API Error Response:', errorText);
             throw new Error(`HTTP error! status: ${res.status}`);
         }
 

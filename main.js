@@ -3164,54 +3164,23 @@ function setupForm() {
             email: data.get('email')?.trim() || '',
             message: data.get('message')?.trim() || '',
             category: data.get('category')?.trim() || '',
-            website: data.get('website')?.trim() || '',
+            website: '', // ハニーポット: 常に空文字で送信
             timestamp: new Date().toISOString()
         };
-    };
-
-    const sendPost = async (payload) => {
-        try {
-            const res = await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            if (!res.ok) {
-                const errorText = await res.text().catch(() => '');
-                let errorMessage = '';
-                try {
-                    const errorJson = JSON.parse(errorText);
-                    errorMessage = errorJson.message || errorJson.error || '';
-                } catch {
-                    errorMessage = errorText || '';
-                }
-                throw new Error(errorMessage || `HTTP ${res.status}: ${res.statusText}`);
-            }
-            return res;
-        } catch (error) {
-            if (error instanceof TypeError && error.message.includes('fetch')) {
-                throw new Error('NETWORK_ERROR');
-            }
-            throw error;
-        }
     };
 
     const sendGet = async (params) => {
         try {
             const query = new URLSearchParams(params).toString();
-            const res = await fetch(`${API_URL}?${query}`);
-            if (!res.ok) {
-                const errorText = await res.text().catch(() => '');
-                let errorMessage = '';
-                try {
-                    const errorJson = JSON.parse(errorText);
-                    errorMessage = errorJson.message || errorJson.error || '';
-                } catch {
-                    errorMessage = errorText || '';
-                }
-                throw new Error(errorMessage || `HTTP ${res.status}: ${res.statusText}`);
+            const url = `${API_URL}?${query}`;
+            console.log('Contact form sending to:', url);
+            const res = await fetch(url, { method: 'GET' });
+            const json = await res.json();
+            console.log('Contact form response:', json.ok ? 'ok' : `error: ${json.error || 'unknown'}`);
+            if (!json.ok) {
+                throw new Error(json.error || '送信に失敗しました。');
             }
-            return res;
+            return json;
         } catch (error) {
             if (error instanceof TypeError && error.message.includes('fetch')) {
                 throw new Error('NETWORK_ERROR');
@@ -3296,7 +3265,7 @@ function setupForm() {
         setStatus('', '');
 
         try {
-            await sendPost(payload);
+            await sendGet(payload);
             recordSubmit();
             setStatus('success', errorMessages.success);
             form.reset();
@@ -3313,31 +3282,17 @@ function setupForm() {
                     }, 500);
                 }
             }, 3000);
-        } catch (postError) {
-            try {
-                await sendGet(payload);
-                recordSubmit();
-                setStatus('success', errorMessages.success);
-                form.reset();
-                updatePlaceholder();
-                // 送信成功後、8秒間表示してから薄くする
-                setTimeout(() => {
-                    if (statusEl && statusEl.classList.contains('is-success')) {
-                        statusEl.classList.add('is-fading');
-                    }
-                }, 8000);
-            } catch (getError) {
-                let errorMsg = errorMessages.error;
-                if (getError.message === 'NETWORK_ERROR') {
-                    errorMsg = errorMessages.networkError;
-                } else if (getError.message.includes('HTTP 5')) {
-                    errorMsg = errorMessages.serverError;
-                } else if (getError.message && getError.message !== 'GET_FAILED') {
-                    errorMsg = getError.message;
-                }
-                setStatus('error', errorMsg);
-                console.error('Form submission error:', getError);
+        } catch (getError) {
+            let errorMsg = errorMessages.error;
+            if (getError.message === 'NETWORK_ERROR') {
+                errorMsg = errorMessages.networkError;
+            } else if (getError.message.includes('HTTP 5')) {
+                errorMsg = errorMessages.serverError;
+            } else if (getError.message && getError.message !== 'GET_FAILED') {
+                errorMsg = getError.message;
             }
+            setStatus('error', errorMsg);
+            console.error('Form submission error:', getError);
         } finally {
             setButtonState(false);
         }

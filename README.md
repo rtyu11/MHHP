@@ -180,5 +180,196 @@
 
 ---
 
+## 13. デプロイ・公開環境（Vercel）
+
+### 公開形態
+- **静的サイト**としてVercelにデプロイ
+- `index.html` / `main.js` / `styles.css` のみで動作
+- **PHPは一切使用しない**（Vercelでは動作しないため）
+
+### 注意事項
+- `token.php` はこのサイトでは**使用しない・参照しない**
+  - リポジトリに含まれているが、Vercelデプロイ時は無視される
+  - フォーム送信は Google Apps Script 経由で行うため、PHPは不要
+
+### 問い合わせフォームの仕組み
+
+#### 送信フロー
+1. `index.html` の `#contact-form` にユーザーが入力
+2. `main.js` の `setupForm()` が送信を処理
+3. Google Apps Script（`API_URL`）へ POST/GET リクエスト送信
+4. 送信データ: `name`, `email`, `message`, `category`, `website`（ハニーポット）, `timestamp`
+
+#### スパム対策
+- **website ハニーポット**: `website` フィールドに値が入っている場合は送信拒否（人間は見えないフィールド）
+- **送信間隔制限**: 1分以内の連続送信を防止（localStorageで管理）
+- **ページ表示待ち**: ページ表示から3秒経過しないと送信不可（BOT対策）
+
+#### 送信先メールアドレスの変更について
+- **重要**: メール送信はフロントエンド（`main.js`）から直接SMTP送信**しない**
+  - 秘密情報（SMTP認証情報など）が漏洩するため
+- **正しい変更方法**: Google Apps Script 側でメール送信/転送の設定を変更する
+  - `info@masatohayashi.jp` などに送信したい場合は、GASのコード内でメール送信先を変更
+  - フロントエンド側の変更は不要
+
+#### Vercelでの動作確認
+1. Vercelにデプロイ後、問い合わせフォーム（CONTACTセクション）にアクセス
+2. 必須項目を入力して送信
+3. `#form-status` に成功メッセージが表示されることを確認
+4. 送信成功後、メッセージは8秒間表示され、その後自動的に薄くなる
+
+---
+
+## 14. Vercelデプロイ手順
+
+### GitHub連携によるデプロイ
+
+1. **GitHubリポジトリの準備**
+   - このリポジトリをGitHubにプッシュ
+   - リポジトリは公開/非公開どちらでも可
+
+2. **Vercelアカウントの準備**
+   - [Vercel](https://vercel.com)にアカウントを作成
+   - GitHubアカウントと連携
+
+3. **プロジェクトのインポート**
+   - Vercelダッシュボードで「New Project」をクリック
+   - GitHubリポジトリを選択
+   - プロジェクト設定：
+     - **Framework Preset**: Other
+     - **Root Directory**: `./`（ルートディレクトリ）
+     - **Build Command**: （空欄のまま）
+     - **Output Directory**: （空欄のまま）
+
+4. **環境変数の設定**
+   - プロジェクト設定の「Environment Variables」に以下を追加：
+     - `SPOTIFY_CLIENT_ID`: Spotify APIのClient ID
+     - `SPOTIFY_CLIENT_SECRET`: Spotify APIのClient Secret
+     - `SPOTIFY_ARTIST_ID`: SpotifyアーティストID
+
+5. **API Routesの作成**
+   - `api/spotify.js` はVercelのServerless Functionとして自動認識される
+   - `api/contact.js` を作成してフォーム送信を処理（Google Apps Script等と連携）
+
+6. **デプロイ**
+   - 「Deploy」ボタンをクリック
+   - デプロイ完了後、提供されるURLで動作確認
+
+### 相対API_URL設計について
+
+- `main.js` の `API_URL` は `/api/contact` という相対パスを使用
+- これにより、Vercelのデプロイ先URLが変わっても自動的に正しいエンドポイントを参照
+- 本番環境と開発環境で同じコードが動作する
+
+---
+
+## 15. フォーム送信フロー
+
+### リクエスト形式
+
+フォーム送信時、以下のデータが `/api/contact` にPOSTリクエストとして送信されます：
+
+```json
+{
+  "name": "ユーザー名",
+  "email": "user@example.com",
+  "message": "メッセージ内容",
+  "category": "work|appearance|inquiry|other",
+  "website": "",  // ハニーポット（通常は空）
+  "timestamp": "2025-01-01T00:00:00.000Z"
+}
+```
+
+### レスポンス形式
+
+#### 成功時
+- HTTPステータス: `200 OK`
+- レスポンス本文: 任意（Google Apps Script等の実装に依存）
+
+#### エラー時
+- HTTPステータス: `400 Bad Request` または `500 Internal Server Error`
+- レスポンス本文: JSON形式でエラーメッセージを含む（推奨）
+  ```json
+  {
+    "error": "エラーメッセージ",
+    "message": "詳細なエラーメッセージ（任意）"
+  }
+  ```
+
+### エラーハンドリング
+
+- **ネットワークエラー**: インターネット接続を確認するメッセージを表示
+- **HTTPエラー**: レスポンス内容に応じたメッセージを表示
+- **送信中**: ボタンを `disabled` にして二重送信を防止
+- **成功メッセージ**: 3秒表示後、500msかけてフェードアウト
+
+---
+
+## 16. Spotifyデータ取得とキャッシュの流れ
+
+### APIレスポンス形式
+
+`/api/spotify` は必ず以下のJSON形式を返します：
+
+```json
+{
+  "success": true,
+  "data": {
+    "artistId": "アーティストID",
+    "albums": [
+      {
+        "id": "アルバムID",
+        "name": "アルバム名",
+        "album_type": "album|single",
+        "image": "画像URL",
+        "release_date": "2025-01-01",
+        "external_url": "Spotify URL",
+        "tracks": [...]
+      }
+    ]
+  },
+  "message": null
+}
+```
+
+エラー時：
+```json
+{
+  "success": false,
+  "data": null,
+  "message": "エラーメッセージ"
+}
+```
+
+### localStorageキャッシュの仕組み
+
+1. **キャッシュキー**: `spotify_cache_v1`（バージョンを含む）
+2. **保存形式**:
+   ```json
+   {
+     "timestamp": 1234567890000,
+     "data": {
+       "artistId": "...",
+       "albums": [...]
+     }
+   }
+   ```
+3. **有効期限**: 30分（`CACHE_MAX_AGE = 30 * 60 * 1000`）
+4. **動作フロー**:
+   - ページ読み込み時、まず `localStorage` からキャッシュを読み込み
+   - 有効なキャッシュがあれば即座に表示
+   - 並行して `/api/spotify` にリクエストを送信
+   - 成功時はキャッシュを更新して再レンダリング
+   - 失敗時は有効なキャッシュがあればそれを維持（エラー表示しない）
+
+### エラーハンドリング
+
+- **localStorage操作**: すべて `try/catch` で安全に処理
+- **JSON.parse**: パースエラー時は `null` を返し、処理を継続
+- **DOM存在チェック**: DOM要素が存在しない場合は何もしない
+- **fetch失敗時**: 有効なキャッシュがあればそれを使用し、エラー表示しない
+
+---
+
 ### 補足
 この README は **仕様書・運用マニュアル・引き継ぎ資料** を兼ねる。

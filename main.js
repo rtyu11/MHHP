@@ -2,7 +2,7 @@
  * MASATO HAYASHI OFFICIAL - FINAL ULTIMATE BUILD
  * ============================================================ */
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbyRWjZHf-qy3d7OZeSP4hjrryfsybjXWxp41Z6oMOLH3TtTmrw5gSJXxbu0yYhbCZLcmQ/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxnG4QxC_iQYZpPhy48Sau1e7E3Cu3Ou0f4ONv7gmHwWmL1q9bJXqdfzeNiYzsqb-tB/exec';
 
 // ★重要: スクロール位置の記憶を有効化（戻る操作修正のため）
 if (history.scrollRestoration) {
@@ -184,10 +184,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Android向けのパフォーマンス最適化
-    if (isAndroid) {
+    if (isAndroid || isMobileSmall) {
         // パッシブリスナーの使用（スクロールパフォーマンス向上）
         document.addEventListener('touchstart', () => { }, { passive: true });
         document.addEventListener('touchmove', () => { }, { passive: true });
+        document.addEventListener('touchend', () => { }, { passive: true });
 
         // メモリ使用量の最適化
         if ('requestIdleCallback' in window) {
@@ -195,6 +196,21 @@ document.addEventListener("DOMContentLoaded", () => {
                 // アイドル時に最適化処理を実行
             });
         }
+        
+        // スマホ版でスクロールイベントのパフォーマンス最適化
+        let ticking = false;
+        const optimizeScroll = () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    // スクロール時の処理を最適化
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        };
+        
+        // パッシブリスナーでスクロールイベントを最適化
+        window.addEventListener('scroll', optimizeScroll, { passive: true });
     }
 
     // モバイル向けに ScrollTrigger.refresh() を適切に呼ぶ
@@ -1350,6 +1366,13 @@ function initHamburgerMenu() {
     const menuLinks = navMenu.querySelectorAll('.nav-menu-links a');
     menuLinks.forEach(link => {
         const handleLinkClick = (e) => {
+            // クリックされた要素がリンク要素またはその子要素（テキスト、アイコンなど）であることを確認
+            // 余白部分をクリックした場合は処理をスキップ
+            const clickedElement = e.target;
+            if (clickedElement !== link && !link.contains(clickedElement)) {
+                return;
+            }
+            
             // data-section属性がある場合はページ遷移を防ぐ
             const sectionId = link.getAttribute('data-section');
             if (sectionId) {
@@ -1483,7 +1506,14 @@ function initAnimations() {
         });
     });
 
+    // img-reveal-maskのScrollTrigger設定
+    // 注意: インタラクティブ要素（album-card内など）には適用しない
+    // 出現アニメ専用に限定し、once設定も出現アニメ専用
     gsap.utils.toArray('.img-reveal-mask').forEach(mask => {
+        // album-card内の要素には適用しない（インタラクティブ要素を保護）
+        if (mask.closest('.album-card') || mask.closest('.track-card')) {
+            return; // スキップ
+        }
         gsap.to(mask, {
             clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
             duration: isAndroid ? 1.0 : 1.5, // Android向けに短縮
@@ -1491,7 +1521,7 @@ function initAnimations() {
             scrollTrigger: { 
                 trigger: mask, 
                 start: 'top 85%',
-                once: isAndroid, // 一度だけ再生する演出
+                once: isAndroid, // 出現アニメ専用：一度だけ再生する演出
                 ...scrollTriggerDefaults
             }
         });
@@ -1997,6 +2027,125 @@ function renderNews(items) {
             }
         }, { passive: false });
 
+        // スマホ版のタッチスクロール処理（最上部/最下部でページスクロールに移行）
+        const isMobileSmall = window.matchMedia('(max-width: 768px)').matches;
+        
+        if (isMobileSmall) {
+            let touchStartY = 0;
+            let lastTouchY = 0;
+            let isScrollingContainer = false;
+            let allowPageScroll = false;
+            let initialScrollY = 0;
+
+            const handleTouchStart = (e) => {
+                if (!scrollContainer.classList.contains('is-expanded')) {
+                    return;
+                }
+                
+                touchStartY = e.touches[0].clientY;
+                lastTouchY = touchStartY;
+                isScrollingContainer = false;
+                allowPageScroll = false;
+                initialScrollY = window.scrollY || window.pageYOffset || 0;
+            };
+
+            const handleTouchMove = (e) => {
+                if (!scrollContainer.classList.contains('is-expanded')) {
+                    return;
+                }
+
+                const touchY = e.touches[0].clientY;
+                const deltaY = lastTouchY - touchY;
+                const scrollTop = scrollContainer.scrollTop;
+                const scrollHeight = scrollContainer.scrollHeight;
+                const clientHeight = scrollContainer.clientHeight;
+                const maxScroll = Math.max(0, scrollHeight - clientHeight);
+
+                // スクロール可能かチェック（少し余裕を持たせる）
+                const threshold = 1; // 1pxの余裕
+                const isAtTop = scrollTop <= threshold;
+                const isAtBottom = scrollTop >= maxScroll - threshold;
+                const canScrollDown = scrollTop < maxScroll - threshold;
+                const canScrollUp = scrollTop > threshold;
+
+                // スクロール方向を判定
+                const isScrollingDown = deltaY < 0;
+                const isScrollingUp = deltaY > 0;
+
+                // 下方向にスクロールしようとしている場合
+                if (isScrollingDown) {
+                    // 最下部に達している場合は、ページスクロールに移行
+                    if (isAtBottom) {
+                        isScrollingContainer = false;
+                        allowPageScroll = true;
+                        // preventDefaultを呼ばず、イベントを親要素に伝播
+                        // 親要素（window）に直接スクロールイベントを送る
+                        const currentScrollY = window.scrollY || window.pageYOffset || 0;
+                        const pageScrollDelta = -deltaY; // 下方向なので負の値
+                        window.scrollTo({
+                            top: currentScrollY + pageScrollDelta,
+                            behavior: 'auto'
+                        });
+                        lastTouchY = touchY;
+                        return;
+                    }
+                    // スクロール可能な場合は、コンテナ内でスクロール
+                    if (canScrollDown) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        isScrollingContainer = true;
+                        allowPageScroll = false;
+                        const newScrollTop = Math.max(0, Math.min(maxScroll, scrollTop - deltaY));
+                        scrollContainer.scrollTop = newScrollTop;
+                        lastTouchY = touchY;
+                    }
+                }
+                // 上方向にスクロールしようとしている場合
+                else if (isScrollingUp) {
+                    // 最上部に達している場合は、ページスクロールに移行
+                    if (isAtTop) {
+                        isScrollingContainer = false;
+                        allowPageScroll = true;
+                        // preventDefaultを呼ばず、イベントを親要素に伝播
+                        // 親要素（window）に直接スクロールイベントを送る
+                        const currentScrollY = window.scrollY || window.pageYOffset || 0;
+                        const pageScrollDelta = -deltaY; // 上方向なので正の値
+                        window.scrollTo({
+                            top: currentScrollY + pageScrollDelta,
+                            behavior: 'auto'
+                        });
+                        lastTouchY = touchY;
+                        return;
+                    }
+                    // スクロール可能な場合は、コンテナ内でスクロール
+                    if (canScrollUp) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        isScrollingContainer = true;
+                        allowPageScroll = false;
+                        const newScrollTop = Math.max(0, Math.min(maxScroll, scrollTop - deltaY));
+                        scrollContainer.scrollTop = newScrollTop;
+                        lastTouchY = touchY;
+                    }
+                } else {
+                    // deltaYが0に近い場合は、位置を更新するだけ
+                    lastTouchY = touchY;
+                }
+            };
+
+            const handleTouchEnd = (e) => {
+                if (!scrollContainer.classList.contains('is-expanded')) {
+                    return;
+                }
+                isScrollingContainer = false;
+                allowPageScroll = false;
+            };
+
+            scrollContainer.addEventListener('touchstart', handleTouchStart, { passive: true });
+            scrollContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
+            scrollContainer.addEventListener('touchend', handleTouchEnd, { passive: true });
+        }
+
         // 「もっと見る」ボタンのイベント（重複防止）
         // 既存のイベントリスナーを削除
         const newMoreBtn = moreBtn.cloneNode(true);
@@ -2189,7 +2338,127 @@ function renderTicker(items) {
 // Spotify Embed用の状態管理
 let currentEmbedTrackId = null;
 
+// Spotify API取得用のPromise共有（複数回呼ばれても1回のみリクエスト）
+let spotifyPromise = null;
+
+// localStorageキャッシュのキー
+const SPOTIFY_CACHE_KEY = 'spotify_cache_v1';
+const CACHE_MAX_AGE = 30 * 60 * 1000; // 30分（ミリ秒）
+
+// localStorageからキャッシュを読み込む
+function loadSpotifyCache() {
+    try {
+        const cached = localStorage.getItem(SPOTIFY_CACHE_KEY);
+        if (!cached) return null;
+        
+        const parsed = JSON.parse(cached);
+        const now = Date.now();
+        
+        // 30分を超えている場合は無効
+        if (now - parsed.timestamp > CACHE_MAX_AGE) {
+            localStorage.removeItem(SPOTIFY_CACHE_KEY);
+            return null;
+        }
+        
+        return parsed.data;
+    } catch (e) {
+        // パースエラーなどは無視
+        return null;
+    }
+}
+
+// localStorageにキャッシュを保存
+function saveSpotifyCache(data) {
+    try {
+        const cacheData = {
+            data: data,
+            timestamp: Date.now(),
+        };
+        localStorage.setItem(SPOTIFY_CACHE_KEY, JSON.stringify(cacheData));
+    } catch (e) {
+        // 保存失敗は無視（localStorageが無効な場合など）
+    }
+}
+
+// データをレンダリング（共通処理）
+function renderDiscographyData(data) {
+    const featuredEl = document.getElementById('discography-featured');
+    const gridEl = document.getElementById('discography-grid');
+    
+    if (!featuredEl || !gridEl) return;
+    
+    const albums = data.albums;
+    const latestAlbum = albums[0];
+    const otherAlbums = albums.slice(1);
+    const artistId = data.artistId || '';
+
+    if (latestAlbum) {
+        renderLatestReleaseLP(latestAlbum, featuredEl);
+        featuredEl.style.display = 'block';
+    }
+
+    if (otherAlbums.length > 0) {
+        renderRailLP(otherAlbums, gridEl, artistId);
+        gridEl.style.display = 'flex';
+    }
+}
+
+function loadSpotifyOnce() {
+    // 既にリクエスト中のPromiseがあればそれを返す
+    if (spotifyPromise) {
+        return spotifyPromise;
+    }
+
+    // 新しいリクエストを作成
+    spotifyPromise = fetch('/api/spotify')
+        .then((res) => {
+            if (res.status === 200) {
+                return res.json();
+            }
+            throw new Error(`HTTP ${res.status}`);
+        })
+        .then((response) => {
+            // 新しいレスポンス形式（success/data/message）に対応
+            if (!response || typeof response !== 'object') {
+                throw new Error('Invalid response format');
+            }
+            
+            // success: false の場合はエラー
+            if (response.success === false) {
+                throw new Error(response.message || 'Failed to fetch Spotify data');
+            }
+            
+            // success: true の場合、data から取得
+            const data = response.data || response;
+            
+            // 後方互換性のため、直接albumsがある場合も対応
+            const albums = data.albums || response.albums;
+            if (!albums || !Array.isArray(albums) || albums.length === 0) {
+                throw new Error('no albums');
+            }
+            
+            // 成功時はキャッシュを更新
+            const cacheData = {
+                artistId: data.artistId || response.artistId || '',
+                albums: albums
+            };
+            saveSpotifyCache(cacheData);
+            return cacheData;
+        })
+        .catch((err) => {
+            // エラー時はPromiseをリセットして再試行可能にする
+            spotifyPromise = null;
+            throw err;
+        });
+
+    return spotifyPromise;
+}
+
 function initLandingDiscography() {
+    // 初期化の多重実行を防ぐ
+    if (window.__discographyInitDone) return;
+    window.__discographyInitDone = true;
+    
     const featuredEl = document.getElementById('discography-featured');
     const gridEl = document.getElementById('discography-grid');
     const loadingEl = document.getElementById('discography-loading-lp');
@@ -2205,37 +2474,28 @@ function initLandingDiscography() {
         if (errorEl) errorEl.style.display = 'block';
     };
 
-    fetch('/api/spotify')
-        .then((res) => {
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            return res.json();
-        })
+    // まずlocalStorageからキャッシュを読み込んで即レンダリング
+    const cachedData = loadSpotifyCache();
+    if (cachedData) {
+        renderDiscographyData(cachedData);
+        hideLoading();
+    }
+
+    // 次に /api/spotify をfetchして成功したらキャッシュ更新＆再レンダリング
+    loadSpotifyOnce()
         .then((data) => {
-            if (!data?.albums || !Array.isArray(data.albums) || data.albums.length === 0) {
-                throw new Error('no albums');
-            }
-
-            const albums = data.albums;
-            const latestAlbum = albums[0];
-            const otherAlbums = albums.slice(1);
-            const artistId = data.artistId || '';
-
+            // キャッシュから表示済みの場合でも、最新データで再レンダリング
+            renderDiscographyData(data);
             hideLoading();
-
-            if (latestAlbum) {
-                renderLatestReleaseLP(latestAlbum, featuredEl);
-                featuredEl.style.display = 'block';
-            }
-
-            if (otherAlbums.length > 0) {
-                renderRailLP(otherAlbums, gridEl, artistId);
-                gridEl.style.display = 'flex';
-            }
         })
         .catch((err) => {
-            console.error('Discography fetch failed', err);
-            hideLoading();
-            showError();
+            // fetch失敗時はshowError()を出さない（キャッシュ表示を維持）
+            // ただし、キャッシュも無い場合のみエラー表示
+            if (!cachedData) {
+                hideLoading();
+                showError();
+            }
+            // キャッシュがある場合は何もしない（既に表示済み）
         });
 }
 
@@ -2302,10 +2562,12 @@ function renderLatestReleaseLP(album, targetEl) {
                     // すべてのトラックリストアイテムからis-activeを削除
                     removeAllActiveStates();
                     
-                    showGlobalSpotifyPlayer(trackId);
-                    
-                    // クリックされたアイテムにis-activeを追加
-                    item.classList.add('is-active');
+                    // プレーヤーを開いた場合のみis-activeを追加（閉じた場合は追加しない）
+                    const playerOpened = showGlobalSpotifyPlayer(trackId);
+                    if (playerOpened) {
+                        // クリックされたアイテムにis-activeを追加
+                        item.classList.add('is-active');
+                    }
                 }
             });
         }
@@ -2322,10 +2584,12 @@ function renderLatestReleaseLP(album, targetEl) {
                 // すべてのトラックリストアイテムからis-activeを削除
                 removeAllActiveStates();
                 
-                showGlobalSpotifyPlayer(trackId);
-                
-                // クリックされたアイテムにis-activeを追加
-                item.classList.add('is-active');
+                // プレーヤーを開いた場合のみis-activeを追加（閉じた場合は追加しない）
+                const playerOpened = showGlobalSpotifyPlayer(trackId);
+                if (playerOpened) {
+                    // クリックされたアイテムにis-activeを追加
+                    item.classList.add('is-active');
+                }
             }
         });
     });
@@ -2377,19 +2641,38 @@ function renderRailLP(albums, gridEl, artistId) {
 
     gridEl.innerHTML = cards;
 
+    // トラックリストをScrollTriggerの影響から完全に分離
+    // すべてのalbum-card内のトラックリストに対して、ScrollTriggerの影響を無効化
+    gridEl.querySelectorAll('.album-tracks-list').forEach(tracksList => {
+        // ScrollTriggerがトラックリストに影響しないように、明示的にスタイルを設定
+        tracksList.style.pointerEvents = 'auto';
+        tracksList.style.overflow = 'visible';
+        tracksList.style.willChange = 'height, opacity';
+        // ScrollTriggerの影響を無効化するため、transformをリセット
+        gsap.set(tracksList, { clearProps: 'transform' });
+    });
+
     // すべての展開されているトラックリストを閉じる関数
+    // ScrollTriggerの影響を受けないように、純粋なclickイベントで処理
     const closeAllTracksLists = () => {
         gridEl.querySelectorAll('.album-card.is-expanded').forEach(card => {
             card.classList.remove('is-expanded');
             const tracksList = card.querySelector('.album-tracks-list');
             if (tracksList) {
+                // ScrollTriggerの影響を無視して、直接スタイルを操作
+                tracksList.style.pointerEvents = 'auto';
+                tracksList.style.overflow = 'visible';
                 gsap.to(tracksList, {
                     height: 0,
                     opacity: 0,
                     duration: 0.3,
                     ease: 'power2.in',
+                    immediateRender: false, // ScrollTriggerの影響を避ける
                     onComplete: () => {
                         tracksList.style.display = 'none';
+                        // ScrollTriggerの影響を完全に無効化
+                        tracksList.style.pointerEvents = 'auto';
+                        tracksList.style.overflow = 'visible';
                     }
                 });
             }
@@ -2423,7 +2706,18 @@ function renderRailLP(albums, gridEl, artistId) {
         const tracksList = card.querySelector('.album-tracks-list');
         const trackItems = card.querySelectorAll('.track-list-item');
         
+        // トラックリストをScrollTriggerの影響から完全に分離
+        // pointer-events、height、overflowをScrollTrigger側で触らないようにする
+        if (tracksList) {
+            // ScrollTriggerがトラックリストに影響しないように、明示的にスタイルをリセット
+            tracksList.style.pointerEvents = 'auto';
+            tracksList.style.overflow = 'visible';
+            // ScrollTriggerの影響を無効化するため、will-changeを設定
+            tracksList.style.willChange = 'height, opacity';
+        }
+        
         // ジャケット画像のクリックでトラックリストを開閉
+        // ScrollTriggerと無関係な純粋なclickイベントで処理
         if (imageWrapper) {
             imageWrapper.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -2435,13 +2729,20 @@ function renderRailLP(albums, gridEl, artistId) {
                         c.classList.remove('is-expanded');
                         const otherTracksList = c.querySelector('.album-tracks-list');
                         if (otherTracksList) {
+                            // ScrollTriggerの影響を無視して、直接スタイルを操作
+                            otherTracksList.style.pointerEvents = 'auto';
+                            otherTracksList.style.overflow = 'visible';
                             gsap.to(otherTracksList, {
                                 height: 0,
                                 opacity: 0,
                                 duration: 0.3,
                                 ease: 'power2.in',
+                                immediateRender: false, // ScrollTriggerの影響を避ける
                                 onComplete: () => {
                                     otherTracksList.style.display = 'none';
+                                    // ScrollTriggerの影響を完全に無効化
+                                    otherTracksList.style.pointerEvents = 'auto';
+                                    otherTracksList.style.overflow = 'visible';
                                 }
                             });
                         }
@@ -2456,19 +2757,29 @@ function renderRailLP(albums, gridEl, artistId) {
                 if (isExpanded) {
                     card.classList.remove('is-expanded');
                     if (tracksList) {
+                        // ScrollTriggerの影響を無視して、直接スタイルを操作
+                        tracksList.style.pointerEvents = 'auto';
+                        tracksList.style.overflow = 'visible';
                         gsap.to(tracksList, {
                             height: 0,
                             opacity: 0,
                             duration: 0.3,
                             ease: 'power2.in',
+                            immediateRender: false, // ScrollTriggerの影響を避ける
                             onComplete: () => {
                                 tracksList.style.display = 'none';
+                                // ScrollTriggerの影響を完全に無効化
+                                tracksList.style.pointerEvents = 'auto';
+                                tracksList.style.overflow = 'visible';
                             }
                         });
                     }
                 } else {
                     card.classList.add('is-expanded');
                     if (tracksList) {
+                        // ScrollTriggerの影響を無視して、直接スタイルを操作
+                        tracksList.style.pointerEvents = 'auto';
+                        tracksList.style.overflow = 'visible';
                         tracksList.style.display = 'block';
                         // レイアウトを確定させるために少し待機
                         setTimeout(() => {
@@ -2478,7 +2789,13 @@ function renderRailLP(albums, gridEl, artistId) {
                                     height: 'auto',
                                     opacity: 1,
                                     duration: 0.4,
-                                    ease: 'power2.out'
+                                    ease: 'power2.out',
+                                    immediateRender: false, // ScrollTriggerの影響を避ける
+                                    onComplete: () => {
+                                        // ScrollTriggerの影響を完全に無効化
+                                        tracksList.style.pointerEvents = 'auto';
+                                        tracksList.style.overflow = 'visible';
+                                    }
                                 }
                             );
                         }, 10);
@@ -2501,10 +2818,12 @@ function renderRailLP(albums, gridEl, artistId) {
                         // すべてのトラックリストアイテムからis-activeを削除
                         removeAllActiveStates();
                         
-                        showGlobalSpotifyPlayer(trackId);
-                        
-                        // クリックされたアイテムにis-activeを追加
-                        item.classList.add('is-active');
+                        // プレーヤーを開いた場合のみis-activeを追加（閉じた場合は追加しない）
+                        const playerOpened = showGlobalSpotifyPlayer(trackId);
+                        if (playerOpened) {
+                            // クリックされたアイテムにis-activeを追加
+                            item.classList.add('is-active');
+                        }
                     }
                 });
             }
@@ -2521,10 +2840,12 @@ function renderRailLP(albums, gridEl, artistId) {
                     // すべてのトラックリストアイテムからis-activeを削除
                     removeAllActiveStates();
                     
-                    showGlobalSpotifyPlayer(trackId);
-                    
-                    // クリックされたアイテムにis-activeを追加
-                    item.classList.add('is-active');
+                    // プレーヤーを開いた場合のみis-activeを追加（閉じた場合は追加しない）
+                    const playerOpened = showGlobalSpotifyPlayer(trackId);
+                    if (playerOpened) {
+                        // クリックされたアイテムにis-activeを追加
+                        item.classList.add('is-active');
+                    }
                 }
             });
         });
@@ -2585,12 +2906,35 @@ function renderRailLP(albums, gridEl, artistId) {
 
 // すべてのis-activeクラスを削除する関数
 function removeAllActiveStates() {
+    // すべてのトラックリストアイテムからis-activeを削除
     document.querySelectorAll('.track-list-item.is-active').forEach(el => {
         el.classList.remove('is-active');
     });
 }
 
+// プレーヤーを閉じる共通処理
+function closeSpotifyPlayer() {
+    const playerEl = document.getElementById('spotify-global-player');
+    if (!playerEl) return;
+    
+    playerEl.classList.remove('active');
+    const embedContainer = playerEl.querySelector('.spotify-player-embed');
+    if (embedContainer) {
+        embedContainer.innerHTML = '';
+    }
+    currentEmbedTrackId = null;
+
+    // すべてのis-playingを解除
+    document.querySelectorAll('.track-card.is-playing, .discography-featured-content.is-playing').forEach(el => {
+        el.classList.remove('is-playing');
+    });
+    
+    // すべてのis-activeを解除（色を戻す）
+    removeAllActiveStates();
+}
+
 // グローバルなSpotifyプレーヤーを表示（フッター固定）
+// 戻り値: true = プレーヤーを開いた, false = プレーヤーを閉じた
 function showGlobalSpotifyPlayer(trackId) {
     let playerEl = document.getElementById('spotify-global-player');
 
@@ -2606,18 +2950,10 @@ function showGlobalSpotifyPlayer(trackId) {
         document.body.appendChild(playerEl);
 
         // 閉じるボタンのクリックイベント
-        playerEl.querySelector('.spotify-player-close').addEventListener('click', () => {
-            playerEl.classList.remove('active');
-            playerEl.querySelector('.spotify-player-embed').innerHTML = '';
-            currentEmbedTrackId = null;
-
-            // すべてのis-playingを解除
-            document.querySelectorAll('.track-card.is-playing, .discography-featured-content.is-playing').forEach(el => {
-                el.classList.remove('is-playing');
-            });
-            
-            // すべてのis-activeを解除
-            removeAllActiveStates();
+        playerEl.querySelector('.spotify-player-close').addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeSpotifyPlayer();
         });
 
         // プレーヤーの外側（ページの他の部分）をクリックしたときに閉じる
@@ -2629,17 +2965,7 @@ function showGlobalSpotifyPlayer(trackId) {
             
             // プレーヤーがアクティブな場合のみ閉じる
             if (playerEl.classList.contains('active')) {
-                playerEl.classList.remove('active');
-                playerEl.querySelector('.spotify-player-embed').innerHTML = '';
-                currentEmbedTrackId = null;
-
-                // すべてのis-playingを解除
-                document.querySelectorAll('.track-card.is-playing, .discography-featured-content.is-playing').forEach(el => {
-                    el.classList.remove('is-playing');
-                });
-                
-                // すべてのis-activeを解除
-                removeAllActiveStates();
+                closeSpotifyPlayer();
             }
         };
         
@@ -2653,6 +2979,8 @@ function showGlobalSpotifyPlayer(trackId) {
                     } else {
                         // プレーヤーが非アクティブになったら外側クリックの監視を解除
                         document.removeEventListener('click', handleOutsideClick);
+                        // プレーヤーが閉じられたときに確実に色を戻す
+                        removeAllActiveStates();
                     }
                 }
             });
@@ -2665,18 +2993,8 @@ function showGlobalSpotifyPlayer(trackId) {
 
     if (currentEmbedTrackId === trackId && playerEl.classList.contains('active')) {
         // 同じ曲なら閉じる
-        playerEl.classList.remove('active');
-        embedContainer.innerHTML = '';
-        currentEmbedTrackId = null;
-        
-        // すべてのis-playingを解除
-        document.querySelectorAll('.track-card.is-playing, .discography-featured-content.is-playing').forEach(el => {
-            el.classList.remove('is-playing');
-        });
-        
-        // すべてのis-activeを解除
-        removeAllActiveStates();
-        return;
+        closeSpotifyPlayer();
+        return false; // プレーヤーを閉じた
     }
 
     currentEmbedTrackId = trackId;
@@ -2692,6 +3010,7 @@ function showGlobalSpotifyPlayer(trackId) {
         </iframe>
     `;
     playerEl.classList.add('active');
+    return true; // プレーヤーを開いた
 }
 
 function escapeHtml(text) {
@@ -2719,7 +3038,8 @@ function setupForm() {
         if (!statusEl) return;
         statusEl.classList.remove('is-success', 'is-error', 'is-warning');
         if (state) statusEl.classList.add(`is-${state}`);
-        statusEl.textContent = message || '';
+        // 改行を<br>タグに変換して表示
+        statusEl.innerHTML = message ? message.replace(/\n/g, '<br>') : '';
     };
 
     const updatePlaceholder = () => {
@@ -2778,20 +3098,54 @@ function setupForm() {
     };
 
     const sendPost = async (payload) => {
-        const res = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        if (!res.ok) throw new Error('POST_FAILED');
-        return res;
+        try {
+            const res = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) {
+                const errorText = await res.text().catch(() => '');
+                let errorMessage = '';
+                try {
+                    const errorJson = JSON.parse(errorText);
+                    errorMessage = errorJson.message || errorJson.error || '';
+                } catch {
+                    errorMessage = errorText || '';
+                }
+                throw new Error(errorMessage || `HTTP ${res.status}: ${res.statusText}`);
+            }
+            return res;
+        } catch (error) {
+            if (error instanceof TypeError && error.message.includes('fetch')) {
+                throw new Error('NETWORK_ERROR');
+            }
+            throw error;
+        }
     };
 
     const sendGet = async (params) => {
-        const query = new URLSearchParams(params).toString();
-        const res = await fetch(`${API_URL}?${query}`);
-        if (!res.ok) throw new Error('GET_FAILED');
-        return res;
+        try {
+            const query = new URLSearchParams(params).toString();
+            const res = await fetch(`${API_URL}?${query}`);
+            if (!res.ok) {
+                const errorText = await res.text().catch(() => '');
+                let errorMessage = '';
+                try {
+                    const errorJson = JSON.parse(errorText);
+                    errorMessage = errorJson.message || errorJson.error || '';
+                } catch {
+                    errorMessage = errorText || '';
+                }
+                throw new Error(errorMessage || `HTTP ${res.status}: ${res.statusText}`);
+            }
+            return res;
+        } catch (error) {
+            if (error instanceof TypeError && error.message.includes('fetch')) {
+                throw new Error('NETWORK_ERROR');
+            }
+            throw error;
+        }
     };
 
     form.addEventListener('submit', async (e) => {
@@ -2811,8 +3165,10 @@ function setupForm() {
             website: '送信できませんでした。',
             interval: '送信間隔を空けてください（1分ほど）。',
             timing: 'ページ表示から3秒以上お待ちください。',
-            success: 'ありがとうございます。自動返信はありませんが、追って担当よりご連絡いたします。',
-            error: '通信に失敗しました。時間をおいて再度お試しください。'
+            success: 'お問い合わせありがとうございます。\n内容を確認のうえ、必要に応じて担当者よりご連絡いたします。',
+            error: '通信に失敗しました。時間をおいて再度お試しください。',
+            networkError: 'ネットワークエラーが発生しました。インターネット接続を確認して再度お試しください。',
+            serverError: 'サーバーエラーが発生しました。しばらく時間をおいて再度お試しください。'
         } : {
             category: 'Please select an inquiry type.',
             name: 'Please enter your name.',
@@ -2823,7 +3179,9 @@ function setupForm() {
             interval: 'Please wait about 1 minute between submissions.',
             timing: 'Please wait at least 3 seconds after the page loads.',
             success: 'Thank you. There is no automatic reply, but we will contact you later.',
-            error: 'Communication failed. Please try again later.'
+            error: 'Communication failed. Please try again later.',
+            networkError: 'A network error occurred. Please check your internet connection and try again.',
+            serverError: 'A server error occurred. Please try again later.'
         };
 
         if (!payload.category) {
@@ -2871,6 +3229,18 @@ function setupForm() {
             setStatus('success', errorMessages.success);
             form.reset();
             updatePlaceholder();
+            // 成功メッセージを数秒後にフェードアウト
+            setTimeout(() => {
+                if (statusEl) {
+                    statusEl.classList.add('fade-out');
+                    setTimeout(() => {
+                        if (statusEl) {
+                            statusEl.classList.remove('is-success', 'fade-out');
+                            statusEl.textContent = '';
+                        }
+                    }, 500);
+                }
+            }, 3000);
         } catch (postError) {
             try {
                 await sendGet(payload);
@@ -2878,8 +3248,23 @@ function setupForm() {
                 setStatus('success', errorMessages.success);
                 form.reset();
                 updatePlaceholder();
+                // 送信成功後、8秒間表示してから薄くする
+                setTimeout(() => {
+                    if (statusEl && statusEl.classList.contains('is-success')) {
+                        statusEl.classList.add('is-fading');
+                    }
+                }, 8000);
             } catch (getError) {
-                setStatus('error', errorMessages.error);
+                let errorMsg = errorMessages.error;
+                if (getError.message === 'NETWORK_ERROR') {
+                    errorMsg = errorMessages.networkError;
+                } else if (getError.message.includes('HTTP 5')) {
+                    errorMsg = errorMessages.serverError;
+                } else if (getError.message && getError.message !== 'GET_FAILED') {
+                    errorMsg = getError.message;
+                }
+                setStatus('error', errorMsg);
+                console.error('Form submission error:', getError);
             }
         } finally {
             setButtonState(false);

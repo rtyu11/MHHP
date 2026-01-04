@@ -1,20 +1,24 @@
 // /api/spotify.js
+
 export default async function handler(req, res) {
+  try {
+    // Vercel Environment Variables に入れた値を読む
+    const clientId = process.env.SPOTIFY_CLIENT_ID;
+    const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+    const artistId = process.env.SPOTIFY_ARTIST_ID;
+
+    if (!clientId || !clientSecret || !artistId) {
+      return res.status(200).json({
+        success: false,
+        data: null,
+        message: "Missing environment variables"
+      });
+    }
+
+    // 1) App用トークン取得（Client Credentials Flow）
+    let tokenResp;
     try {
-      // Vercel Environment Variables に入れた値を読む
-      const clientId = process.env.SPOTIFY_CLIENT_ID;
-      const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
-      const artistId = process.env.SPOTIFY_ARTIST_ID; // 例: 5j7m1n3HAdmbJoYMizwzk2
-  
-      if (!clientId || !clientSecret || !artistId) {
-        return res.status(500).json({
-          error: "Missing env vars",
-          required: ["SPOTIFY_CLIENT_ID", "SPOTIFY_CLIENT_SECRET", "SPOTIFY_ARTIST_ID"],
-        });
-      }
-  
-      // 1) App用トークン取得（Client Credentials Flow）
-      const tokenResp = await fetch("https://accounts.spotify.com/api/token", {
+      tokenResp = await fetch("https://accounts.spotify.com/api/token", {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -23,52 +27,118 @@ export default async function handler(req, res) {
         },
         body: new URLSearchParams({ grant_type: "client_credentials" }).toString(),
       });
-  
-      if (!tokenResp.ok) {
-        const t = await tokenResp.text();
-        return res.status(500).json({ error: "Token request failed", detail: t });
-      }
-  
-      const { access_token } = await tokenResp.json();
-  
-      // 2) アーティストのアルバムを取得（シングルとアルバムのみ、市場はJP固定）
-      let allAlbums = [];
-      let nextUrl = `https://api.spotify.com/v1/artists/${artistId}/albums?include_groups=album,single&market=JP&limit=50`;
-      
-      // ページネーションで全アルバムを取得
-      while (nextUrl) {
-        const albumsResp = await fetch(nextUrl, {
+    } catch (fetchError) {
+      return res.status(200).json({
+        success: false,
+        data: null,
+        message: "Failed to connect to Spotify API"
+      });
+    }
+
+    if (!tokenResp.ok) {
+      const errorText = await tokenResp.text().catch(() => '');
+      return res.status(200).json({
+        success: false,
+        data: null,
+        message: `Token request failed: ${tokenResp.status}`
+      });
+    }
+
+    let tokenData;
+    try {
+      tokenData = await tokenResp.json();
+    } catch (parseError) {
+      return res.status(200).json({
+        success: false,
+        data: null,
+        message: "Invalid token response format"
+      });
+    }
+
+    const { access_token } = tokenData;
+    if (!access_token) {
+      return res.status(200).json({
+        success: false,
+        data: null,
+        message: "No access token received"
+      });
+    }
+
+    // 2) アーティストのアルバムを取得（シングルとアルバムのみ、市場はJP固定）
+    let allAlbums = [];
+    let nextUrl = `https://api.spotify.com/v1/artists/${artistId}/albums?include_groups=album,single&market=JP&limit=50`;
+    
+    // ページネーションで全アルバムを取得
+    while (nextUrl) {
+      let albumsResp;
+      try {
+        albumsResp = await fetch(nextUrl, {
           headers: { Authorization: `Bearer ${access_token}` },
         });
-        
-        if (!albumsResp.ok) {
-          const t = await albumsResp.text();
-          return res.status(500).json({ error: "Albums request failed", detail: t });
-        }
-        
-        const albumsData = await albumsResp.json();
-        allAlbums = allAlbums.concat(albumsData.items || []);
-        nextUrl = albumsData.next;
+      } catch (fetchError) {
+        return res.status(200).json({
+          success: false,
+          data: null,
+          message: "Failed to fetch albums from Spotify API"
+        });
       }
-  
-      // 3) 各アルバムのトラックリストを取得
-      const albumsWithTracks = await Promise.all(
+      
+      if (!albumsResp.ok) {
+        return res.status(200).json({
+          success: false,
+          data: null,
+          message: `Albums request failed: ${albumsResp.status}`
+        });
+      }
+      
+      let albumsData;
+      try {
+        albumsData = await albumsResp.json();
+      } catch (parseError) {
+        return res.status(200).json({
+          success: false,
+          data: null,
+          message: "Invalid albums response format"
+        });
+      }
+      
+      allAlbums = allAlbums.concat(albumsData.items || []);
+      nextUrl = albumsData.next;
+    }
+
+    // 3) 各アルバムのトラックリストを取得
+    let albumsWithTracks;
+    try {
+      albumsWithTracks = await Promise.all(
         allAlbums.map(async (album) => {
           let allTracks = [];
           let tracksNextUrl = `https://api.spotify.com/v1/albums/${album.id}/tracks?market=JP&limit=50`;
           
           // ページネーションで全トラックを取得
           while (tracksNextUrl) {
-            const tracksResp = await fetch(tracksNextUrl, {
-              headers: { Authorization: `Bearer ${access_token}` },
-            });
-            
-            if (!tracksResp.ok) {
+            let tracksResp;
+            try {
+              tracksResp = await fetch(tracksNextUrl, {
+                headers: { Authorization: `Bearer ${access_token}` },
+              });
+            } catch (fetchError) {
               console.warn(`Failed to fetch tracks for album ${album.id}`);
               break;
             }
             
-            const tracksData = await tracksResp.json();
+            if (!tracksResp.ok) {
+              console.warn(`Failed to fetch tracks for album ${album.id}: ${tracksResp.status}`);
+              break;
+            }
+            
+            let tracksData;
+            try {
+              tracksData = await tracksResp.json();
+            } catch (parseError) {
+              console.warn(`Invalid tracks response for album ${album.id}`);
+              break;
+            }
+            
             allTracks = allTracks.concat(tracksData.items || []);
             tracksNextUrl = tracksData.next;
           }
@@ -90,18 +160,32 @@ export default async function handler(req, res) {
           };
         })
       );
-  
-      // 4) release_date降順でソート
-      albumsWithTracks.sort((a, b) => {
-        const da = a.release_date || '';
-        const db = b.release_date || '';
-        return db.localeCompare(da);
+    } catch (promiseError) {
+      return res.status(200).json({
+        success: false,
+        data: null,
+        message: "Failed to process album tracks"
       });
-  
-      res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600"); // 5分キャッシュ
-      return res.status(200).json({ artistId, albums: albumsWithTracks });
-    } catch (e) {
-      return res.status(500).json({ error: "Unexpected error", detail: String(e) });
     }
+
+    // 4) release_date降順でソート
+    albumsWithTracks.sort((a, b) => {
+      const da = a.release_date || '';
+      const db = b.release_date || '';
+      return db.localeCompare(da);
+    });
+
+    res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600"); // 5分キャッシュ
+    return res.status(200).json({
+      success: true,
+      data: { artistId, albums: albumsWithTracks },
+      message: null
+    });
+  } catch (e) {
+    return res.status(200).json({
+      success: false,
+      data: null,
+      message: `Unexpected error: ${String(e.message || e)}`
+    });
   }
-  
+}

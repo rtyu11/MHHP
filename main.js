@@ -3,7 +3,7 @@
  * ============================================================ */
 
 // フォーム送信用API URL（相対パス）
-const API_URL = '/api/contact';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxnG4QxC_iQYZpPhy48Sau1e7E3Cu3Ou0f4ONv7gmHwWmL1q9bJXqdfzeNiYzsqb-tB/exec';
 
 // INFORMATIONセクション（News/Ticker）用API URL
 const NEWS_API_URL = 'https://script.google.com/macros/s/AKfycbyRWjZHf-qy3d7OZeSP4hjrryfsybjXWxp41Z6oMOLH3TtTmrw5gSJXxbu0yYhbCZLcmQ/exec';

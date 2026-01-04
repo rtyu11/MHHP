@@ -1,5 +1,63 @@
 // /api/spotify.js
 
+// メモリキャッシュ（warm instance内で保持）
+let spotifyCache = null;
+const SPOTIFY_CACHE_TTL = 24 * 60 * 60 * 1000; // 24時間（ミリ秒）
+
+// トークンキャッシュ
+let tokenCache = null;
+
+// アクセストークンを取得（キャッシュを利用）
+async function getAccessToken(clientId, clientSecret) {
+  const now = Date.now();
+  
+  // トークンキャッシュが有効ならそれを使用
+  if (tokenCache && tokenCache.expiresAt > now) {
+    return tokenCache.accessToken;
+  }
+
+  // トークンを取得
+  let tokenResp;
+  try {
+    tokenResp = await fetch("https://accounts.spotify.com/api/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization:
+          "Basic " + Buffer.from(`${clientId}:${clientSecret}`).toString("base64"),
+      },
+      body: new URLSearchParams({ grant_type: "client_credentials" }).toString(),
+    });
+  } catch (fetchError) {
+    throw new Error("Failed to connect to Spotify API");
+  }
+
+  if (!tokenResp.ok) {
+    throw new Error(`Token request failed: ${tokenResp.status}`);
+  }
+
+  let tokenData;
+  try {
+    tokenData = await tokenResp.json();
+  } catch (parseError) {
+    throw new Error("Invalid token response format");
+  }
+
+  const { access_token, expires_in } = tokenData;
+  if (!access_token) {
+    throw new Error("No access token received");
+  }
+
+  // トークンをキャッシュ（expires_in秒 - 60秒のマージンで有効期限を設定）
+  const expiresInMs = (expires_in || 3600) * 1000;
+  tokenCache = {
+    accessToken: access_token,
+    expiresAt: now + expiresInMs - 60000, // 60秒のマージン
+  };
+
+  return access_token;
+}
+
 export default async function handler(req, res) {
   try {
     // Vercel Environment Variables に入れた値を読む
@@ -15,52 +73,28 @@ export default async function handler(req, res) {
       });
     }
 
-    // 1) App用トークン取得（Client Credentials Flow）
-    let tokenResp;
+    // メモリキャッシュをチェック
+    const now = Date.now();
+    if (spotifyCache && (now - spotifyCache.ts) < SPOTIFY_CACHE_TTL) {
+      // キャッシュが有効なら即座に返す
+      res.setHeader("Cache-Control", "s-maxage=86400, stale-while-revalidate=604800");
+      return res.status(200).json(spotifyCache.payload);
+    }
+
+    // アクセストークンを取得（キャッシュを利用）
+    let access_token;
     try {
-      tokenResp = await fetch("https://accounts.spotify.com/api/token", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          Authorization:
-            "Basic " + Buffer.from(`${clientId}:${clientSecret}`).toString("base64"),
-        },
-        body: new URLSearchParams({ grant_type: "client_credentials" }).toString(),
-      });
-    } catch (fetchError) {
+      access_token = await getAccessToken(clientId, clientSecret);
+    } catch (tokenError) {
+      // トークン取得失敗時、staleキャッシュがあれば返す
+      if (spotifyCache) {
+        res.setHeader("Cache-Control", "s-maxage=86400, stale-while-revalidate=604800");
+        return res.status(200).json(spotifyCache.payload);
+      }
       return res.status(200).json({
         success: false,
         data: null,
-        message: "Failed to connect to Spotify API"
-      });
-    }
-
-    if (!tokenResp.ok) {
-      const errorText = await tokenResp.text().catch(() => '');
-      return res.status(200).json({
-        success: false,
-        data: null,
-        message: `Token request failed: ${tokenResp.status}`
-      });
-    }
-
-    let tokenData;
-    try {
-      tokenData = await tokenResp.json();
-    } catch (parseError) {
-      return res.status(200).json({
-        success: false,
-        data: null,
-        message: "Invalid token response format"
-      });
-    }
-
-    const { access_token } = tokenData;
-    if (!access_token) {
-      return res.status(200).json({
-        success: false,
-        data: null,
-        message: "No access token received"
+        message: tokenError.message || "Failed to get access token"
       });
     }
 
@@ -76,6 +110,11 @@ export default async function handler(req, res) {
           headers: { Authorization: `Bearer ${access_token}` },
         });
       } catch (fetchError) {
+        // アルバム取得失敗時、staleキャッシュがあれば返す
+        if (spotifyCache) {
+          res.setHeader("Cache-Control", "s-maxage=86400, stale-while-revalidate=604800");
+          return res.status(200).json(spotifyCache.payload);
+        }
         return res.status(200).json({
           success: false,
           data: null,
@@ -84,6 +123,11 @@ export default async function handler(req, res) {
       }
       
       if (!albumsResp.ok) {
+        // アルバム取得失敗時、staleキャッシュがあれば返す
+        if (spotifyCache) {
+          res.setHeader("Cache-Control", "s-maxage=86400, stale-while-revalidate=604800");
+          return res.status(200).json(spotifyCache.payload);
+        }
         return res.status(200).json({
           success: false,
           data: null,
@@ -95,6 +139,11 @@ export default async function handler(req, res) {
       try {
         albumsData = await albumsResp.json();
       } catch (parseError) {
+        // パース失敗時、staleキャッシュがあれば返す
+        if (spotifyCache) {
+          res.setHeader("Cache-Control", "s-maxage=86400, stale-while-revalidate=604800");
+          return res.status(200).json(spotifyCache.payload);
+        }
         return res.status(200).json({
           success: false,
           data: null,
@@ -161,6 +210,11 @@ export default async function handler(req, res) {
         })
       );
     } catch (promiseError) {
+      // トラック処理失敗時、staleキャッシュがあれば返す
+      if (spotifyCache) {
+        res.setHeader("Cache-Control", "s-maxage=86400, stale-while-revalidate=604800");
+        return res.status(200).json(spotifyCache.payload);
+      }
       return res.status(200).json({
         success: false,
         data: null,
@@ -175,13 +229,27 @@ export default async function handler(req, res) {
       return db.localeCompare(da);
     });
 
-    res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600"); // 5分キャッシュ
-    return res.status(200).json({
+    // レスポンスを構築
+    const responsePayload = {
       success: true,
       data: { artistId, albums: albumsWithTracks },
       message: null
-    });
+    };
+
+    // メモリキャッシュに保存
+    spotifyCache = {
+      ts: now,
+      payload: responsePayload
+    };
+
+    res.setHeader("Cache-Control", "s-maxage=86400, stale-while-revalidate=604800"); // 24時間キャッシュ、1週間stale許可
+    return res.status(200).json(responsePayload);
   } catch (e) {
+    // エラー時、staleキャッシュがあれば返す
+    if (spotifyCache) {
+      res.setHeader("Cache-Control", "s-maxage=86400, stale-while-revalidate=604800");
+      return res.status(200).json(spotifyCache.payload);
+    }
     return res.status(200).json({
       success: false,
       data: null,

@@ -1602,12 +1602,55 @@ async function fetchData() {
         const data = await res.json();
         console.log('Fetched Data:', data);
 
-        // Normalize data to array
+        // Normalize data to array - 複数の形式に対応
         let items = [];
         if (Array.isArray(data)) {
             items = data;
         } else if (typeof data === 'object' && data !== null) {
-            items = Object.values(data);
+            // {items: [...]} 形式
+            if (Array.isArray(data.items)) {
+                items = data.items;
+            }
+            // {news: [...], ticker: [...]} 形式
+            else if (Array.isArray(data.news) || Array.isArray(data.ticker)) {
+                items = [...(data.news || []), ...(data.ticker || [])];
+            }
+            // その他のオブジェクト形式
+            else {
+                items = Object.values(data);
+            }
+        }
+
+        // publishの型揺れを正規化する関数
+        function normalizePublish(value) {
+            if (typeof value === 'boolean') return value;
+            if (typeof value === 'string') {
+                const lower = value.toLowerCase().trim();
+                if (lower === 'true' || lower === '1') return true;
+                if (lower === 'false' || lower === '0' || lower === '') return false;
+            }
+            if (typeof value === 'number') return value !== 0;
+            return false;
+        }
+
+        // dateの型揺れを正規化する関数（YYYY-MM-DD形式に統一）
+        function normalizeDateString(dateValue) {
+            if (!dateValue) return null;
+            if (typeof dateValue === 'string') {
+                // ISO文字列（2025-01-01T00:00:00.000Zなど）の場合は先頭10文字を取得
+                if (dateValue.includes('T') || dateValue.includes('Z')) {
+                    return dateValue.substring(0, 10);
+                }
+                // 既にYYYY-MM-DD形式ならそのまま
+                if (/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+                    return dateValue;
+                }
+            }
+            // Date型の場合は文字列化して先頭10文字を取得
+            if (dateValue instanceof Date) {
+                return dateValue.toISOString().substring(0, 10);
+            }
+            return String(dateValue).substring(0, 10);
         }
 
         // Current Date for filtering
@@ -1618,15 +1661,22 @@ async function fetchData() {
 
         // News: type='news', publish=true, date <= today
         const newsItems = items.filter(item => {
-            if (item.type !== 'news' || item.publish === false) return false;
+            if (!item || typeof item !== 'object') return false;
+            if (item.type !== 'news') return false;
+            if (!normalizePublish(item.publish)) return false;
             if (!item.date) return false;
-            const itemDate = new Date(item.date);
+            const normalizedDate = normalizeDateString(item.date);
+            if (!normalizedDate) return false;
+            // ローカル日付基準で比較（未来日を除外）
+            const itemDate = new Date(normalizedDate + 'T23:59:59');
             return itemDate <= today;
         });
 
         // Ticker: type='ticker', publish=true
         const tickerItems = items.filter(item => {
-            return item.type === 'ticker' && item.publish !== false;
+            if (!item || typeof item !== 'object') return false;
+            if (item.type !== 'ticker') return false;
+            return normalizePublish(item.publish);
         });
 
         console.log('Filtered News:', newsItems);
@@ -1696,9 +1746,25 @@ function renderNews(items) {
 
     // Sort by date desc (newest first) - 最新が上
     items.sort((a, b) => {
-        const da = new Date(a.date);
-        const db = new Date(b.date);
-        return db - da; // Descending (新しい順)
+        // dateの正規化（YYYY-MM-DD形式に統一）
+        const normalizeDateString = (dateValue) => {
+            if (!dateValue) return '';
+            if (typeof dateValue === 'string') {
+                if (dateValue.includes('T') || dateValue.includes('Z')) {
+                    return dateValue.substring(0, 10);
+                }
+                if (/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+                    return dateValue;
+                }
+            }
+            if (dateValue instanceof Date) {
+                return dateValue.toISOString().substring(0, 10);
+            }
+            return String(dateValue).substring(0, 10);
+        };
+        const da = normalizeDateString(a.date);
+        const db = normalizeDateString(b.date);
+        return db.localeCompare(da); // Descending (新しい順)
     });
 
     // 最初の5件と残りを分ける
@@ -2349,7 +2415,7 @@ let spotifyPromise = null;
 
 // localStorageキャッシュのキー
 const SPOTIFY_CACHE_KEY = 'spotify_cache_v1';
-const CACHE_MAX_AGE = 30 * 60 * 1000; // 30分（ミリ秒）
+const CACHE_MAX_AGE = 24 * 60 * 60 * 1000; // 24時間（ミリ秒）
 
 // localStorageからキャッシュを読み込む
 function loadSpotifyCache() {

@@ -3169,25 +3169,6 @@ function setupForm() {
         };
     };
 
-    const sendGet = async (params) => {
-        try {
-            const query = new URLSearchParams(params).toString();
-            const url = `${API_URL}?${query}`;
-            console.log('Contact form sending to:', url);
-            const res = await fetch(url, { method: 'GET' });
-            const json = await res.json();
-            console.log('Contact form response:', json.ok ? 'ok' : `error: ${json.error || 'unknown'}`);
-            if (!json.ok) {
-                throw new Error(json.error || '送信に失敗しました。');
-            }
-            return json;
-        } catch (error) {
-            if (error instanceof TypeError && error.message.includes('fetch')) {
-                throw new Error('NETWORK_ERROR');
-            }
-            throw error;
-        }
-    };
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -3265,7 +3246,17 @@ function setupForm() {
         setStatus('', '');
 
         try {
-            await sendGet(payload);
+            const params = new URLSearchParams(payload);
+            console.log('Contact form sending POST to:', API_URL);
+            const res = await fetch(API_URL, {
+                method: 'POST',
+                body: params
+            });
+            const result = await res.json();
+            console.log('Contact form response:', result.ok ? 'ok' : `error: ${result.error || 'unknown'}`);
+            if (!result.ok) {
+                throw new Error(result.error || '送信に失敗しました。');
+            }
             recordSubmit();
             setStatus('success', errorMessages.success);
             form.reset();
@@ -3282,17 +3273,17 @@ function setupForm() {
                     }, 500);
                 }
             }, 3000);
-        } catch (getError) {
+        } catch (error) {
             let errorMsg = errorMessages.error;
-            if (getError.message === 'NETWORK_ERROR') {
+            if (error instanceof TypeError && error.message.includes('fetch')) {
                 errorMsg = errorMessages.networkError;
-            } else if (getError.message.includes('HTTP 5')) {
+            } else if (error.message && error.message.includes('HTTP 5')) {
                 errorMsg = errorMessages.serverError;
-            } else if (getError.message && getError.message !== 'GET_FAILED') {
-                errorMsg = getError.message;
+            } else if (error.message && error.message !== 'NETWORK_ERROR') {
+                errorMsg = error.message;
             }
             setStatus('error', errorMsg);
-            console.error('Form submission error:', getError);
+            console.error('Form submission error:', error);
         } finally {
             setButtonState(false);
         }

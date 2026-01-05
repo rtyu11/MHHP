@@ -1755,6 +1755,29 @@ body.news-modal-open .news-item.is-active::after {
 .discography-featured-tracks {
     margin-top: 1.5rem;
     margin-bottom: 1.5rem;
+    max-height: 500px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    padding-right: 0.5rem;
+}
+
+.discography-featured-tracks::-webkit-scrollbar {
+    width: 4px;
+}
+
+.discography-featured-tracks::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.discography-featured-tracks::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+.discography-featured-tracks::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
 }
 
 .discography-featured-tracks .tracks-list {
@@ -1939,6 +1962,8 @@ body.news-modal-open .news-item.is-active::after {
 .album-card.is-expanded .album-tracks-list {
     height: auto;
     opacity: 1;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
 }
 
 .album-card.is-expanded .album-card-image-wrapper {
@@ -2638,6 +2663,10 @@ body.news-modal-open .news-item.is-active::after {
 
     .album-tracks-list {
         max-height: 300px;
+    }
+    
+    .discography-featured-tracks {
+        max-height: 400px;
     }
 
     .album-tracks-list .track-list-item {

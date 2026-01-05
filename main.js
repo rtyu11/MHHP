@@ -2718,7 +2718,6 @@ function renderRailLP(albums, gridEl, artistId) {
     gridEl.querySelectorAll('.album-tracks-list').forEach(tracksList => {
         // ScrollTriggerがトラックリストに影響しないように、明示的にスタイルを設定
         tracksList.style.pointerEvents = 'auto';
-        tracksList.style.overflow = 'visible';
         tracksList.style.willChange = 'height, opacity';
         // ScrollTriggerの影響を無効化するため、transformをリセット
         gsap.set(tracksList, { clearProps: 'transform' });
@@ -2783,7 +2782,6 @@ function renderRailLP(albums, gridEl, artistId) {
         if (tracksList) {
             // ScrollTriggerがトラックリストに影響しないように、明示的にスタイルをリセット
             tracksList.style.pointerEvents = 'auto';
-            tracksList.style.overflow = 'visible';
             // ScrollTriggerの影響を無効化するため、will-changeを設定
             tracksList.style.willChange = 'height, opacity';
         }
@@ -2851,7 +2849,8 @@ function renderRailLP(albums, gridEl, artistId) {
                     if (tracksList) {
                         // ScrollTriggerの影響を無視して、直接スタイルを操作
                         tracksList.style.pointerEvents = 'auto';
-                        tracksList.style.overflow = 'visible';
+                        tracksList.style.overflowY = 'auto';
+                        tracksList.style.overflowX = 'hidden';
                         tracksList.style.display = 'block';
                         // レイアウトを確定させるために少し待機
                         setTimeout(() => {
@@ -2866,7 +2865,8 @@ function renderRailLP(albums, gridEl, artistId) {
                                     onComplete: () => {
                                         // ScrollTriggerの影響を完全に無効化
                                         tracksList.style.pointerEvents = 'auto';
-                                        tracksList.style.overflow = 'visible';
+                                        tracksList.style.overflowY = 'auto';
+                                        tracksList.style.overflowX = 'hidden';
                                     }
                                 }
                             );

@@ -2002,16 +2002,24 @@ function renderNews(items) {
                 const storedItem = JSON.parse(a.dataset.newsItem);
                 modalDate.textContent = formattedDate || '';
                 modalTitle.textContent = getLocalizedTitle(storedItem);
-                modalBody.innerHTML = getLocalizedBody(storedItem).replace(/\n/g, '<br>');
-
+                
                 const url = storedItem.link_url || '';
                 const linkLabel = getLocalizedLinkLabel(storedItem);
-
+                const bodyText = getLocalizedBody(storedItem).replace(/\n/g, '<br>');
+                
+                // URLが存在する場合、COUNT3の画像を表示
                 if (url) {
+                    modalBody.innerHTML = `
+                        <div class="news-modal__image-wrapper">
+                            <img src="images/count3.jpg" alt="Link preview" class="news-modal__image" loading="lazy">
+                        </div>
+                        <div class="news-modal__text">${bodyText}</div>
+                    `;
                     modalLink.href = url;
                     modalLink.textContent = linkLabel;
                     modalLink.style.display = 'inline-block';
                 } else {
+                    modalBody.innerHTML = `<div class="news-modal__text">${bodyText}</div>`;
                     modalLink.href = '#';
                     modalLink.style.display = 'none';
                 }

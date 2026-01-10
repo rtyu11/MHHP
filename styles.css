@@ -1550,6 +1550,24 @@ body.news-modal-open .news-item.is-active::after {
     line-height: 1.8;
 }
 
+.news-modal__image-wrapper {
+    margin-bottom: 16px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, .05);
+}
+
+.news-modal__image {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+}
+
+.news-modal__text {
+    margin-top: 0;
+}
+
 .news-modal__link {
     display: inline-block;
     margin-top: 14px;

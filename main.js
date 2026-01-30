@@ -200,7 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 // アイドル時に最適化処理を実行
             });
         }
-        
+
         // スマホ版でスクロールイベントのパフォーマンス最適化
         let ticking = false;
         const optimizeScroll = () => {
@@ -212,7 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 ticking = true;
             }
         };
-        
+
         // パッシブリスナーでスクロールイベントを最適化
         window.addEventListener('scroll', optimizeScroll, { passive: true });
     }
@@ -352,7 +352,7 @@ const translations = {
             close: 'メニューを閉じる'
         },
         visual: {
-            statement: 'Silence is not empty,<br>it\'s full of <span class="highlight">answers</span>.',
+            statement: 'Turning every <span class="italic">scar</span><br>into a <span class="highlight">masterpiece</span>.',
             location: 'TOKYO / 2025'
         },
         footer: {
@@ -428,7 +428,7 @@ const translations = {
             close: 'Close menu'
         },
         visual: {
-            statement: 'Silence is not empty,<br>it\'s full of <span class="highlight">answers</span>.',
+            statement: 'Turning every <span class="italic">scar</span><br>into a <span class="highlight">masterpiece</span>.',
             location: 'TOKYO / 2025'
         },
         footer: {
@@ -442,9 +442,9 @@ let currentLang = 'ja';
 function initLanguageSwitcher() {
     const langJaBtn = document.getElementById('lang-ja');
     const langEnBtn = document.getElementById('lang-en');
-    
+
     if (!langJaBtn || !langEnBtn) return;
-    
+
     // Load saved language preference
     try {
         const savedLang = localStorage.getItem('masato-lang');
@@ -454,11 +454,11 @@ function initLanguageSwitcher() {
     } catch (_) {
         // ignore
     }
-    
+
     // Set initial language
     updateLanguage(currentLang);
     updateLanguageButtons();
-    
+
     // Event listeners
     const handleLangSwitch = (lang) => {
         return (e) => {
@@ -467,10 +467,10 @@ function initLanguageSwitcher() {
             switchLanguage(lang);
         };
     };
-    
+
     langJaBtn.addEventListener('click', handleLangSwitch('ja'));
     langJaBtn.addEventListener('touchend', handleLangSwitch('ja'), { passive: false });
-    
+
     langEnBtn.addEventListener('click', handleLangSwitch('en'));
     langEnBtn.addEventListener('touchend', handleLangSwitch('en'), { passive: false });
 }
@@ -478,17 +478,17 @@ function initLanguageSwitcher() {
 function switchLanguage(lang) {
     if (lang === currentLang) return;
     currentLang = lang;
-    
+
     // Save preference
     try {
         localStorage.setItem('masato-lang', lang);
     } catch (_) {
         // ignore
     }
-    
+
     // Update HTML lang attribute
     document.documentElement.lang = lang;
-    
+
     updateLanguage(lang);
     updateLanguageButtons();
 }
@@ -496,7 +496,7 @@ function switchLanguage(lang) {
 function updateLanguageButtons() {
     const langJaBtn = document.getElementById('lang-ja');
     const langEnBtn = document.getElementById('lang-en');
-    
+
     if (langJaBtn) {
         langJaBtn.classList.toggle('active', currentLang === 'ja');
     }
@@ -508,7 +508,7 @@ function updateLanguageButtons() {
 function updateLanguage(lang) {
     const t = translations[lang];
     if (!t) return;
-    
+
     // Update all elements with data-i18n attribute
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
@@ -547,7 +547,7 @@ function updateLanguage(lang) {
             }
         }
     });
-    
+
     // Update aria-label attributes with data-i18n-aria-label
     document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
         const key = el.getAttribute('data-i18n-aria-label');
@@ -556,7 +556,7 @@ function updateLanguage(lang) {
             el.setAttribute('aria-label', value);
         }
     });
-    
+
     // Update form placeholders
     const messageField = document.querySelector('textarea[name="message"]');
     if (messageField) {
@@ -569,27 +569,27 @@ function updateLanguage(lang) {
             messageField.placeholder = fallback;
         }
     }
-    
+
     // Update select placeholder option
     const selectPlaceholder = document.querySelector('select[name="category"] option[value=""]');
     if (selectPlaceholder) {
         const placeholderText = lang === 'ja' ? '▾ 選択してください' : '▾ Please select';
         selectPlaceholder.textContent = placeholderText;
     }
-    
+
     // Update news items if they exist
     updateNewsItemsLanguage(lang);
-    
+
     // Update artist bio toggle button text
     updateArtistBioToggleText();
-    
+
     // Update Spotify player close button aria-label if it exists
     const spotifyCloseBtn = document.querySelector('.spotify-player-close');
     if (spotifyCloseBtn) {
         const closeLabel = getNestedValue(t, 'player.close') || (lang === 'ja' ? 'プレーヤーを閉じる' : 'Close player');
         spotifyCloseBtn.setAttribute('aria-label', closeLabel);
     }
-    
+
     // Update news more button aria-label if it exists
     const newsMoreBtn = document.getElementById('news-more-btn');
     if (newsMoreBtn && newsMoreBtn.dataset.initialized) {
@@ -598,14 +598,14 @@ function updateLanguage(lang) {
         const collapseLabel = getNestedValue(t, 'news.collapseButton') || (lang === 'ja' ? '折りたたむ' : 'Show Less');
         newsMoreBtn.setAttribute('aria-label', isExpanded ? collapseLabel : moreLabel);
     }
-    
+
     // Update news modal link label if modal is open
     const newsModalLink = document.getElementById('news-modal-link');
     if (newsModalLink && newsModalLink.style.display !== 'none') {
         const modalLinkText = getNestedValue(t, 'news.modalLink') || (lang === 'ja' ? 'こちら →' : 'Here →');
         newsModalLink.textContent = modalLinkText;
     }
-    
+
     // Explicitly update discography subtitle to ensure it's updated
     const discographySubtitle = document.querySelector('[data-i18n="discography.subtitle"]');
     if (discographySubtitle) {
@@ -622,7 +622,7 @@ function updateNewsItemsLanguage(lang) {
         try {
             const storedItem = JSON.parse(itemEl.dataset.newsItem || '{}');
             if (!storedItem || Object.keys(storedItem).length === 0) return;
-            
+
             // Get localized title
             const getLocalizedTitle = (item) => {
                 if (lang === 'en' && item.title_en) {
@@ -630,7 +630,7 @@ function updateNewsItemsLanguage(lang) {
                 }
                 return item.title || 'No title';
             };
-            
+
             const title = getLocalizedTitle(storedItem);
             const titleEl = itemEl.querySelector('.news-title');
             if (titleEl) {
@@ -934,18 +934,18 @@ function initVideoOptimization() {
         if (isAndroid) {
             // 動画のpreloadをnoneにして初期読み込みを軽量化
             heroVideo.setAttribute('preload', 'none');
-            
+
             // スクロール中は動画の更新を抑制
             let isScrolling = false;
             let scrollTimeout;
-            
+
             const handleScroll = () => {
                 if (!isScrolling) {
                     isScrolling = true;
                     // スクロール中は動画の更新を抑制
                     heroVideo.style.willChange = 'auto';
                 }
-                
+
                 clearTimeout(scrollTimeout);
                 scrollTimeout = setTimeout(() => {
                     isScrolling = false;
@@ -986,9 +986,9 @@ function initLogoScroll() {
 // アーティスト画像の色切り替え機能（タップで独立して切り替え）
 function initArtistPhotoToggle() {
     const artistPhotos = document.querySelectorAll('.artist-photo');
-    
+
     if (artistPhotos.length === 0) return;
-    
+
     // 各画像に独立したクリック/タップイベントを追加
     artistPhotos.forEach(photo => {
         // タッチ状態管理
@@ -999,11 +999,11 @@ function initArtistPhotoToggle() {
             moved: false,
             cancelled: false
         };
-        
+
         const SCROLL_THRESHOLD = 15;
         const MAX_TAP_TIME = 300;
         const MAX_TAP_DISTANCE = 10;
-        
+
         // タッチ開始
         photo.addEventListener('touchstart', (e) => {
             const touch = e.touches[0];
@@ -1013,49 +1013,49 @@ function initArtistPhotoToggle() {
             touchState.moved = false;
             touchState.cancelled = false;
         }, { passive: true });
-        
+
         // タッチ移動（スクロール検知）
         photo.addEventListener('touchmove', (e) => {
             if (touchState.cancelled) return;
-            
+
             const touch = e.touches[0];
             const deltaY = Math.abs(touch.clientY - touchState.startY);
             const deltaX = Math.abs(touch.clientX - touchState.startX);
             const distance = Math.sqrt(deltaY * deltaY + deltaX * deltaX);
-            
+
             if (distance > SCROLL_THRESHOLD) {
                 if (deltaY > deltaX * 1.5) {
                     touchState.moved = true;
                 }
             }
         }, { passive: true });
-        
+
         // タッチ終了（クリック判定）
         photo.addEventListener('touchend', (e) => {
             if (touchState.cancelled) {
                 touchState.cancelled = false;
                 return;
             }
-            
+
             const touchTime = Date.now() - touchState.startTime;
             const touch = e.changedTouches[0];
             const deltaY = Math.abs(touch.clientY - touchState.startY);
             const deltaX = Math.abs(touch.clientX - touchState.startX);
             const distance = Math.sqrt(deltaY * deltaY + deltaX * deltaX);
-            
-            const isScroll = touchState.moved || 
-                            distance > SCROLL_THRESHOLD || 
-                            touchTime > MAX_TAP_TIME ||
-                            (deltaY > MAX_TAP_DISTANCE && deltaY > deltaX * 1.5);
-            
+
+            const isScroll = touchState.moved ||
+                distance > SCROLL_THRESHOLD ||
+                touchTime > MAX_TAP_TIME ||
+                (deltaY > MAX_TAP_DISTANCE && deltaY > deltaX * 1.5);
+
             if (isScroll) {
                 touchState.moved = false;
                 return;
             }
-            
+
             e.preventDefault();
             e.stopPropagation();
-            
+
             // 少し遅延を入れて確実にクリックイベントを発火
             setTimeout(() => {
                 if (!touchState.cancelled) {
@@ -1069,18 +1069,18 @@ function initArtistPhotoToggle() {
                 }
             }, 50);
         }, { passive: false });
-        
+
         // タッチキャンセル
         photo.addEventListener('touchcancel', () => {
             touchState.cancelled = true;
             touchState.moved = false;
         }, { passive: true });
-        
+
         // クリックイベント（色の切り替え）
         photo.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            
+
             // この画像だけのクラスをトグル（他の画像には影響しない）
             photo.classList.toggle('is-colored');
         });
@@ -1092,36 +1092,36 @@ function initArtistBioToggle() {
     const artistBio = document.querySelector('.artist-bio');
     const fadeArea = document.querySelector('.artist-bio-fade');
     const toggleBtn = document.querySelector('.artist-bio-toggle');
-    
+
     if (!artistBio) return;
-    
+
     // PCサイズでは折りたたみ機能を無効化
     const isMobile = window.matchMedia('(max-width: 900px)').matches;
-    
+
     // PCサイズでは常に展開状態にする
     if (!isMobile) {
         artistBio.classList.add('is-expanded');
         return; // PCサイズではイベントリスナーを追加しない
     }
-    
+
     // 初期状態を確実に折りたたみ状態にする（モバイルのみ）
     artistBio.classList.remove('is-expanded');
-    
+
     // フェードエリアの位置を保存（折りたたみ時にスクロール位置を戻すため）
     let fadeAreaTop = null;
-    
+
     // 展開処理
     const handleExpand = (e) => {
         if (e) {
             e.preventDefault();
             e.stopPropagation();
         }
-        
+
         // フェードエリアの位置を保存
         if (fadeArea) {
             fadeAreaTop = fadeArea.getBoundingClientRect().top + window.scrollY;
         }
-        
+
         artistBio.classList.add('is-expanded');
         if (fadeArea) {
             const fadeHint = fadeArea.querySelector('.fade-hint');
@@ -1135,14 +1135,14 @@ function initArtistBioToggle() {
             toggleBtn.setAttribute('aria-label', currentLang === 'ja' ? '全文を非表示' : 'Hide full text');
         }
     };
-    
+
     // 折りたたみ処理
     const handleCollapse = (e) => {
         if (e) {
             e.preventDefault();
             e.stopPropagation();
         }
-        
+
         artistBio.classList.remove('is-expanded');
         if (fadeArea) {
             const fadeHint = fadeArea.querySelector('.fade-hint');
@@ -1155,7 +1155,7 @@ function initArtistBioToggle() {
             toggleBtn.setAttribute('aria-expanded', 'false');
             toggleBtn.setAttribute('aria-label', currentLang === 'ja' ? '全文を表示' : 'Show full text');
         }
-        
+
         // フェードエリアの位置にスクロール
         if (fadeAreaTop !== null) {
             setTimeout(() => {
@@ -1174,17 +1174,17 @@ function initArtistBioToggle() {
             }, 100);
         }
     };
-    
+
     // フェードエリアのクリックイベント（展開）- MOREボタンのみに限定
     if (fadeArea) {
         const fadeHint = fadeArea.querySelector('.fade-hint');
-        
+
         const handleFadeClick = (e) => {
             if (!artistBio.classList.contains('is-expanded')) {
                 handleExpand(e);
             }
         };
-        
+
         // fade-hint要素だけにクリックイベントを設定
         if (fadeHint) {
             // アクセシビリティ属性をfade-hintに移動
@@ -1192,19 +1192,19 @@ function initArtistBioToggle() {
             fadeHint.setAttribute('tabindex', '0');
             fadeHint.setAttribute('aria-label', currentLang === 'ja' ? '全文を表示' : 'Show full text');
             fadeHint.setAttribute('aria-expanded', 'false');
-            
+
             // fadeAreaからアクセシビリティ属性を削除
             fadeArea.removeAttribute('role');
             fadeArea.removeAttribute('tabindex');
             fadeArea.removeAttribute('aria-label');
             fadeArea.removeAttribute('aria-expanded');
-            
+
             fadeHint.addEventListener('click', handleFadeClick);
             fadeHint.addEventListener('touchend', (e) => {
                 e.preventDefault();
                 handleFadeClick(e);
             }, { passive: false });
-            
+
             // キーボードアクセシビリティ
             fadeHint.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -1213,12 +1213,12 @@ function initArtistBioToggle() {
                 }
             });
         }
-        
+
         // fadeArea全体のクリックイベントは削除（MOREボタン周辺をクリックしても展開されないように）
         // fadeAreaのpointer-eventsをnoneにして、クリックが通らないようにする
         fadeArea.style.pointerEvents = 'none';
     }
-    
+
     // トグルボタンのクリックイベント（折りたたみ）
     if (toggleBtn) {
         toggleBtn.addEventListener('click', handleCollapse);
@@ -1227,7 +1227,7 @@ function initArtistBioToggle() {
             handleCollapse(e);
         }, { passive: false });
     }
-    
+
     // 初期状態を設定
     if (fadeArea) {
         const fadeHint = fadeArea.querySelector('.fade-hint');
@@ -1236,7 +1236,7 @@ function initArtistBioToggle() {
             fadeHint.setAttribute('aria-label', currentLang === 'ja' ? '全文を表示' : 'Show full text');
         }
     }
-    
+
     // リサイズ時の処理（PCサイズになったら展開状態にする）
     const handleResize = () => {
         const isMobileNow = window.matchMedia('(max-width: 900px)').matches;
@@ -1246,7 +1246,7 @@ function initArtistBioToggle() {
             artistBio.classList.remove('is-expanded');
         }
     };
-    
+
     window.addEventListener('resize', handleResize, { passive: true });
 }
 
@@ -1257,9 +1257,9 @@ function updateArtistBioToggleText() {
     const toggleBtn = document.querySelector('.artist-bio-toggle');
     const fadeHintText = fadeArea?.querySelector('.fade-hint-text');
     const toggleText = toggleBtn?.querySelector('.toggle-text');
-    
+
     const isExpanded = artistBio?.classList.contains('is-expanded');
-    
+
     if (fadeArea) {
         const fadeHint = fadeArea.querySelector('.fade-hint');
         const fadeHintText = fadeHint?.querySelector('.fade-hint-text');
@@ -1272,7 +1272,7 @@ function updateArtistBioToggleText() {
             fadeHint.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
         }
     }
-    
+
     if (toggleBtn && toggleText) {
         toggleText.textContent = currentLang === 'ja' ? '閉じる' : 'Show Less';
         toggleBtn.setAttribute('aria-label', currentLang === 'ja' ? '全文を非表示' : 'Hide full text');
@@ -1282,9 +1282,9 @@ function updateArtistBioToggleText() {
 // セクションへのスクロール関数（グローバルスコープ）
 function showSection(sectionId) {
     const targetSection = document.getElementById(sectionId);
-    
+
     if (!targetSection) return;
-    
+
     // スムーズスクロールで該当セクションへ移動（すべてのセクションは表示したまま）
     if (lenis) {
         lenis.scrollTo(targetSection, {
@@ -1303,10 +1303,10 @@ function initSectionNavigation() {
     document.querySelectorAll('a[href^="#"]').forEach(link => {
         const href = link.getAttribute('href');
         if (href === '#' || href === '#!') return; // 空のアンカーはスキップ
-        
+
         const sectionId = href.substring(1); // #を除去
         const targetSection = document.getElementById(sectionId);
-        
+
         if (targetSection) {
             link.addEventListener('click', (e) => {
                 // data-section属性がない場合のみ処理（data-sectionはinitHamburgerMenuで処理）
@@ -1376,7 +1376,7 @@ function initHamburgerMenu() {
             if (clickedElement !== link && !link.contains(clickedElement)) {
                 return;
             }
-            
+
             // data-section属性がある場合はページ遷移を防ぐ
             const sectionId = link.getAttribute('data-section');
             if (sectionId) {
@@ -1389,7 +1389,7 @@ function initHamburgerMenu() {
                 }, 300);
                 return;
             }
-            
+
             // hrefが#で始まる場合も処理
             const href = link.getAttribute('href');
             if (href && href.startsWith('#')) {
@@ -1404,7 +1404,7 @@ function initHamburgerMenu() {
                     return;
                 }
             }
-            
+
             let isExternal = link.target === '_blank';
             try {
                 const linkUrl = new URL(link.href, window.location.href);
@@ -1465,7 +1465,7 @@ function initCursor() {
 function initAnimations() {
     const isAndroid = /Android/i.test(navigator.userAgent);
     const isMobile = window.matchMedia('(max-width: 900px)').matches;
-    
+
     // Android向けにScrollTriggerの設定を最適化
     // 注意: once は scrollTriggerDefaults から削除（Hero のような往復アニメには適用しない）
     const scrollTriggerDefaults = {
@@ -1479,10 +1479,10 @@ function initAnimations() {
     // Hero のパララックスアニメーション（スクロールで往復する必要があるため once: false を明示）
     gsap.to('.hero-bg-container', {
         yPercent: 30, ease: 'none',
-        scrollTrigger: { 
-            trigger: '.hero', 
-            start: 'top top', 
-            end: 'bottom top', 
+        scrollTrigger: {
+            trigger: '.hero',
+            start: 'top top',
+            end: 'bottom top',
             scrub: isAndroid ? 0.5 : true, // Androidではscrubを軽量化
             once: false, // 往復アニメのため必ず false
             ...scrollTriggerDefaults
@@ -1497,12 +1497,12 @@ function initAnimations() {
     splitTypes.forEach(char => {
         const text = new SplitType(char, { types: 'lines, words' });
         gsap.from(text.words, {
-            y: 50, opacity: 0, 
+            y: 50, opacity: 0,
             duration: isAndroid ? 0.8 : 1, // Android向けに短縮
             stagger: isAndroid ? 0.03 : 0.05, // Android向けにstaggerを短縮
             ease: 'power3.out',
-            scrollTrigger: { 
-                trigger: char, 
+            scrollTrigger: {
+                trigger: char,
                 start: 'top 80%',
                 once: isAndroid, // 一度だけ再生する演出
                 ...scrollTriggerDefaults
@@ -1522,8 +1522,8 @@ function initAnimations() {
             clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
             duration: isAndroid ? 1.0 : 1.5, // Android向けに短縮
             ease: 'power4.out',
-            scrollTrigger: { 
-                trigger: mask, 
+            scrollTrigger: {
+                trigger: mask,
                 start: 'top 85%',
                 once: isAndroid, // 出現アニメ専用：一度だけ再生する演出
                 ...scrollTriggerDefaults
@@ -1538,12 +1538,12 @@ function initAnimations() {
         bioLines.forEach(block => {
             const text = new SplitType(block, { types: 'lines' });
             gsap.from(text.lines, {
-                y: 20, opacity: 0, 
+                y: 20, opacity: 0,
                 duration: isAndroid ? 0.8 : 1, // Android向けに短縮
                 stagger: isAndroid ? 0.08 : 0.1, // Android向けにstaggerを短縮
                 ease: "power2.out",
-                scrollTrigger: { 
-                    trigger: block, 
+                scrollTrigger: {
+                    trigger: block,
                     start: "top 85%",
                     once: isAndroid, // 一度だけ再生する演出
                     ...scrollTriggerDefaults
@@ -1580,8 +1580,8 @@ function initDistortionCanvas() {
     const isAndroid = /Android/i.test(navigator.userAgent);
     gsap.from('.statement-text', {
         y: 50, opacity: 0, duration: 1.5, ease: 'power3.out',
-        scrollTrigger: { 
-            trigger: '.visual-break', 
+        scrollTrigger: {
+            trigger: '.visual-break',
             start: 'center 70%',
             once: isAndroid // 一度だけ再生する演出
         }
@@ -1786,7 +1786,7 @@ function renderNews(items) {
     // Modal Open/Close Logic
     if (modal && !modal.dataset.initialized) {
         let activeNewsItem = null;
-        
+
         const openModal = (clickedItem) => {
             // まず記事にクラスを追加して横にずれるアニメーションを開始
             if (clickedItem) {
@@ -1794,7 +1794,7 @@ function renderNews(items) {
                 clickedItem.classList.add('is-active');
                 document.body.classList.add('news-modal-open');
             }
-            
+
             // 少し遅延してからモーダルを開く（記事のアニメーションを見せるため）
             setTimeout(() => {
                 modal.classList.add('is-open');
@@ -1807,7 +1807,7 @@ function renderNews(items) {
             modal.setAttribute('aria-hidden', 'true');
             document.body.style.overflow = '';
             document.body.classList.remove('news-modal-open');
-            
+
             // アクティブな記事からクラスを削除
             if (activeNewsItem) {
                 activeNewsItem.classList.remove('is-active');
@@ -1920,12 +1920,12 @@ function renderNews(items) {
         // タッチ移動（スクロール検知）
         a.addEventListener('touchmove', (e) => {
             if (touchState.cancelled) return;
-            
+
             const touch = e.touches[0];
             const deltaY = Math.abs(touch.clientY - touchState.startY);
             const deltaX = Math.abs(touch.clientX - touchState.startX);
             const distance = Math.sqrt(deltaY * deltaY + deltaX * deltaX);
-            
+
             // 移動距離が閾値を超えたらスクロールと判定
             if (distance > SCROLL_THRESHOLD) {
                 // 縦方向の移動が横方向より大きい場合のみスクロールと判定
@@ -1949,10 +1949,10 @@ function renderNews(items) {
             const distance = Math.sqrt(deltaY * deltaY + deltaX * deltaX);
 
             // スクロール判定：移動距離が閾値を超えている、または時間が長すぎる
-            const isScroll = touchState.moved || 
-                            distance > SCROLL_THRESHOLD || 
-                            touchTime > MAX_TAP_TIME ||
-                            (deltaY > MAX_TAP_DISTANCE && deltaY > deltaX * 1.5);
+            const isScroll = touchState.moved ||
+                distance > SCROLL_THRESHOLD ||
+                touchTime > MAX_TAP_TIME ||
+                (deltaY > MAX_TAP_DISTANCE && deltaY > deltaX * 1.5);
 
             if (isScroll) {
                 // スクロールの場合は何もしない
@@ -1963,7 +1963,7 @@ function renderNews(items) {
             // タップと判定：短時間で短距離のタッチ
             e.preventDefault();
             e.stopPropagation();
-            
+
             // 少し遅延を入れて確実にクリックイベントを発火
             setTimeout(() => {
                 if (!touchState.cancelled) {
@@ -1995,18 +1995,18 @@ function renderNews(items) {
 
             e.preventDefault();
             e.stopPropagation();
-            
+
             if (modal && modal.open) {
                 isProcessing = true;
-                
+
                 const storedItem = JSON.parse(a.dataset.newsItem);
                 modalDate.textContent = formattedDate || '';
                 modalTitle.textContent = getLocalizedTitle(storedItem);
-                
+
                 const url = storedItem.link_url || '';
                 const linkLabel = getLocalizedLinkLabel(storedItem);
                 const bodyText = getLocalizedBody(storedItem).replace(/\n/g, '<br>');
-                
+
                 // URLが存在する場合、COUNT3の画像を表示
                 if (url) {
                     modalBody.innerHTML = `
@@ -2023,9 +2023,9 @@ function renderNews(items) {
                     modalLink.href = '#';
                     modalLink.style.display = 'none';
                 }
-                
+
                 modal.open(a); // クリックされた記事を渡す
-                
+
                 // 処理完了後にフラグをリセット（少し遅延を入れる）
                 setTimeout(() => {
                     isProcessing = false;
@@ -2049,18 +2049,18 @@ function renderNews(items) {
     // 残りのアイテムがあれば「もっと見る」ボタンを表示
     if (remainingItems.length > 0 && moreWrapper && moreBtn) {
         moreWrapper.style.display = 'block';
-        
+
         // 追加記事用のスクロールコンテナを作成
         const scrollContainer = document.createElement('div');
         scrollContainer.className = 'news-more-scroll-container';
         scrollContainer.style.display = 'none'; // 初期状態は非表示
-        
+
         // 残りのアイテムをスクロールコンテナ内に追加
         remainingItems.forEach(item => {
             const hiddenItem = createNewsItem(item, false);
             scrollContainer.appendChild(hiddenItem);
         });
-        
+
         // スクロールコンテナを「もっと見る」ボタンの前に挿入
         moreWrapper.parentNode.insertBefore(scrollContainer, moreWrapper);
 
@@ -2070,22 +2070,22 @@ function renderNews(items) {
             if (!scrollContainer.classList.contains('is-expanded')) {
                 return;
             }
-            
+
             // スクロールコンテナの境界内かチェック
             const rect = scrollContainer.getBoundingClientRect();
             const isInside = e.clientY >= rect.top && e.clientY <= rect.bottom &&
-                            e.clientX >= rect.left && e.clientX <= rect.right;
-            
+                e.clientX >= rect.left && e.clientX <= rect.right;
+
             if (isInside) {
                 const scrollTop = scrollContainer.scrollTop;
                 const scrollHeight = scrollContainer.scrollHeight;
                 const clientHeight = scrollContainer.clientHeight;
                 const maxScroll = scrollHeight - clientHeight;
-                
+
                 // スクロール可能かチェック
                 const canScrollDown = scrollTop < maxScroll - 1; // 1pxの余裕を持たせる
                 const canScrollUp = scrollTop > 1; // 1pxの余裕を持たせる
-                
+
                 // 下方向にスクロール可能な場合
                 if (e.deltaY > 0 && canScrollDown) {
                     e.preventDefault();
@@ -2093,7 +2093,7 @@ function renderNews(items) {
                     scrollContainer.scrollTop += e.deltaY;
                     return;
                 }
-                
+
                 // 上方向にスクロール可能な場合
                 if (e.deltaY < 0 && canScrollUp) {
                     e.preventDefault();
@@ -2101,7 +2101,7 @@ function renderNews(items) {
                     scrollContainer.scrollTop += e.deltaY;
                     return;
                 }
-                
+
                 // スクロールコンテナの端に達している場合は、親のスクロールに伝播させる
                 // （何もしない = イベントをそのまま伝播）
             }
@@ -2109,7 +2109,7 @@ function renderNews(items) {
 
         // スマホ版のタッチスクロール処理（最上部/最下部でページスクロールに移行）
         const isMobileSmall = window.matchMedia('(max-width: 768px)').matches;
-        
+
         if (isMobileSmall) {
             let touchStartY = 0;
             let lastTouchY = 0;
@@ -2121,7 +2121,7 @@ function renderNews(items) {
                 if (!scrollContainer.classList.contains('is-expanded')) {
                     return;
                 }
-                
+
                 touchStartY = e.touches[0].clientY;
                 lastTouchY = touchStartY;
                 isScrollingContainer = false;
@@ -2231,11 +2231,11 @@ function renderNews(items) {
         const newMoreBtn = moreBtn.cloneNode(true);
         moreBtn.parentNode.replaceChild(newMoreBtn, moreBtn);
         const currentMoreBtn = newMoreBtn;
-        
+
         if (!currentMoreBtn.dataset.initialized) {
             currentMoreBtn.addEventListener('click', () => {
                 const isExpanded = currentMoreBtn.dataset.expanded === 'true';
-                
+
                 if (!isExpanded) {
                     // 展開：スクロールコンテナを表示
                     scrollContainer.style.display = 'block';
@@ -2245,21 +2245,21 @@ function renderNews(items) {
                     // レイアウトを確定させるために少し待機
                     setTimeout(() => {
                         scrollContainer.classList.add('is-expanded');
-                        gsap.fromTo(scrollContainer, 
-                            { 
-                                opacity: 0, 
+                        gsap.fromTo(scrollContainer,
+                            {
+                                opacity: 0,
                                 maxHeight: 0,
                                 marginTop: 0,
                                 paddingTop: 0,
                                 paddingBottom: 0
                             },
-                            { 
-                                opacity: 1, 
+                            {
+                                opacity: 1,
                                 maxHeight: maxHeight,
                                 marginTop: '1rem',
                                 paddingTop: padding,
                                 paddingBottom: padding,
-                                duration: 0.4, 
+                                duration: 0.4,
                                 ease: 'power2.out'
                             }
                         );
@@ -2282,17 +2282,17 @@ function renderNews(items) {
                         onComplete: () => {
                             scrollContainer.style.display = 'none';
                             scrollContainer.classList.remove('is-expanded');
-                            
+
                             // +ボタンが画面中央に来るようにスクロール位置を調整
                             setTimeout(() => {
                                 const moreBtnRect = currentMoreBtn.getBoundingClientRect();
                                 const scrollY = window.scrollY || window.pageYOffset || 0;
                                 const moreBtnTop = moreBtnRect.top + scrollY;
-                                
+
                                 // 画面の中央に来るように調整
                                 const viewportHeight = window.innerHeight;
                                 const targetScroll = moreBtnTop - (viewportHeight / 2) + (moreBtnRect.height / 2);
-                                
+
                                 if (lenis) {
                                     lenis.scrollTo(targetScroll, {
                                         duration: 0.6,
@@ -2346,7 +2346,7 @@ function renderTicker(items) {
         items.forEach(item => {
             const div = document.createElement('div');
             div.className = 'marquee-item';
-            
+
             // Body text (separator is added via CSS ::after)
             let text = item.body || '';
             div.textContent = text;
@@ -2358,14 +2358,14 @@ function renderTicker(items) {
                     window.open(item.link_url, '_blank');
                 });
             }
-            
+
             track.appendChild(div);
         });
     }
 
     // Check for prefers-reduced-motion
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    
+
     if (prefersReducedMotion) {
         // No animation for reduced motion
         return;
@@ -2430,16 +2430,16 @@ function loadSpotifyCache() {
     try {
         const cached = localStorage.getItem(SPOTIFY_CACHE_KEY);
         if (!cached) return null;
-        
+
         const parsed = JSON.parse(cached);
         const now = Date.now();
-        
+
         // 30分を超えている場合は無効
         if (now - parsed.timestamp > CACHE_MAX_AGE) {
             localStorage.removeItem(SPOTIFY_CACHE_KEY);
             return null;
         }
-        
+
         return parsed.data;
     } catch (e) {
         // パースエラーなどは無視
@@ -2464,9 +2464,9 @@ function saveSpotifyCache(data) {
 function renderDiscographyData(data) {
     const featuredEl = document.getElementById('discography-featured');
     const gridEl = document.getElementById('discography-grid');
-    
+
     if (!featuredEl || !gridEl) return;
-    
+
     const albums = data.albums;
     const latestAlbum = albums[0];
     const otherAlbums = albums.slice(1);
@@ -2502,21 +2502,21 @@ function loadSpotifyOnce() {
             if (!response || typeof response !== 'object') {
                 throw new Error('Invalid response format');
             }
-            
+
             // success: false の場合はエラー
             if (response.success === false) {
                 throw new Error(response.message || 'Failed to fetch Spotify data');
             }
-            
+
             // success: true の場合、data から取得
             const data = response.data || response;
-            
+
             // 後方互換性のため、直接albumsがある場合も対応
             const albums = data.albums || response.albums;
             if (!albums || !Array.isArray(albums) || albums.length === 0) {
                 throw new Error('no albums');
             }
-            
+
             // 成功時はキャッシュを更新
             const cacheData = {
                 artistId: data.artistId || response.artistId || '',
@@ -2538,7 +2538,7 @@ function initLandingDiscography() {
     // 初期化の多重実行を防ぐ
     if (window.__discographyInitDone) return;
     window.__discographyInitDone = true;
-    
+
     const featuredEl = document.getElementById('discography-featured');
     const gridEl = document.getElementById('discography-grid');
     const loadingEl = document.getElementById('discography-loading-lp');
@@ -2632,7 +2632,7 @@ function renderLatestReleaseLP(album, targetEl) {
     trackItems.forEach((item) => {
         const playButton = item.querySelector('.track-play-button');
         const trackId = item.dataset.trackId;
-        
+
         // 再生ボタンのクリックイベント
         if (playButton) {
             playButton.addEventListener('click', (e) => {
@@ -2641,7 +2641,7 @@ function renderLatestReleaseLP(album, targetEl) {
                 if (trackId) {
                     // すべてのトラックリストアイテムからis-activeを削除
                     removeAllActiveStates();
-                    
+
                     // プレーヤーを開いた場合のみis-activeを追加（閉じた場合は追加しない）
                     const playerOpened = showGlobalSpotifyPlayer(trackId);
                     if (playerOpened) {
@@ -2651,7 +2651,7 @@ function renderLatestReleaseLP(album, targetEl) {
                 }
             });
         }
-        
+
         // トラックリストアイテム全体のクリックイベント（再生ボタン以外）
         item.addEventListener('click', (e) => {
             // 再生ボタンがクリックされた場合は処理しない
@@ -2663,7 +2663,7 @@ function renderLatestReleaseLP(album, targetEl) {
             if (trackId) {
                 // すべてのトラックリストアイテムからis-activeを削除
                 removeAllActiveStates();
-                
+
                 // プレーヤーを開いた場合のみis-activeを追加（閉じた場合は追加しない）
                 const playerOpened = showGlobalSpotifyPlayer(trackId);
                 if (playerOpened) {
@@ -2702,7 +2702,7 @@ function renderRailLP(albums, gridEl, artistId) {
                 </div>
                 <div class="album-tracks-list">
                     ${(album.tracks || []).map((track, index) => {
-                        return `
+            return `
                             <div class="track-list-item" data-track-id="${escapeHtml(track.id)}">
                                 <span class="track-number">${track.track_number || index + 1}</span>
                                 <div class="track-name-wrapper">
@@ -2713,7 +2713,7 @@ function renderRailLP(albums, gridEl, artistId) {
                                 </div>
                             </div>
                         `;
-                    }).join('')}
+        }).join('')}
                 </div>
             </div>
         `;
@@ -2784,7 +2784,7 @@ function renderRailLP(albums, gridEl, artistId) {
         const imageWrapper = card.querySelector('.album-card-image-wrapper');
         const tracksList = card.querySelector('.album-tracks-list');
         const trackItems = card.querySelectorAll('.track-list-item');
-        
+
         // トラックリストをScrollTriggerの影響から完全に分離
         // pointer-events、height、overflowをScrollTrigger側で触らないようにする
         if (tracksList) {
@@ -2793,14 +2793,14 @@ function renderRailLP(albums, gridEl, artistId) {
             // ScrollTriggerの影響を無効化するため、will-changeを設定
             tracksList.style.willChange = 'height, opacity';
         }
-        
+
         // ジャケット画像のクリックでトラックリストを開閉
         // ScrollTriggerと無関係な純粋なclickイベントで処理
         if (imageWrapper) {
             imageWrapper.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 // 他のカードのトラックリストを閉じる
                 gridEl.querySelectorAll('.album-card').forEach(c => {
                     if (c !== card) {
@@ -2826,10 +2826,10 @@ function renderRailLP(albums, gridEl, artistId) {
                         }
                     }
                 });
-                
+
                 // イベントの伝播を防ぐ（余白クリック処理が発動しないように）
                 e.stopPropagation();
-                
+
                 // このカードのトラックリストを開閉
                 const isExpanded = card.classList.contains('is-expanded');
                 if (isExpanded) {
@@ -2862,9 +2862,9 @@ function renderRailLP(albums, gridEl, artistId) {
                         tracksList.style.display = 'block';
                         // レイアウトを確定させるために少し待機
                         setTimeout(() => {
-                            gsap.fromTo(tracksList, 
+                            gsap.fromTo(tracksList,
                                 { height: 0, opacity: 0 },
-                                { 
+                                {
                                     height: 'auto',
                                     opacity: 1,
                                     duration: 0.4,
@@ -2883,12 +2883,12 @@ function renderRailLP(albums, gridEl, artistId) {
                 }
             });
         }
-        
+
         // トラックリストアイテムのクリックイベント
         trackItems.forEach((item) => {
             const playButton = item.querySelector('.track-play-button');
             const trackId = item.dataset.trackId;
-            
+
             // 再生ボタンのクリックイベント
             if (playButton) {
                 playButton.addEventListener('click', (e) => {
@@ -2897,7 +2897,7 @@ function renderRailLP(albums, gridEl, artistId) {
                     if (trackId) {
                         // すべてのトラックリストアイテムからis-activeを削除
                         removeAllActiveStates();
-                        
+
                         // プレーヤーを開いた場合のみis-activeを追加（閉じた場合は追加しない）
                         const playerOpened = showGlobalSpotifyPlayer(trackId);
                         if (playerOpened) {
@@ -2907,7 +2907,7 @@ function renderRailLP(albums, gridEl, artistId) {
                     }
                 });
             }
-            
+
             // トラックリストアイテム全体のクリックイベント（再生ボタン以外）
             item.addEventListener('click', (e) => {
                 // 再生ボタンがクリックされた場合は処理しない
@@ -2919,7 +2919,7 @@ function renderRailLP(albums, gridEl, artistId) {
                 if (trackId) {
                     // すべてのトラックリストアイテムからis-activeを削除
                     removeAllActiveStates();
-                    
+
                     // プレーヤーを開いた場合のみis-activeを追加（閉じた場合は追加しない）
                     const playerOpened = showGlobalSpotifyPlayer(trackId);
                     if (playerOpened) {
@@ -2936,10 +2936,10 @@ function renderRailLP(albums, gridEl, artistId) {
     if (parent) {
         // 既存のリンクコンテナを削除
         parent.querySelectorAll('.discography-streaming-links').forEach((el) => el.remove());
-        
+
         const linksContainer = document.createElement('div');
         linksContainer.className = 'discography-streaming-links';
-        
+
         // 各音楽サービスへのリンク（4つのサービス）
         const streamingServices = [
             {
@@ -2967,7 +2967,7 @@ function renderRailLP(albums, gridEl, artistId) {
                 ariaLabel: 'Amazon MusicでMasato Hayashiを聴く'
             }
         ];
-        
+
         streamingServices.forEach((service) => {
             const link = document.createElement('a');
             link.className = 'streaming-link';
@@ -2978,7 +2978,7 @@ function renderRailLP(albums, gridEl, artistId) {
             link.innerHTML = `<i class="${service.icon}"></i>`;
             linksContainer.appendChild(link);
         });
-        
+
         parent.appendChild(linksContainer);
     }
 }
@@ -2996,7 +2996,7 @@ function removeAllActiveStates() {
 function closeSpotifyPlayer() {
     const playerEl = document.getElementById('spotify-global-player');
     if (!playerEl) return;
-    
+
     playerEl.classList.remove('active');
     const embedContainer = playerEl.querySelector('.spotify-player-embed');
     if (embedContainer) {
@@ -3008,7 +3008,7 @@ function closeSpotifyPlayer() {
     document.querySelectorAll('.track-card.is-playing, .discography-featured-content.is-playing').forEach(el => {
         el.classList.remove('is-playing');
     });
-    
+
     // すべてのis-activeを解除（色を戻す）
     removeAllActiveStates();
 }
@@ -3042,13 +3042,13 @@ function showGlobalSpotifyPlayer(trackId) {
             if (playerEl.contains(e.target)) {
                 return;
             }
-            
+
             // プレーヤーがアクティブな場合のみ閉じる
             if (playerEl.classList.contains('active')) {
                 closeSpotifyPlayer();
             }
         };
-        
+
         // プレーヤーがアクティブなときのみ外側クリックを監視
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
@@ -3065,7 +3065,7 @@ function showGlobalSpotifyPlayer(trackId) {
                 }
             });
         });
-        
+
         observer.observe(playerEl, { attributes: true, attributeFilter: ['class'] });
     }
 

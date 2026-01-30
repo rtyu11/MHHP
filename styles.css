@@ -50,7 +50,7 @@
         overflow-wrap: anywhere !important;
         white-space: normal !important;
     }
-    
+
     /* keep-togetherクラスは改行を防ぐ（ただし画面幅を超える場合は許可） */
     .keep-together {
         word-break: keep-all !important;
@@ -60,7 +60,7 @@
         display: inline-block;
         vertical-align: baseline;
     }
-    
+
     /* アーティスト紹介文内のkeep-togetherは画面幅を超えないように */
     .artist-bio p .keep-together {
         max-width: 100%;
@@ -620,7 +620,7 @@ body {
     background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.25));
     border-color: var(--accent);
     color: var(--accent);
-    box-shadow: 
+    box-shadow:
         0 4px 20px rgba(212, 175, 55, 0.3),
         0 0 30px rgba(212, 175, 55, 0.2),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -641,7 +641,7 @@ body {
 
 .lang-switch-btn.active:hover {
     background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.3));
-    box-shadow: 
+    box-shadow:
         0 6px 25px rgba(212, 175, 55, 0.4),
         0 0 40px rgba(212, 175, 55, 0.3),
         inset 0 1px 0 rgba(255, 255, 255, 0.15);
@@ -654,16 +654,16 @@ body {
     display: block;
 }
 
-    .nav-menu-links {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: flex-start;
-        gap: 1rem;
-        flex: 1;
-        padding: 0 1.5rem;
-        margin-top: 0.5rem;
-    }
+.nav-menu-links {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 1rem;
+    flex: 1;
+    padding: 0 1.5rem;
+    margin-top: 0.5rem;
+}
 
 .nav-menu-links .nav-store-link {
     display: inline-flex;
@@ -893,10 +893,13 @@ body {
 .hero-title .char-wrap {
     opacity: 0;
     /* 初期状態で非表示 */
-    display: inline-block; /* transform時の字面欠けを防ぐ */
-    padding-bottom: 0.14em; /* yの下が切れないように */
+    display: inline-block;
+    /* transform時の字面欠けを防ぐ */
+    padding-bottom: 0.14em;
+    /* yの下が切れないように */
     will-change: transform, opacity;
-    margin-bottom: 0.3em; /* MasatoとHayashiの間隔を開ける */
+    margin-bottom: 0.3em;
+    /* MasatoとHayashiの間隔を開ける */
 
     /* Gold Gradient（文字が透明にならないよう、span側に適用） */
     background: linear-gradient(to bottom right, #fbf5b7 10%, #bf953f 40%, #b38728 60%, #aa771c 90%);
@@ -1012,7 +1015,7 @@ body {
     .marquee-track {
         animation: none !important;
     }
-    
+
     .marquee-section {
         overflow-x: auto;
     }
@@ -1225,9 +1228,9 @@ body {
     opacity: 0 !important;
     visibility: hidden;
     transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 0.4s ease-out,
-                margin 0.4s ease-out,
-                visibility 0s linear 0.4s;
+        opacity 0.4s ease-out,
+        margin 0.4s ease-out,
+        visibility 0s linear 0.4s;
     margin-top: 0;
     display: block;
 }
@@ -1243,11 +1246,11 @@ body {
         margin-top: 0;
         display: block;
     }
-    
+
     .artist-bio-fade {
         display: none !important;
     }
-    
+
     .artist-bio-toggle {
         display: none !important;
     }
@@ -1267,9 +1270,9 @@ body {
     opacity: 1 !important;
     visibility: visible;
     transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 0.4s ease-out,
-                margin 0.4s ease-out,
-                visibility 0s linear 0s;
+        opacity 0.4s ease-out,
+        margin 0.4s ease-out,
+        visibility 0s linear 0s;
     margin-top: 0;
 }
 
@@ -1280,11 +1283,11 @@ body {
     left: clamp(16px, 4vw, 40px);
     right: clamp(16px, 4vw, 40px);
     height: 120px;
-    background: linear-gradient(to bottom, 
-        rgba(5, 5, 5, 0) 0%,
-        rgba(5, 5, 5, 0.6) 40%,
-        rgba(5, 5, 5, 0.9) 80%,
-        rgba(5, 5, 5, 1) 100%);
+    background: linear-gradient(to bottom,
+            rgba(5, 5, 5, 0) 0%,
+            rgba(5, 5, 5, 0.6) 40%,
+            rgba(5, 5, 5, 0.9) 80%,
+            rgba(5, 5, 5, 1) 100%);
     cursor: pointer;
     opacity: 1;
     transition: opacity 0.5s ease-out;
@@ -1339,9 +1342,12 @@ body {
 }
 
 @keyframes bounce-hint {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: translateY(0);
     }
+
     50% {
         transform: translateY(4px);
     }
@@ -2623,7 +2629,7 @@ body.news-modal-open .news-item.is-active::after {
         /* モバイル版でスクロールスナップを中央に */
         scroll-snap-align: center;
     }
-    
+
     /* アルバムカードの画像が見切れないように */
     .album-card-image-wrapper {
         width: 100%;
@@ -2631,7 +2637,7 @@ body.news-modal-open .news-item.is-active::after {
         overflow: hidden;
         position: relative;
     }
-    
+
     .album-card-image {
         width: 100%;
         height: 100%;
@@ -2639,7 +2645,7 @@ body.news-modal-open .news-item.is-active::after {
         object-position: center;
         display: block;
     }
-    
+
     /* トラックカードの画像も同様に */
     .track-card-image-wrapper {
         width: 100%;
@@ -2647,7 +2653,7 @@ body.news-modal-open .news-item.is-active::after {
         overflow: hidden;
         position: relative;
     }
-    
+
     .track-card-image {
         width: 100%;
         height: 100%;
@@ -2682,7 +2688,7 @@ body.news-modal-open .news-item.is-active::after {
     .album-tracks-list {
         max-height: 300px;
     }
-    
+
     .discography-featured-tracks {
         max-height: 400px;
     }
@@ -3640,14 +3646,14 @@ body.hovered .cursor-circle {
         overflow-x: hidden;
         box-sizing: border-box;
     }
-    
+
     .artist-bio p {
         overflow-wrap: break-word;
         word-break: break-word;
         max-width: 100%;
         box-sizing: border-box;
     }
-    
+
     /* モバイル版ではkeep-togetherが画面幅を超えないように */
     .artist-bio p .keep-together {
         max-width: 100%;
@@ -3669,14 +3675,14 @@ body.hovered .cursor-circle {
         font-weight: 400;
         color: #ccc;
     }
-    
+
     .artist-bio-collapsed p {
         font-size: 1rem;
         font-weight: 400;
         color: #ccc;
         line-height: 2.0;
     }
-    
+
     .artist-bio-fade {
         bottom: 0;
         left: clamp(16px, 4vw, 40px);
@@ -3684,12 +3690,12 @@ body.hovered .cursor-circle {
         height: 100px;
         padding-bottom: 15px;
     }
-    
+
     .fade-hint {
         font-size: 0.8rem;
         padding: 6px 12px;
     }
-    
+
     .artist-bio-toggle {
         padding: 10px 20px;
         font-size: 0.85rem;
@@ -3780,7 +3786,8 @@ body.hovered .cursor-circle {
     }
 
     .hero-title .char-wrap {
-        margin-bottom: 0.5em; /* スマホでのMasatoとHayashiの間隔をさらに開ける */
+        margin-bottom: 0.5em;
+        /* スマホでのMasatoとHayashiの間隔をさらに開ける */
     }
 
     .hero-subtitle {
@@ -3851,7 +3858,7 @@ body.hovered .cursor-circle {
         text-rendering: optimizeLegibility;
         padding: 0.4rem 0;
     }
-    
+
     .marquee-item::after {
         margin: 0 3rem;
         font-size: 0.4em;
@@ -4176,23 +4183,23 @@ body.hovered .cursor-circle {
     .news-more-scroll-container {
         max-height: 300px;
     }
-    
+
     .news-more-scroll-container.is-expanded {
         max-height: 300px;
         padding: 1rem;
     }
-    
+
     .news-more-scroll-container .news-item {
         padding: 0.75rem 0;
         margin-bottom: 0.2rem;
         grid-template-columns: 80px 1fr auto;
     }
-    
+
     .news-more-scroll-container .news-title {
         font-size: 1rem;
         line-height: 1.3;
     }
-    
+
     .news-more-scroll-container .news-date {
         font-size: 0.7rem;
     }

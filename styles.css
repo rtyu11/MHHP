@@ -80,6 +80,29 @@
     }
 }
 
+/* スマホ・Android向けの包括的なスクロール修正 */
+@media (max-width: 900px) {
+
+    .loader,
+    .hero-bg-container,
+    .hero-video,
+    .hero-overlay,
+    .global-noise,
+    #distortionCanvas {
+        pointer-events: none !important;
+    }
+
+    /* リンクやボタンは操作可能に */
+    a,
+    button,
+    input,
+    select,
+    textarea,
+    [role="button"] {
+        pointer-events: auto !important;
+    }
+}
+
 html {
     /* スクロールバーのスペースを確保（中央ずれを防ぐ） */
     overflow-y: scroll;
@@ -99,17 +122,19 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-weight: 400;
-    /* Android スクロール最適化 */
+    /* Android スクロール最適化 - 緩和 */
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior: none;
+    /* overscroll-behavior: none; 削除 - Androidでのスクロールチェーン問題防止 */
     /* テキスト選択の最適化 */
     -webkit-user-select: none;
     user-select: none;
-    /* タッチ操作の最適化 */
-    touch-action: pan-y;
+    /* タッチ操作の最適化 - 強制的に有効化 */
+    touch-action: pan-y !important;
     /* 中央揃えのための設定 */
     width: 100%;
     box-sizing: border-box;
+    /* Androidでbodyの高さが0になってスクロールできない問題を防止 */
+    min-height: 100vh;
 }
 
 /* Lenis スクロールコンテナの中央揃え */
@@ -842,6 +867,8 @@ body {
     /* ハードウェアアクセラレーション */
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
+    /* 動画自体がタッチイベントを奪わないようにする */
+    pointer-events: none;
 }
 
 .hero-overlay {

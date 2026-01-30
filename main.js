@@ -124,9 +124,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // GSAP ScrollTrigger を先に登録
     gsap.registerPlugin(ScrollTrigger);
 
-    // スマホ幅（max-width: 768px）では Lenis を完全に無効化
-    if (!isMobileSmall) {
-        // Smooth Scroll（PC・タブレットのみ）
+    // スマホ幅（max-width: 768px）またはAndroid端末では Lenis を完全に無効化
+    if (!isMobileSmall && !isAndroid) {
+        // Smooth Scroll（PC・タブレットのみ、Android除く）
         lenis = new Lenis({
             duration: isAndroid ? 0.05 : (isMobile ? 0.1 : 1.5),
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),

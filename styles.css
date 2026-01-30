@@ -143,7 +143,7 @@ body {
     transform: translateZ(0);
     will-change: transform, opacity;
     /* タッチ操作の無効化（ローディング中） */
-    touch-action: none;
+    /* touch-action: none; Androidでのスクロール不具合防止のため削除 */
 }
 
 /* 背景画像の調整（クールなライブ感） */
@@ -2140,10 +2140,12 @@ body.news-modal-open .news-item.is-active::after {
     transition: transform 0.4s var(--ease-out);
     padding: 0;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
+    pointer-events: none;
 }
 
 .spotify-global-player.active {
     transform: translateY(0);
+    pointer-events: auto;
 }
 
 .spotify-player-close {

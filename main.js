@@ -2007,12 +2007,27 @@ function renderNews(items) {
                 const linkLabel = getLocalizedLinkLabel(storedItem);
                 const bodyText = getLocalizedBody(storedItem).replace(/\n/g, '<br>');
 
-                // URLが存在する場合、COUNT3の画像を表示
+                // YouTubeのURLからサムネイル画像を取得する関数
+                const getYouTubeThumbnail = (videoUrl) => {
+                    const regex = /(?:youtu\.be\/|youtube\.com\/watch\?v=|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/;
+                    const match = videoUrl.match(regex);
+                    if (match) {
+                        return `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`;
+                    }
+                    return null;
+                };
+
+                // URLが存在する場合、適切な画像を表示
                 if (url) {
+                    const thumbnailUrl = getYouTubeThumbnail(url);
+                    const imageHtml = thumbnailUrl
+                        ? `<div class="news-modal__image-wrapper">
+                            <img src="${thumbnailUrl}" alt="YouTube thumbnail" class="news-modal__image" loading="lazy">
+                          </div>`
+                        : '';
+
                     modalBody.innerHTML = `
-                        <div class="news-modal__image-wrapper">
-                            <img src="images/count3.jpg" alt="Link preview" class="news-modal__image" loading="lazy">
-                        </div>
+                        ${imageHtml}
                         <div class="news-modal__text">${bodyText}</div>
                     `;
                     modalLink.href = url;

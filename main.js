@@ -2028,10 +2028,16 @@ function renderNews(items) {
                     return null;
                 };
 
+                // デバッグ: データ確認
+                console.log('storedItem:', storedItem);
+                console.log('storedItem.image_url:', storedItem.image_url);
+
                 // 画像URLの優先順位: 1. image_url 2. YouTubeサムネイル 3. なし
                 const imageUrl = storedItem.image_url
                     ? convertGoogleDriveUrl(storedItem.image_url)
                     : getYouTubeThumbnail(url);
+
+                console.log('変換後のimageUrl:', imageUrl);
 
                 // 画像HTMLを生成
                 const imageHtml = imageUrl

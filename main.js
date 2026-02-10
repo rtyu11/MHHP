@@ -2007,8 +2007,19 @@ function renderNews(items) {
                 const linkLabel = getLocalizedLinkLabel(storedItem);
                 const bodyText = getLocalizedBody(storedItem).replace(/\n/g, '<br>');
 
+                // Google DriveのURLを表示可能な形式に変換する関数
+                const convertGoogleDriveUrl = (driveUrl) => {
+                    if (!driveUrl) return null;
+                    const match = driveUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+                    if (match) {
+                        return `https://drive.google.com/uc?id=${match[1]}`;
+                    }
+                    return driveUrl;
+                };
+
                 // YouTubeのURLからサムネイル画像を取得する関数
                 const getYouTubeThumbnail = (videoUrl) => {
+                    if (!videoUrl) return null;
                     const regex = /(?:youtu\.be\/|youtube\.com\/watch\?v=|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/;
                     const match = videoUrl.match(regex);
                     if (match) {
@@ -2017,24 +2028,29 @@ function renderNews(items) {
                     return null;
                 };
 
-                // URLが存在する場合、適切な画像を表示
-                if (url) {
-                    const thumbnailUrl = getYouTubeThumbnail(url);
-                    const imageHtml = thumbnailUrl
-                        ? `<div class="news-modal__image-wrapper">
-                            <img src="${thumbnailUrl}" alt="YouTube thumbnail" class="news-modal__image" loading="lazy">
-                          </div>`
-                        : '';
+                // 画像URLの優先順位: 1. image_url 2. YouTubeサムネイル 3. なし
+                const imageUrl = storedItem.image_url
+                    ? convertGoogleDriveUrl(storedItem.image_url)
+                    : getYouTubeThumbnail(url);
 
-                    modalBody.innerHTML = `
-                        ${imageHtml}
-                        <div class="news-modal__text">${bodyText}</div>
-                    `;
+                // 画像HTMLを生成
+                const imageHtml = imageUrl
+                    ? `<div class="news-modal__image-wrapper">
+                        <img src="${imageUrl}" alt="Article image" class="news-modal__image" loading="lazy">
+                      </div>`
+                    : '';
+
+                modalBody.innerHTML = `
+                    ${imageHtml}
+                    <div class="news-modal__text">${bodyText}</div>
+                `;
+
+                // リンクの表示設定
+                if (url) {
                     modalLink.href = url;
                     modalLink.textContent = linkLabel;
                     modalLink.style.display = 'inline-block';
                 } else {
-                    modalBody.innerHTML = `<div class="news-modal__text">${bodyText}</div>`;
                     modalLink.href = '#';
                     modalLink.style.display = 'none';
                 }

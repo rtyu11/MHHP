@@ -2012,7 +2012,7 @@ function renderNews(items) {
                     if (!driveUrl) return null;
                     const match = driveUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
                     if (match) {
-                        return `https://drive.google.com/uc?id=${match[1]}`;
+                        return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
                     }
                     return driveUrl;
                 };

@@ -652,11 +652,9 @@ function initLoader(navType) {
     const loader = document.querySelector('.loader');
     if (!loader) return;
 
-    const counterEl    = document.querySelector('.loader-counter');
     const textEl       = document.querySelector('.loader-text');
     const artistEl     = document.querySelector('.loader-artist');
     const bars         = loader.querySelectorAll('.loader-bar');
-    const goldFlashEl  = document.querySelector('.loader-gold-flash');
     const progressFill = document.querySelector('.loader-progress-fill');
     const heroVideo    = document.querySelector('.hero-video');
 
@@ -674,7 +672,6 @@ function initLoader(navType) {
 
     const tl = gsap.timeline();
 
-    // 動画は一時停止して待機
     if (heroVideo) {
         try {
             heroVideo.pause();
@@ -682,215 +679,76 @@ function initLoader(navType) {
         } catch (_) { }
     }
 
-    // --- 初期状態: 全要素を非表示 ---
-    gsap.set(counterEl,    { opacity: 0, clipPath: 'inset(0 100% 0 0)', scale: 1 });
-    gsap.set(artistEl,     { opacity: 0, y: -8 });
-    gsap.set(goldFlashEl,  { opacity: 0 });
+    // 初期状態
+    gsap.set(artistEl,     { opacity: 0, y: -6 });
     gsap.set(progressFill, { width: '0%' });
-    gsap.set(bars,         { scaleY: 0.1, opacity: 0, transformOrigin: 'bottom center' });
+    gsap.set(bars,         { scaleY: 0, opacity: 0, transformOrigin: 'bottom center' });
 
-    // --- フェーズ1: シグナルバー上昇 + アーティスト名 ---
-
-    // バーをスタッガードで下から立ち上げる（シグナル取得中）
-    tl.to(bars, {
-        scaleY: 1,
-        opacity: 0.6,
-        duration: 0.5,
-        stagger: 0.06,
-        ease: 'power2.out'
-    });
-
-    // アーティスト名を上部にフェードイン
-    tl.to(artistEl, {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        ease: 'power2.out'
-    }, '<0.1');
-
-    // ステータステキストをセット
+    // ステータステキスト
     const loadingText = getNestedValue(translations[currentLang], 'loader.loading') || 'NOW LOADING...';
     tl.call(() => {
         if (textEl) textEl.textContent = loadingText;
     });
 
-    // 短いホールド
-    tl.to({}, { duration: 0.3 });
-
-    // --- カウントダウン演出関数 ---
-    const countStep = (num, progressPct) => {
-        // バーがビートに合わせてスパイク
-        tl.to(bars, {
-            scaleY: 2.5,
-            opacity: 1,
-            duration: 0.05,
-            ease: 'power3.out',
-            stagger: { each: 0.02, from: 'center' }
-        });
-
-        // 同時にゴールドフラッシュ
-        tl.to(goldFlashEl, {
-            opacity: 1,
-            duration: 0.04,
-            ease: 'none'
-        }, '<');
-
-        tl.to(goldFlashEl, {
-            opacity: 0,
-            duration: 0.2,
-            ease: 'power2.out'
-        });
-
-        // バーが中央から崩壊（数字が代わりに現れる）
-        tl.to(bars, {
-            scaleY: 0,
-            opacity: 0,
-            duration: 0.15,
-            ease: 'power3.in',
-            stagger: { each: 0.015, from: 'center' }
-        }, '<');
-
-        // 数字をセットしてシャッターワイプで登場
-        tl.call(() => {
-            if (counterEl) counterEl.textContent = num;
-            if (loader) loader.classList.add('show-noise');
-        });
-
-        // clip-path で左から右へワイプイン（フィルムシャッター的演出）
-        tl.fromTo(counterEl,
-            {
-                opacity: 1,
-                clipPath: 'inset(0 100% 0 0)',
-                scale: 1.05,
-                skewX: '-3deg'
-            },
-            {
-                clipPath: 'inset(0 0% 0 0)',
-                scale: 1,
-                skewX: '0deg',
-                duration: 0.22,
-                ease: 'power3.out'
-            }
-        );
-
-        // ホールド
-        tl.to({}, { duration: 0.25 });
-
-        // プログレスバーを進める
-        tl.to(progressFill, {
-            width: progressPct + '%',
-            duration: 0.35,
-            ease: 'power2.inOut'
-        }, '<');
-
-        // ドンッ（パルス）
-        tl.to(counterEl, { scale: 1.06, duration: 0.05, ease: 'power2.out' });
-        tl.to(counterEl, { scale: 1.0,  duration: 0.07, ease: 'power2.in'  });
-
-        tl.to({}, { duration: 0.2 });
-
-        // 数字を右へシア退場（VHSグリッチ的）
-        tl.to(counterEl, {
-            clipPath: 'inset(0 0% 0 100%)',
-            skewX: '4deg',
-            duration: 0.14,
-            ease: 'power3.in'
-        });
-
-        // バーが戻る
-        tl.to(bars, {
-            scaleY: 0.5,
-            opacity: 0.4,
-            duration: 0.2,
-            ease: 'power2.out',
-            stagger: { each: 0.03, from: 'edges' }
-        });
-
-        tl.call(() => {
-            if (loader) loader.classList.remove('show-noise');
-        });
-
-        tl.to({}, { duration: 0.1 });
-    };
-
-    // --- フェーズ2: 3 → 2 → 1 ビート ---
-
-    countStep('3', 33);
-    countStep('2', 66);
-
-    // 最終ビート「1」（バーの最後のスパイク）
+    // バーをスタッガードで立ち上げ
     tl.to(bars, {
-        scaleY: 3.0,
-        opacity: 1,
-        duration: 0.04,
-        ease: 'power3.out',
-        stagger: { each: 0.01, from: 'center' }
+        scaleY: 1,
+        opacity: 0.55,
+        duration: 0.55,
+        stagger: 0.055,
+        ease: 'power3.out'
     });
 
-    tl.to(goldFlashEl, { opacity: 1, duration: 0.04, ease: 'none' }, '<');
-    tl.to(goldFlashEl, { opacity: 0, duration: 0.25, ease: 'power2.out' });
+    // アーティスト名フェードイン（バーと同時）
+    tl.to(artistEl, {
+        opacity: 1,
+        y: 0,
+        duration: 0.5,
+        ease: 'power2.out'
+    }, '<0.1');
 
+    // プログレスバーを滑らかに進める
+    tl.to(progressFill, {
+        width: '100%',
+        duration: 1.0,
+        ease: 'power1.inOut'
+    }, '<0.2');
+
+    // バーがアイドルアニメーションで揺れる間、少し待つ
+    tl.to({}, { duration: 0.35 });
+
+    // バーを中央から崩壊させフェードアウト
     tl.to(bars, {
         scaleY: 0,
         opacity: 0,
-        duration: 0.12,
-        ease: 'power3.in',
-        stagger: { each: 0.01, from: 'center' }
-    }, '<0.02');
-
-    // 「1」をシャッターワイプで登場
-    const readyText = getNestedValue(translations[currentLang], 'loader.ready') || 'READY?';
-    tl.call(() => {
-        if (counterEl) counterEl.textContent = '1';
-        if (textEl) textEl.textContent = readyText;
-        if (loader) loader.classList.add('show-noise');
+        duration: 0.4,
+        ease: 'power2.in',
+        stagger: { each: 0.04, from: 'center' }
     });
 
-    tl.fromTo(counterEl,
-        { opacity: 1, clipPath: 'inset(0 100% 0 0)', scale: 1.08, skewX: '-4deg' },
-        { clipPath: 'inset(0 0% 0 0)', scale: 1, skewX: '0deg', duration: 0.18, ease: 'power3.out' }
-    );
+    // アーティスト名とテキストもフェードアウト
+    tl.to([artistEl, textEl], {
+        opacity: 0,
+        duration: 0.3,
+        ease: 'power2.in'
+    }, '<0.1');
 
-    // プログレスを100%に
-    tl.to(progressFill, { width: '100%', duration: 0.25, ease: 'power2.inOut' }, '<');
-
-    // ダブルパルス（より強いインパクト）
-    tl.to(counterEl, { scale: 1.1, duration: 0.04, ease: 'power2.out' });
-    tl.to(counterEl, { scale: 1.0, duration: 0.05, ease: 'power2.in'  });
-
-    tl.to({}, { duration: 0.08 });
-
-    // 「1」を上へスワイプ退場
-    tl.to(counterEl, {
-        clipPath: 'inset(0 0% 0 100%)',
-        skewX: '5deg',
-        duration: 0.1,
-        ease: 'power3.in'
-    });
-
-    // 最終ゴールドフラッシュ
-    tl.to(goldFlashEl, { opacity: 1, duration: 0.06, ease: 'none' });
-    tl.to(goldFlashEl, { opacity: 0, duration: 0.15, ease: 'power2.out' });
-
-    // --- フェーズ3: ヒーローへカット ---
+    // ローダー全体をフェードアウトしてヒーローへ
     tl.call(() => {
-        if (textEl) textEl.textContent = '';
-        if (loader) loader.classList.remove('show-noise');
-
         playHeroVideoIfAvailable(heroVideo);
+    });
 
-        gsap.to(loader, {
-            opacity: 0,
-            duration: 0.22,
-            ease: 'power3.out',
-            onComplete: () => {
-                loader.style.display = 'none';
-                document.body.classList.remove('is-loading');
-                document.body.style.overflow = '';
-                markLoaderSeen();
-                initHeroReveal();
-            }
-        });
+    tl.to(loader, {
+        opacity: 0,
+        duration: 0.5,
+        ease: 'power2.inOut',
+        onComplete: () => {
+            loader.style.display = 'none';
+            document.body.classList.remove('is-loading');
+            document.body.style.overflow = '';
+            markLoaderSeen();
+            initHeroReveal();
+        }
     });
 }
 

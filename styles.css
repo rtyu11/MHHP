@@ -171,31 +171,6 @@ body {
     /* touch-action: none; Androidでのスクロール不具合防止のため削除 */
 }
 
-/* カウントダウン数字 — ゴールドグラデーション */
-.loader-counter {
-    position: relative;
-    z-index: 10;
-    font-family: 'Bebas Neue', 'Oswald', sans-serif;
-    font-size: clamp(10rem, 38vw, 30rem);
-    font-weight: 400;
-    line-height: 0.9;
-    letter-spacing: -0.02em;
-
-    /* ゴールドグラデーション */
-    background: linear-gradient(160deg, #f5e6a3 0%, #d4af37 40%, #a07c1e 80%, #6b5010 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-
-    /* ゴールドグロー */
-    filter: drop-shadow(0 0 40px rgba(212, 175, 55, 0.5))
-            drop-shadow(0 0 80px rgba(212, 175, 55, 0.2));
-
-    opacity: 0;
-    clip-path: inset(0 100% 0 0);
-    will-change: opacity, transform, clip-path;
-}
-
 /* ステータステキスト */
 .loader-text {
     position: absolute;
@@ -223,11 +198,6 @@ body {
     animation: loader-noise 0.1s steps(8) infinite;
     opacity: 0.05;
     /* 常時うっすらノイズ */
-}
-
-.loader.show-noise::after {
-    opacity: 0.15;
-    /* 強調時 */
 }
 
 @keyframes loader-noise {
@@ -308,21 +278,6 @@ body {
 @keyframes loader-bar-idle {
     from { transform: scaleY(0.3); opacity: 0.4; }
     to   { transform: scaleY(1.0); opacity: 0.8; }
-}
-
-/* --- Gold Flash Overlay --- */
-.loader-gold-flash {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse at center,
-        rgba(212, 175, 55, 0.25) 0%,
-        rgba(212, 175, 55, 0.08) 50%,
-        transparent 100%
-    );
-    z-index: 8;
-    opacity: 0;
-    pointer-events: none;
-    will-change: opacity;
 }
 
 /* --- Artist Name Tag --- */

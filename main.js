@@ -651,13 +651,17 @@ function getNestedValue(obj, path) {
 function initLoader(navType) {
     const loader = document.querySelector('.loader');
     if (!loader) return;
-    const counterEl = document.querySelector('.loader-counter'); // 巨大な数字用
-    const textEl = document.querySelector('.loader-text'); // 下部の小さいテキスト
-    const flashImgEl = document.querySelector('.loader-flash');
-    const heroVideo = document.querySelector('.hero-video');
+
+    const counterEl    = document.querySelector('.loader-counter');
+    const textEl       = document.querySelector('.loader-text');
+    const artistEl     = document.querySelector('.loader-artist');
+    const bars         = loader.querySelectorAll('.loader-bar');
+    const goldFlashEl  = document.querySelector('.loader-gold-flash');
+    const progressFill = document.querySelector('.loader-progress-fill');
+    const heroVideo    = document.querySelector('.hero-video');
 
     const seenSession = hasSeenLoader();
-    const seenGlobal = hasGlobalLoaderFlag();
+    const seenGlobal  = hasGlobalLoaderFlag();
     const shouldSkipLoader = seenSession && seenGlobal && navType !== 'reload';
     if (shouldSkipLoader) {
         loader.style.display = 'none';
@@ -670,10 +674,6 @@ function initLoader(navType) {
 
     const tl = gsap.timeline();
 
-    // 初期設定
-    gsap.set(counterEl, { opacity: 0, scale: 1.2 });
-    gsap.set(flashImgEl, { opacity: 0, scale: 1.1 });
-
     // 動画は一時停止して待機
     if (heroVideo) {
         try {
@@ -682,157 +682,207 @@ function initLoader(navType) {
         } catch (_) { }
     }
 
-    // --- カウントダウン演出関数（クールなライブ感） ---
-    const countStep = (num, imgUrl) => {
-        // 1. 画像の切り替え（ある場合）
-        if (imgUrl && flashImgEl) {
-            // 画像をセット
-            tl.call(() => {
-                flashImgEl.src = imgUrl;
-                if (loader) loader.classList.remove('show-noise');
-            });
-            // 画像をクイックフラッシュで表示（ライブのスポットライト的）
-            tl.to(flashImgEl, {
-                opacity: 0.7,
-                scale: 1.0,
-                duration: 0.15,
-                ease: 'power3.out'
-            });
-            // 画像を維持
-            tl.to({}, { duration: 0.5 });
-            // 画像をフェードアウト
-            tl.to(flashImgEl, {
-                opacity: 0,
-                scale: 1.05,
-                duration: 0.2,
-                ease: 'power2.in'
-            });
-        } else {
-            // 画像がない場合は黒背景＋ノイズ
-            tl.call(() => {
-                if (loader) loader.classList.add('show-noise');
-            });
-            tl.to(flashImgEl, { opacity: 0, duration: 0.1 });
-        }
+    // --- 初期状態: 全要素を非表示 ---
+    gsap.set(counterEl,    { opacity: 0, clipPath: 'inset(0 100% 0 0)', scale: 1 });
+    gsap.set(artistEl,     { opacity: 0, y: -8 });
+    gsap.set(goldFlashEl,  { opacity: 0 });
+    gsap.set(progressFill, { width: '0%' });
+    gsap.set(bars,         { scaleY: 0.1, opacity: 0, transformOrigin: 'bottom center' });
 
-        // 2. 数字の登場（ライブのカウントダウン的なインパクト）
-        tl.call(() => {
-            if (counterEl) counterEl.textContent = num;
-        });
+    // --- フェーズ1: シグナルバー上昇 + アーティスト名 ---
 
-        // 数字: 爆発的に登場
-        tl.fromTo(counterEl,
-            { opacity: 0, scale: 0.3, filter: "blur(20px)", y: 50 },
-            { opacity: 1, scale: 1, filter: "blur(0px)", y: 0, duration: 0.35, ease: "back.out(2)" }
-        );
+    // バーをスタッガードで下から立ち上げる（シグナル取得中）
+    tl.to(bars, {
+        scaleY: 1,
+        opacity: 0.6,
+        duration: 0.5,
+        stagger: 0.06,
+        ease: 'power2.out'
+    });
 
-        // 数字を維持（ビート感）
-        tl.to({}, { duration: 0.25 });
+    // アーティスト名を上部にフェードイン
+    tl.to(artistEl, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: 'power2.out'
+    }, '<0.1');
 
-        // 数字: パルス（ドンッ）
-        tl.to(counterEl, {
-            scale: 1.15,
-            duration: 0.06,
-            ease: "power2.out"
-        });
-        tl.to(counterEl, {
-            scale: 1.0,
-            duration: 0.06,
-            ease: "power2.in"
-        });
-
-        // 待機
-        tl.to({}, { duration: 0.15 });
-
-        // 数字: クイックフェードアウト
-        tl.to(counterEl, {
-            opacity: 0,
-            scale: 0.8,
-            y: -30,
-            filter: "blur(8px)",
-            duration: 0.2,
-            ease: "power3.in"
-        });
-    };
-
-    // --- タイムライン実行 ---
-
-    // START（最初は「NOW LOADING...」）
+    // ステータステキストをセット
     const loadingText = getNestedValue(translations[currentLang], 'loader.loading') || 'NOW LOADING...';
     tl.call(() => {
         if (textEl) textEl.textContent = loadingText;
     });
 
-    // Count: 3
-    countStep('3', 'images/count3.jpg');
+    // 短いホールド
+    tl.to({}, { duration: 0.3 });
 
-    // Count: 2
-    countStep('2', 'images/count2.jpg');
+    // --- カウントダウン演出関数 ---
+    const countStep = (num, progressPct) => {
+        // バーがビートに合わせてスパイク
+        tl.to(bars, {
+            scaleY: 2.5,
+            opacity: 1,
+            duration: 0.05,
+            ease: 'power3.out',
+            stagger: { each: 0.02, from: 'center' }
+        });
 
-    // Count: 1 (画像と同じ間隔で黒背景＋ノイズ)
+        // 同時にゴールドフラッシュ
+        tl.to(goldFlashEl, {
+            opacity: 1,
+            duration: 0.04,
+            ease: 'none'
+        }, '<');
+
+        tl.to(goldFlashEl, {
+            opacity: 0,
+            duration: 0.2,
+            ease: 'power2.out'
+        });
+
+        // バーが中央から崩壊（数字が代わりに現れる）
+        tl.to(bars, {
+            scaleY: 0,
+            opacity: 0,
+            duration: 0.15,
+            ease: 'power3.in',
+            stagger: { each: 0.015, from: 'center' }
+        }, '<');
+
+        // 数字をセットしてシャッターワイプで登場
+        tl.call(() => {
+            if (counterEl) counterEl.textContent = num;
+            if (loader) loader.classList.add('show-noise');
+        });
+
+        // clip-path で左から右へワイプイン（フィルムシャッター的演出）
+        tl.fromTo(counterEl,
+            {
+                opacity: 1,
+                clipPath: 'inset(0 100% 0 0)',
+                scale: 1.05,
+                skewX: '-3deg'
+            },
+            {
+                clipPath: 'inset(0 0% 0 0)',
+                scale: 1,
+                skewX: '0deg',
+                duration: 0.22,
+                ease: 'power3.out'
+            }
+        );
+
+        // ホールド
+        tl.to({}, { duration: 0.25 });
+
+        // プログレスバーを進める
+        tl.to(progressFill, {
+            width: progressPct + '%',
+            duration: 0.35,
+            ease: 'power2.inOut'
+        }, '<');
+
+        // ドンッ（パルス）
+        tl.to(counterEl, { scale: 1.06, duration: 0.05, ease: 'power2.out' });
+        tl.to(counterEl, { scale: 1.0,  duration: 0.07, ease: 'power2.in'  });
+
+        tl.to({}, { duration: 0.2 });
+
+        // 数字を右へシア退場（VHSグリッチ的）
+        tl.to(counterEl, {
+            clipPath: 'inset(0 0% 0 100%)',
+            skewX: '4deg',
+            duration: 0.14,
+            ease: 'power3.in'
+        });
+
+        // バーが戻る
+        tl.to(bars, {
+            scaleY: 0.5,
+            opacity: 0.4,
+            duration: 0.2,
+            ease: 'power2.out',
+            stagger: { each: 0.03, from: 'edges' }
+        });
+
+        tl.call(() => {
+            if (loader) loader.classList.remove('show-noise');
+        });
+
+        tl.to({}, { duration: 0.1 });
+    };
+
+    // --- フェーズ2: 3 → 2 → 1 ビート ---
+
+    countStep('3', 33);
+    countStep('2', 66);
+
+    // 最終ビート「1」（バーの最後のスパイク）
+    tl.to(bars, {
+        scaleY: 3.0,
+        opacity: 1,
+        duration: 0.04,
+        ease: 'power3.out',
+        stagger: { each: 0.01, from: 'center' }
+    });
+
+    tl.to(goldFlashEl, { opacity: 1, duration: 0.04, ease: 'none' }, '<');
+    tl.to(goldFlashEl, { opacity: 0, duration: 0.25, ease: 'power2.out' });
+
+    tl.to(bars, {
+        scaleY: 0,
+        opacity: 0,
+        duration: 0.12,
+        ease: 'power3.in',
+        stagger: { each: 0.01, from: 'center' }
+    }, '<0.02');
+
+    // 「1」をシャッターワイプで登場
     const readyText = getNestedValue(translations[currentLang], 'loader.ready') || 'READY?';
     tl.call(() => {
-        if (loader) loader.classList.add('show-noise');
-        // ここで「READY?」に変更（NOW LOADINGと同じ位置）
-        if (textEl) {
-            textEl.textContent = readyText;
-        }
-    });
-
-    // 黒背景を画像と同じ時間維持
-    tl.to({}, { duration: 0.5 }); // 画像の維持時間と同じ
-
-    // 数字「1」の登場（画像と同じリズムで）
-    tl.call(() => {
         if (counterEl) counterEl.textContent = '1';
+        if (textEl) textEl.textContent = readyText;
+        if (loader) loader.classList.add('show-noise');
     });
 
-    // 数字: 爆発的に登場
     tl.fromTo(counterEl,
-        { opacity: 0, scale: 0.3, filter: "blur(20px)", y: 50 },
-        { opacity: 1, scale: 1, filter: "blur(0px)", y: 0, duration: 0.35, ease: "back.out(2)" }
+        { opacity: 1, clipPath: 'inset(0 100% 0 0)', scale: 1.08, skewX: '-4deg' },
+        { clipPath: 'inset(0 0% 0 0)', scale: 1, skewX: '0deg', duration: 0.18, ease: 'power3.out' }
     );
 
-    // 数字を維持（ビート感）- さらに短縮
-    tl.to({}, { duration: 0.1 });
+    // プログレスを100%に
+    tl.to(progressFill, { width: '100%', duration: 0.25, ease: 'power2.inOut' }, '<');
 
-    // 数字: パルス（ドンッ）
-    tl.to(counterEl, {
-        scale: 1.15,
-        duration: 0.04,
-        ease: "power2.out"
-    });
-    tl.to(counterEl, {
-        scale: 1.0,
-        duration: 0.04,
-        ease: "power2.in"
-    });
+    // ダブルパルス（より強いインパクト）
+    tl.to(counterEl, { scale: 1.1, duration: 0.04, ease: 'power2.out' });
+    tl.to(counterEl, { scale: 1.0, duration: 0.05, ease: 'power2.in'  });
 
-    // 待機 - さらに短縮
-    tl.to({}, { duration: 0.05 });
+    tl.to({}, { duration: 0.08 });
 
-    // 数字: クイックフェードアウト - さらに短く
+    // 「1」を上へスワイプ退場
     tl.to(counterEl, {
-        opacity: 0,
-        scale: 0.8,
-        y: -30,
-        filter: "blur(8px)",
-        duration: 0.12,
-        ease: "power3.in"
+        clipPath: 'inset(0 0% 0 100%)',
+        skewX: '5deg',
+        duration: 0.1,
+        ease: 'power3.in'
     });
 
-    // 動画開始（即座に動画へ）
+    // 最終ゴールドフラッシュ
+    tl.to(goldFlashEl, { opacity: 1, duration: 0.06, ease: 'none' });
+    tl.to(goldFlashEl, { opacity: 0, duration: 0.15, ease: 'power2.out' });
+
+    // --- フェーズ3: ヒーローへカット ---
     tl.call(() => {
         if (textEl) textEl.textContent = '';
+        if (loader) loader.classList.remove('show-noise');
 
-        // 動画再生開始
         playHeroVideoIfAvailable(heroVideo);
 
-        // ローダーをクイックフェードアウト（カット的に）- さらに高速化
         gsap.to(loader, {
             opacity: 0,
-            duration: 0.25,
-            ease: "power3.out",
+            duration: 0.22,
+            ease: 'power3.out',
             onComplete: () => {
                 loader.style.display = 'none';
                 document.body.classList.remove('is-loading');

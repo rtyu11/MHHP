@@ -63,8 +63,32 @@
 
     <!-- Loader -->
     <div class="loader">
-        <img class="loader-flash" src="" alt="" aria-hidden="true">
-        <div class="loader-counter"></div>
+        <!-- Signal bars: オーディオスペクトラム風 -->
+        <div class="loader-bars" aria-hidden="true">
+            <span class="loader-bar"></span>
+            <span class="loader-bar"></span>
+            <span class="loader-bar"></span>
+            <span class="loader-bar"></span>
+            <span class="loader-bar"></span>
+            <span class="loader-bar"></span>
+            <span class="loader-bar"></span>
+        </div>
+
+        <!-- ゴールドフラッシュオーバーレイ -->
+        <div class="loader-gold-flash" aria-hidden="true"></div>
+
+        <!-- カウントダウン数字 -->
+        <div class="loader-counter" aria-live="polite"></div>
+
+        <!-- アーティスト名タグ（上部に薄く表示） -->
+        <div class="loader-artist" aria-hidden="true">MASATO HAYASHI</div>
+
+        <!-- 下部プログレスバー -->
+        <div class="loader-progress" aria-hidden="true">
+            <div class="loader-progress-fill"></div>
+        </div>
+
+        <!-- ステータステキスト -->
         <div class="loader-text" data-i18n="loader.loading">NOW LOADING...</div>
     </div>
 

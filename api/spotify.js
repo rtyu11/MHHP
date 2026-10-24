@@ -243,6 +243,7 @@ export default async function handler(req, res) {
       ts: now,
       payload: responsePayload
     };
+    console.info('[spotify-refresh]', JSON.stringify({ fetchedAt: new Date(now).toISOString(), albums: albumsWithTracks.length, tracks: albumsWithTracks.reduce((count, album) => count + album.tracks.length, 0), ttlSeconds: SPOTIFY_CACHE_TTL / 1000 }));
 
     res.setHeader("Cache-Control", "s-maxage=86400, stale-while-revalidate=604800"); // 24時間キャッシュ、1週間stale許可
     return res.status(200).json(responsePayload);

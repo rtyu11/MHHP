@@ -1,3 +1,5 @@
+import { spotifyFetch } from '../lib/spotify-fetch.js';
+console.info('[runtime-version]', JSON.stringify({ node: process.version, brotli: process.versions.brotli }));
 // /api/spotify.js
 
 // メモリキャッシュ（warm instance内で保持）
@@ -19,7 +21,7 @@ async function getAccessToken(clientId, clientSecret) {
   // トークンを取得
   let tokenResp;
   try {
-    tokenResp = await fetch("https://accounts.spotify.com/api/token", {
+    tokenResp = await spotifyFetch("https://accounts.spotify.com/api/token", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -106,7 +108,7 @@ export default async function handler(req, res) {
     while (nextUrl) {
       let albumsResp;
       try {
-        albumsResp = await fetch(nextUrl, {
+        albumsResp = await spotifyFetch(nextUrl, {
           headers: { Authorization: `Bearer ${access_token}` },
         });
       } catch (fetchError) {
@@ -167,7 +169,7 @@ export default async function handler(req, res) {
           while (tracksNextUrl) {
             let tracksResp;
             try {
-              tracksResp = await fetch(tracksNextUrl, {
+              tracksResp = await spotifyFetch(tracksNextUrl, {
                 headers: { Authorization: `Bearer ${access_token}` },
               });
             } catch (fetchError) {
